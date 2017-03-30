@@ -43,3 +43,4 @@ captures/
 libs
 androidTest
 test
+defaults.gradle

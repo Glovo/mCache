@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
+apply from: 'defaults.gradle'
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -8,13 +10,13 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode vCode
+        versionName vName
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -25,9 +27,12 @@ android {
 
 dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.android.support:support-annotations:25.3.0'
+    compile 'com.android.support:support-annotations:25.3.1'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.0.7'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxjava:1.2.9'
 }
+
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'
