@@ -35,7 +35,8 @@ Yes please! More things we come up with the better. Create issues with ideas, pu
 
 # Download
 
-``
-coming soon :)
-``
+[ ![Download](https://api.bintray.com/packages/diareuse/libs/mcache/images/download.svg) ](https://bintray.com/diareuse/libs/mcache/_latestVersion)
 
+``
+compile 'wiki.depasquale:mcache:latest_version'
+``
