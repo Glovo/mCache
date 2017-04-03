@@ -10,14 +10,16 @@ class Log {
     if (message == null) {
       return;
     }
-    if (message.contains("error")) {
-      android.util.Log.e(MCache.TAG, message);
-    } else if (message.contains("warning")) {
-      android.util.Log.w(MCache.TAG, message);
-    } else if (message.contains("DEBUG") && MCache.DEBUG) {
+    if (message.contains("DEBUG") && MCache.DEBUG) {
       android.util.Log.d(MCache.TAG, message);
-    } else {
-      android.util.Log.i(MCache.TAG, message);
+    } else if (BuildConfig.DEBUG) {
+      if (message.contains("error")) {
+        android.util.Log.e(MCache.TAG, message);
+      } else if (message.contains("warning")) {
+        android.util.Log.w(MCache.TAG, message);
+      } else {
+        android.util.Log.i(MCache.TAG, message);
+      }
     }
   }
 
