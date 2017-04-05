@@ -74,6 +74,10 @@ public class MCache {
     ioHandlerInstance.save(object, cls);
   }
 
+  public static void clean() {
+    ioHandlerInstance.clean();
+  }
+
   public static <T> io.reactivex.Observable<T> wrapSave(io.reactivex.Observable<T> o) {
     return o.map(t -> {
       save(t, t.getClass());
