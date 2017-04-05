@@ -76,7 +76,7 @@ public class MCache {
    * @see IOHandler#clean()
    */
   public static void clean() {
-    ioHandlerInstance.clean();
+    sIOHandlerInstance.clean();
   }
 
   /**
