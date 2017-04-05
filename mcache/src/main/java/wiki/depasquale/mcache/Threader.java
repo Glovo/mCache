@@ -15,6 +15,9 @@ public class Threader {
   private static Handler handler;
   private static Handler netHandler;
 
+  /**
+   * Main (UI) thread for setting views and stuff. J8 safe.
+   */
   public static void runOnUI(Runnable r) {
     if (handler == null) {
       handler = new Handler(Looper.getMainLooper());
@@ -22,6 +25,12 @@ public class Threader {
     handler.post(r);
   }
 
+  /**
+   * Foreground priority thread which should be safe to use with any of {@link IOHandler} methods.
+   * J8 safe.
+   *
+   * @param r executable runnable, non null preferred ;)
+   */
   public static void runOnNet(Runnable r) {
     if (netHandler == null) {
       HandlerThread thread = new HandlerThread("depasquale.wiki.mcache.NETWORKTHREAD",

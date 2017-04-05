@@ -50,7 +50,7 @@ public class DefaultIOHandler implements IOHandler {
   @Nullable
   public <T> T get(Class<T> cls) {
     Log.debug("Requested class:" + cls.getName());
-    String filename = String.format("%s%s", MCache.prefix,
+    String filename = String.format("%s%s", MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
             .trim().replace("=", ""));
     Log.debug("Requested filename" + filename);
@@ -89,7 +89,7 @@ public class DefaultIOHandler implements IOHandler {
   @Override
   public <T> void save(T object, Class<?> cls) {
     Log.debug("Saving object with class of " + cls.getName());
-    String filename = String.format("%s%s", MCache.prefix,
+    String filename = String.format("%s%s", MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
             .trim().replace("=", ""));
     Log.debug("Saving via filename " + filename);
@@ -120,7 +120,7 @@ public class DefaultIOHandler implements IOHandler {
       return;
     }
     for (String file : context.fileList()) {
-      if (file.startsWith(MCache.prefix)) {
+      if (file.startsWith(MCache.sPrefix)) {
         Log.debug("Deleting file " + file);
         context.deleteFile(file);
       }

@@ -10,7 +10,7 @@ class Log {
     if (message == null) {
       return;
     }
-    if (message.contains("DEBUG") && MCache.DEBUG) {
+    if (message.contains("sDebug") && MCache.sDebug) {
       android.util.Log.d(MCache.TAG, message);
     } else if (BuildConfig.DEBUG) {
       if (message.contains("error")) {
@@ -24,6 +24,6 @@ class Log {
   }
 
   static void debug(String s) {
-    l("DEBUG: " + s);
+    l("sDebug: " + s);
   }
 }

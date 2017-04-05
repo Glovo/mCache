@@ -12,7 +12,7 @@ public class App extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    MCache.setDebug(true);
-    MCache.with(this);
+    MCache.with(this)
+        .setDebug(true);
   }
 }
