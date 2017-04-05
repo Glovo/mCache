@@ -73,6 +73,13 @@ public class MCache {
   }
 
   /**
+   * @see IOHandler#clean()
+   */
+  public static void clean() {
+    ioHandlerInstance.clean();
+  }
+
+  /**
    * Creates map around {@link io.reactivex.Observable}. This map uses {@link #save(Object, Class)}
    * inside {@link Threader#runOnNet(Runnable)} handler.
    *
