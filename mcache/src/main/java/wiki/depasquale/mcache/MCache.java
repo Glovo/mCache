@@ -3,6 +3,7 @@ package wiki.depasquale.mcache;
 import android.app.Application;
 import android.content.Context;
 import android.support.annotation.Nullable;
+import io.reactivex.Observable;
 import java.lang.ref.WeakReference;
 
 /**
@@ -128,6 +129,32 @@ public class MCache {
   }
 
   /**
+   * Efficient combination of {@link #wrapSave(Observable)} and {@link #wrapRead(Observable, Class,
+   * boolean, boolean)} Observable result will be saved only if saved object does not exist or
+   * condition is true or force is true
+   */
+  public static <T> io.reactivex.Observable<T> wrap(io.reactivex.Observable<T> o, Class<T> cls,
+      boolean condition, boolean force) {
+    io.reactivex.subjects.PublishSubject<T> publishSubject =
+        io.reactivex.subjects.PublishSubject.create();
+    try {
+      return publishSubject;
+    } finally {
+      Threader.runOnNet(() -> {
+        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+            + " and force " + force);
+        T t = get(cls);
+        if (t != null && !condition) {
+          publishSubject.onNext(t);
+        }
+        if (t == null || condition || force) {
+          MCache.wrapSave(o).subscribe(publishSubject::onNext);
+        }
+      });
+    }
+  }
+
+  /**
    * RxJava2 version of {@link #wrapSave(io.reactivex.Observable)}
    *
    * @see #wrapSave(io.reactivex.Observable)
@@ -141,6 +168,7 @@ public class MCache {
 
   /**
    * RxJava2 version of {@link #wrapRead(io.reactivex.Observable, Class, boolean, boolean)}
+   *
    * @see #wrapRead(io.reactivex.Observable, Class, boolean, boolean)
    */
   public static <T> rx.Observable<T> wrapRead(rx.Observable<T> o, Class<T> cls,
@@ -159,6 +187,32 @@ public class MCache {
         }
         if (t == null || condition || force) {
           o.subscribe(publishSubject::onNext);
+        }
+      });
+    }
+  }
+
+  /**
+   * RxJava2 version of {@link #wrap(Observable, Class, boolean, boolean)}
+   *
+   * @see #wrap(Observable, Class, boolean, boolean)
+   */
+  public static <T> rx.Observable<T> wrap(rx.Observable<T> o, Class<T> cls,
+      boolean condition, boolean force) {
+    rx.subjects.PublishSubject<T> publishSubject =
+        rx.subjects.PublishSubject.create();
+    try {
+      return publishSubject;
+    } finally {
+      Threader.runOnNet(() -> {
+        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+            + " and force " + force);
+        T t = get(cls);
+        if (t != null && !condition) {
+          publishSubject.onNext(t);
+        }
+        if (t == null || condition || force) {
+          MCache.wrapSave(o).subscribe(publishSubject::onNext);
         }
       });
     }
