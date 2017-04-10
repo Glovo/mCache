@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 import wiki.depasquale.mcache.adapters.DefaultIOHandler;
 import wiki.depasquale.mcache.core.IOHandler;
 
@@ -18,7 +20,7 @@ public class MCache {
   static final String TAG = "mCacheLib";
   public static String sPrefix = ".wiki.depasquale.";
   static boolean sDebug = false;
-  static IOHandler sIOHandlerInstance;
+  private static Map<Class<?>, IOHandler> sIOHandlerInstance;
   private static WeakReference<Context> sContext;
 
   private MCache() {
@@ -27,9 +29,12 @@ public class MCache {
 
   private MCache(Application application) {
     MCache.sContext = new WeakReference<>(application);
+    initMap();
+  }
 
+  private static void initMap() {
     if (sIOHandlerInstance == null) {
-      sIOHandlerInstance = new DefaultIOHandler();
+      sIOHandlerInstance = new HashMap<>(0);
     }
   }
 
@@ -52,14 +57,31 @@ public class MCache {
     }
   }
 
+  public static IOHandler getIOHandler(Class<? extends IOHandler> cls) {
+    initMap();
+    if (sIOHandlerInstance.containsKey(cls)) {
+      return sIOHandlerInstance.get(cls);
+    } else {
+      try {
+        IOHandler interfaceType = cls.newInstance();
+        sIOHandlerInstance.put(cls, interfaceType);
+        return interfaceType;
+      } catch (InstantiationException e) {
+        throw new RuntimeException(cls.getName() + " cannot be instantiated.");
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(cls.getName() + " probably does not contain constructor.");
+      }
+    }
+  }
+
   /**
    * Sets new IOHandler for managing incoming and outgoing I/O.
    *
    * @param ioHandler Overridden {@link DefaultIOHandler} class.
    * @return current instance
    */
-  public final MCache setIOHandler(IOHandler ioHandler) {
-    MCache.sIOHandlerInstance = ioHandler;
+  public final MCache addIOHandler(Class<? extends IOHandler> ioHandler) {
+    getIOHandler(ioHandler);
     return this;
   }
 
@@ -93,5 +115,12 @@ public class MCache {
   public final MCache setDebug(boolean debug) {
     sDebug = debug;
     return this;
+  }
+
+  @SuppressWarnings("MethodMayBeStatic")
+  public final void build() {
+    if (sIOHandlerInstance.isEmpty()) {
+      getIOHandler(DefaultIOHandler.class);
+    }
   }
 }

@@ -10,9 +10,10 @@ import wiki.depasquale.mcache.MCache;
 public class App extends Application {
 
   @Override
-  public void onCreate() {
+  public final void onCreate() {
     super.onCreate();
     MCache.with(this)
-        .setDebug(true);
+        .setDebug(true)
+        .build();
   }
 }

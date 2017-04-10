@@ -1,5 +1,6 @@
 package wiki.depasquale.mcachepreview;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import io.reactivex.Observable;
@@ -14,7 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import wiki.depasquale.mcache.MCache;
-import wiki.depasquale.mcache.util.RxMCacheUtil;
+import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.util.MCacheBuilder;
 
 /**
  * diareuse on 26.03.2017
@@ -23,30 +25,41 @@ import wiki.depasquale.mcache.util.RxMCacheUtil;
 class Github {
 
   private static String userUsername = "";
+  private static Retrofit retrofit;
+  private static Service service;
 
-  @NonNull
+  @SuppressLint("LogConditional") @NonNull
   public static Observable<User> user(String username) {
-    return RxMCacheUtil.wrap(
-        generate(create(Service.class).user(username)),
-        User.class,
-        MCache.DEFAULT_ID,
-        !username.equals(userUsername),
-        username.equals(userUsername)
-    ).map(user -> {
-      userUsername = username;
-      Log.d("mCachePreview", "DEBUG: saved username: " + username);
-      return user;
-    });
+    return MCacheBuilder
+        .request(User.class)
+        .using(DefaultIOHandler.class)
+        .id(MCache.DEFAULT_ID)
+        .precondition(!username.equals(userUsername))
+        .force(username.equals(userUsername))
+        .with(getRetrofit()
+            .user(username)
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread()))
+        .map(user -> {
+          userUsername = username;
+          Log.d("mCachePreview", "DEBUG: saved username: " + username);
+          return user;
+        });
   }
 
-  private static <T> T create(final Class<T> clazz) {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
-        .client(client())
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build();
-    return retrofit.create(clazz);
+  private static Service getRetrofit() {
+    if (retrofit == null) {
+      retrofit = new Retrofit.Builder()
+          .baseUrl("https://api.github.com/")
+          .client(client())
+          .addConverterFactory(GsonConverterFactory.create())
+          .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+          .build();
+    }
+    if (service == null) {
+      service = retrofit.create(Service.class);
+    }
+    return service;
   }
 
   private static OkHttpClient client() {
@@ -63,12 +76,6 @@ class Github {
       return response;
     });
     return client.build();
-  }
-
-  private static <T> Observable<T> generate(Observable<T> observable) {
-    return observable
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread());
   }
 
   private interface Service {
