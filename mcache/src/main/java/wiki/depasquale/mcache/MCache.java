@@ -2,6 +2,7 @@ package wiki.depasquale.mcache;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import io.reactivex.Observable;
 import java.lang.ref.WeakReference;
@@ -14,6 +15,7 @@ import java.lang.ref.WeakReference;
 public class MCache {
 
   static final String TAG = "mCacheLib";
+  private static final CharSequence DEFAULT_ID = "_default";
   static boolean sDebug = false;
   static String sPrefix = ".wiki.depasquale.";
   private static WeakReference<Context> sContext;
@@ -58,7 +60,7 @@ public class MCache {
    */
   @Nullable
   public static <T> T get(Class<T> cls) {
-    return sIOHandlerInstance.get(cls);
+    return get(DEFAULT_ID, cls);
   }
 
   /**
@@ -70,7 +72,24 @@ public class MCache {
    * @param <T> parameter class of saving object
    */
   public static <T> void save(T object, Class<?> cls) {
-    sIOHandlerInstance.save(object, cls);
+    save(object, DEFAULT_ID, cls);
+  }
+
+  /**
+   * @param id Non null identifier for retrieving multiple instances of the same class
+   * @see #get(Class)
+   */
+  @Nullable
+  public static <T> T get(@NonNull CharSequence id, Class<T> cls) {
+    return sIOHandlerInstance.get(id, cls);
+  }
+
+  /**
+   * @param id Non null identifier for saving multiple instances of the same class
+   * @see #save(Object, Class)
+   */
+  public static <T> void save(T object, CharSequence id, Class<?> cls) {
+    sIOHandlerInstance.save(object, id, cls);
   }
 
   /**

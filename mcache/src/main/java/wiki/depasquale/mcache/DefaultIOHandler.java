@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
  * diareuse on 26.03.2017
  */
 
-public class DefaultIOHandler implements IOHandler {
+public final class DefaultIOHandler implements IOHandler {
 
   private static Gson gson;
 
@@ -48,11 +48,12 @@ public class DefaultIOHandler implements IOHandler {
 
   @Override
   @Nullable
-  public <T> T get(Class<T> cls) {
+  public final <T> T get(CharSequence identifier, Class<T> cls) {
     Log.debug("Requested class:" + cls.getName());
-    String filename = String.format("%s%s", MCache.sPrefix,
+    String filename = String.format("%s%s%s", MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
-            .trim().replace("=", ""));
+            .trim().replace("=", ""),
+        identifier);
     Log.debug("Requested filename" + filename);
     try {
       Context context = MCache.get();
@@ -87,11 +88,13 @@ public class DefaultIOHandler implements IOHandler {
   }
 
   @Override
-  public <T> void save(T object, Class<?> cls) {
-    Log.debug("Saving object with class of " + cls.getName());
-    String filename = String.format("%s%s", MCache.sPrefix,
+  public final <T> void save(T object, CharSequence identifier, Class<?> cls) {
+    Log.debug("Saving object with class of " + cls.getName() + " with identifier " + identifier);
+    String filename = String.format("%s%s%s",
+        MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
-            .trim().replace("=", ""));
+            .trim().replace("=", ""),
+        identifier);
     Log.debug("Saving via filename " + filename);
     try {
       Context context = MCache.get();
@@ -113,7 +116,7 @@ public class DefaultIOHandler implements IOHandler {
   }
 
   @Override
-  public void clean() {
+  public final void clean() {
     Context context = MCache.get();
     if (context == null) {
       Log.l("Error captain! We've lost the context.");
