@@ -14,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.RxMCacheUtil;
 
 /**
  * diareuse on 26.03.2017
@@ -25,7 +26,7 @@ class Github {
 
   @NonNull
   public static Observable<User> user(String username) {
-    return MCache.wrap(
+    return RxMCacheUtil.wrap(
         generate(create(Service.class).user(username)),
         User.class,
         MCache.DEFAULT_ID,
