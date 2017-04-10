@@ -1,4 +1,4 @@
-package wiki.depasquale.mcache;
+package wiki.depasquale.mcache.core;
 
 /**
  * diareuse on 26.03.2017

@@ -1,9 +1,8 @@
-package wiki.depasquale.mcache;
-
-import static wiki.depasquale.mcache.MCacheUtil.get;
-import static wiki.depasquale.mcache.MCacheUtil.save;
+package wiki.depasquale.mcache.util;
 
 import io.reactivex.Observable;
+import wiki.depasquale.mcache.L;
+import wiki.depasquale.mcache.core.Threader;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -21,7 +20,7 @@ public class RxMCacheUtil {
   public static <T> io.reactivex.Observable<T> wrapSave(io.reactivex.Observable<T> o,
       CharSequence id) {
     return o.map(t -> {
-      Threader.runOnNet(() -> save(t, id, t.getClass()));
+      Threader.runOnNet(() -> MCacheUtil.save(t, id, t.getClass()));
       return t;
     });
   }
@@ -47,9 +46,9 @@ public class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+        L.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(id, cls);
+        T t = MCacheUtil.get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
@@ -73,9 +72,9 @@ public class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+        L.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(id, cls);
+        T t = MCacheUtil.get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
@@ -93,7 +92,7 @@ public class RxMCacheUtil {
    */
   public static <T> rx.Observable<T> wrapSave(rx.Observable<T> o, CharSequence id) {
     return o.map(t -> {
-      Threader.runOnNet(() -> save(t, id, t.getClass()));
+      Threader.runOnNet(() -> MCacheUtil.save(t, id, t.getClass()));
       return t;
     });
   }
@@ -112,9 +111,9 @@ public class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+        L.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(id, cls);
+        T t = MCacheUtil.get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
@@ -138,9 +137,9 @@ public class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        Log.debug("Wrapped " + cls.getName() + " with condition " + condition
+        L.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(id, cls);
+        T t = MCacheUtil.get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }

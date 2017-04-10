@@ -4,9 +4,9 @@ package wiki.depasquale.mcache;
  * diareuse on 26.03.2017
  */
 
-class Log {
+public class L {
 
-  static void l(String message) {
+  public static void l(String message) {
     if (message == null) {
       return;
     }
@@ -23,7 +23,7 @@ class Log {
     }
   }
 
-  static void debug(String s) {
+  public static void debug(String s) {
     l("sDebug: " + s);
   }
 }

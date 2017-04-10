@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
-import wiki.depasquale.mcache.Threader;
+import wiki.depasquale.mcache.core.Threader;
 
 public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
   private long startTime;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected final void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);

@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import java.lang.ref.WeakReference;
+import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.core.IOHandler;
 
 /**
  * diareuse on 26.03.2017
@@ -14,8 +16,8 @@ public class MCache {
 
   public static final CharSequence DEFAULT_ID = "_default";
   static final String TAG = "mCacheLib";
+  public static String sPrefix = ".wiki.depasquale.";
   static boolean sDebug = false;
-  static String sPrefix = ".wiki.depasquale.";
   static IOHandler sIOHandlerInstance;
   private static WeakReference<Context> sContext;
 
@@ -42,7 +44,7 @@ public class MCache {
   }
 
   @Nullable
-  static Context get() {
+  public static Context get() {
     if (sContext != null) {
       return sContext.get();
     } else {

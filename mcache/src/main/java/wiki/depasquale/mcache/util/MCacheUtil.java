@@ -1,10 +1,12 @@
-package wiki.depasquale.mcache;
+package wiki.depasquale.mcache.util;
 
 import static wiki.depasquale.mcache.MCache.DEFAULT_ID;
 import static wiki.depasquale.mcache.MCache.sIOHandlerInstance;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.core.IOHandler;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.

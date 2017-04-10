@@ -1,4 +1,4 @@
-package wiki.depasquale.mcache;
+package wiki.depasquale.mcache.core;
 
 import static android.os.Process.THREAD_PRIORITY_FOREGROUND;
 

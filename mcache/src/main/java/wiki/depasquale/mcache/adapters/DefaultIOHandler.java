@@ -1,4 +1,4 @@
-package wiki.depasquale.mcache;
+package wiki.depasquale.mcache.adapters;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -9,6 +9,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import wiki.depasquale.mcache.L;
+import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.core.IOHandler;
 
 /**
  * diareuse on 26.03.2017
@@ -32,15 +35,15 @@ public final class DefaultIOHandler implements IOHandler {
   @Nullable
   private static <T> T reconstruct(String string, Class<T> cls) {
     if (string == null) {
-      Log.debug("Reconstruction failed, read file was null");
+      L.debug("Reconstruction failed, read file was null");
       return null;
     } else {
       try {
-        Log.debug("Reconstructing...");
+        L.debug("Reconstructing...");
         return getGson().fromJson(string, cls);
       } catch (Exception e) {
         e.printStackTrace();
-        Log.debug("Failed to reconstruct file.");
+        L.debug("Failed to reconstruct file.");
         return null;
       }
     }
@@ -49,21 +52,21 @@ public final class DefaultIOHandler implements IOHandler {
   @Override
   @Nullable
   public final <T> T get(CharSequence identifier, Class<T> cls) {
-    Log.debug("Requested class:" + cls.getName());
+    L.debug("Requested class:" + cls.getName());
     String filename = String.format("%s%s%s", MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
             .trim().replace("=", ""),
         identifier);
-    Log.debug("Requested filename" + filename);
+    L.debug("Requested filename" + filename);
     try {
       Context context = MCache.get();
       if (context == null) {
-        Log.l("Error captain! We've lost the context.");
+        L.l("Error captain! We've lost the context.");
         return null;
       } else {
-        Log.debug("Context OK");
+        L.debug("Context OK");
       }
-      Log.debug("Opening Input Stream");
+      L.debug("Opening Input Stream");
       FileInputStream in = context.openFileInput(filename);
       InputStreamReader inputStreamReader = new InputStreamReader(in);
       BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -73,45 +76,45 @@ public final class DefaultIOHandler implements IOHandler {
         sb.append(line);
       }
       inputStreamReader.close();
-      Log.debug("Read OK, preparing reconstruction");
+      L.debug("Read OK, preparing reconstruction");
       try {
         return reconstruct(sb.toString(), cls);
       } finally {
-        Log.debug("Reconstruction OK");
+        L.debug("Reconstruction OK");
       }
     } catch (IOException e) {
       e.printStackTrace();
-      Log.debug("Failed to read file.");
+      L.debug("Failed to read file.");
     }
-    Log.debug("Returning NULL value for " + cls.getName());
+    L.debug("Returning NULL value for " + cls.getName());
     return null;
   }
 
   @Override
   public final <T> void save(T object, CharSequence identifier, Class<?> cls) {
-    Log.debug("Saving object with class of " + cls.getName() + " with identifier " + identifier);
+    L.debug("Saving object with class of " + cls.getName() + " with identifier " + identifier);
     String filename = String.format("%s%s%s",
         MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
             .trim().replace("=", ""),
         identifier);
-    Log.debug("Saving via filename " + filename);
+    L.debug("Saving via filename " + filename);
     try {
       Context context = MCache.get();
       if (context == null) {
-        Log.l("Error captain! We've lost the context.");
+        L.l("Error captain! We've lost the context.");
         return;
       } else {
-        Log.debug("Context OK");
+        L.debug("Context OK");
       }
-      Log.debug("Opening Output Stream");
+      L.debug("Opening Output Stream");
       FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
       fos.write(getGson().toJson(object).getBytes());
       fos.close();
-      Log.debug("Object of " + cls.getName() + " saved OK");
+      L.debug("Object of " + cls.getName() + " saved OK");
     } catch (IOException e) {
       e.printStackTrace();
-      Log.debug("Failed to write file.");
+      L.debug("Failed to write file.");
     }
   }
 
@@ -119,12 +122,12 @@ public final class DefaultIOHandler implements IOHandler {
   public final void clean() {
     Context context = MCache.get();
     if (context == null) {
-      Log.l("Error captain! We've lost the context.");
+      L.l("Error captain! We've lost the context.");
       return;
     }
     for (String file : context.fileList()) {
       if (file.startsWith(MCache.sPrefix)) {
-        Log.debug("Deleting file " + file);
+        L.debug("Deleting file " + file);
         context.deleteFile(file);
       }
     }
