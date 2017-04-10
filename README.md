@@ -8,19 +8,24 @@ public class App extends Application {
 
   @Override public void onCreate() {
     super.onCreate();
-    MCache.with(this);
+    MCache.with(this)
+      .build();
   }
 }
 ```
 
 Save it.
 ```java
-MCache.save(T object, Class<?> cls)
+MCacheBuilder.request(User.class)
+    .id(id) //optional
+    .save(object));
 ```
 
 Get it.
 ```java
-MCache.get(Class<T> cls);
+MCacheBuilder.request(User.class)
+    .id(id) //optional
+    .with(); //or asynchronously .with(FinishedListener<? extends User> listener)
 ```
 
 How easy is that?
@@ -30,10 +35,23 @@ How easy is that?
 Wrap observables!
 
 ```java
-MCache.wrap(Observable.just(1,2,3), Integer.class, false /*condition*/, false /*force*/);
+MCacheBuilder
+    .request(User.class)
+    //.using(DefaultIOHandler.class) //optional
+    //.id(MCache.DEFAULT_ID) //optional
+    .precondition(!username.equals(userUsername)) //optional (default false)
+    .force(username.equals(userUsername)) //optional (default false)
+    .with(getRetrofit()
+        .user(username)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread()))
+    .map(user -> {
+        userUsername = username;
+        return user;
+    });
 ```
 
-Extend [`DefaultIOHandler`](https://github.com/diareuse/mCache/blob/master/mcache/src/main/java/wiki/depasquale/mcache/DefaultIOHandler.java)
+Implement [`IOHandler`](https://github.com/diareuse/mCache/blob/master/mcache/src/main/java/wiki/depasquale/mcache/core/IOHandler.java)
 Use encryption within your app. Cache with different mechanism. Whatever! :)
 
 ## Please read this!
