@@ -21,7 +21,9 @@ public class MCache {
   private static WeakReference<Context> sContext;
   private static IOHandler sIOHandlerInstance;
 
-  private MCache() {}
+  private MCache() {
+    throw new RuntimeException("This constructor shall not be used!");
+  }
 
   private MCache(Application application) {
     MCache.sContext = new WeakReference<>(application);
@@ -243,7 +245,7 @@ public class MCache {
    * @param ioHandler Overridden {@link DefaultIOHandler} class.
    * @return current instance
    */
-  public MCache setIOHandler(IOHandler ioHandler) {
+  public final MCache setIOHandler(IOHandler ioHandler) {
     MCache.sIOHandlerInstance = ioHandler;
     return this;
   }
@@ -255,11 +257,7 @@ public class MCache {
    * @param prefix for saving files
    * @return current instance
    */
-  public MCache setPrefix(String prefix) {
-    if (sContext != null) {
-      Log.l("Warning captain! Setting sPrefix after sContext is NOT RECOMMENDED!");
-    }
-
+  public final MCache setPrefix(String prefix) {
     if (prefix != null) {
       if (prefix.startsWith(".") && prefix.endsWith(".") && prefix.length() >= 3) {
         MCache.sPrefix = prefix;
@@ -279,7 +277,7 @@ public class MCache {
    * @param debug boolean representation
    * @return current instance
    */
-  public MCache setDebug(boolean debug) {
+  public final MCache setDebug(boolean debug) {
     sDebug = debug;
     return this;
   }
