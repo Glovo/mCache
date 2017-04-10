@@ -14,8 +14,8 @@ import java.lang.ref.WeakReference;
 @SuppressWarnings("unused")
 public class MCache {
 
+  public static final CharSequence DEFAULT_ID = "_default";
   static final String TAG = "mCacheLib";
-  private static final CharSequence DEFAULT_ID = "_default";
   static boolean sDebug = false;
   static String sPrefix = ".wiki.depasquale.";
   private static WeakReference<Context> sContext;
@@ -106,11 +106,12 @@ public class MCache {
    * inside {@link Threader#runOnNet(Runnable)} handler.
    *
    * @param o whatever observable you want to have cached and read with {@link
-   * #wrapRead(io.reactivex.Observable, Class, boolean, boolean)}
+   * #wrapRead(io.reactivex.Observable, Class, CharSequence, boolean, boolean)}
    */
-  public static <T> io.reactivex.Observable<T> wrapSave(io.reactivex.Observable<T> o) {
+  public static <T> io.reactivex.Observable<T> wrapSave(io.reactivex.Observable<T> o,
+      CharSequence id) {
     return o.map(t -> {
-      Threader.runOnNet(() -> save(t, t.getClass()));
+      Threader.runOnNet(() -> save(t, id, t.getClass()));
       return t;
     });
   }
@@ -129,7 +130,7 @@ public class MCache {
    * {@param o Parameter}.
    */
   public static <T> io.reactivex.Observable<T> wrapRead(io.reactivex.Observable<T> o, Class<T> cls,
-      boolean condition, boolean force) {
+      CharSequence id, boolean condition, boolean force) {
     io.reactivex.subjects.PublishSubject<T> publishSubject =
         io.reactivex.subjects.PublishSubject.create();
     try {
@@ -138,7 +139,7 @@ public class MCache {
       Threader.runOnNet(() -> {
         Log.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(cls);
+        T t = get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
@@ -150,12 +151,12 @@ public class MCache {
   }
 
   /**
-   * Efficient combination of {@link #wrapSave(Observable)} and {@link #wrapRead(Observable, Class,
-   * boolean, boolean)} Observable result will be saved only if saved object does not exist or
-   * condition is true or force is true
+   * Efficient combination of {@link #wrapSave(Observable, CharSequence)} and {@link
+   * #wrapRead(Observable, Class, CharSequence, boolean, boolean)} Observable result will be saved
+   * only if saved object does not exist or condition is true or force is true
    */
   public static <T> io.reactivex.Observable<T> wrap(io.reactivex.Observable<T> o, Class<T> cls,
-      boolean condition, boolean force) {
+      CharSequence id, boolean condition, boolean force) {
     io.reactivex.subjects.PublishSubject<T> publishSubject =
         io.reactivex.subjects.PublishSubject.create();
     try {
@@ -164,36 +165,37 @@ public class MCache {
       Threader.runOnNet(() -> {
         Log.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(cls);
+        T t = get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
         if (t == null || condition || force) {
-          MCache.wrapSave(o).subscribe(publishSubject::onNext);
+          MCache.wrapSave(o, id).subscribe(publishSubject::onNext);
         }
       });
     }
   }
 
   /**
-   * RxJava2 version of {@link #wrapSave(io.reactivex.Observable)}
+   * RxJava2 version of {@link #wrapSave(io.reactivex.Observable, CharSequence)}
    *
-   * @see #wrapSave(io.reactivex.Observable)
+   * @see #wrapSave(io.reactivex.Observable, CharSequence)
    */
-  public static <T> rx.Observable<T> wrapSave(rx.Observable<T> o) {
+  public static <T> rx.Observable<T> wrapSave(rx.Observable<T> o, CharSequence id) {
     return o.map(t -> {
-      Threader.runOnNet(() -> save(t, t.getClass()));
+      Threader.runOnNet(() -> save(t, id, t.getClass()));
       return t;
     });
   }
 
   /**
-   * RxJava2 version of {@link #wrapRead(io.reactivex.Observable, Class, boolean, boolean)}
+   * RxJava2 version of {@link #wrapRead(io.reactivex.Observable, Class, CharSequence, boolean,
+   * boolean)}
    *
-   * @see #wrapRead(io.reactivex.Observable, Class, boolean, boolean)
+   * @see #wrapRead(io.reactivex.Observable, Class, CharSequence, boolean, boolean)
    */
   public static <T> rx.Observable<T> wrapRead(rx.Observable<T> o, Class<T> cls,
-      boolean condition, boolean force) {
+      CharSequence id, boolean condition, boolean force) {
     rx.subjects.PublishSubject<T> publishSubject =
         rx.subjects.PublishSubject.create();
     try {
@@ -202,7 +204,7 @@ public class MCache {
       Threader.runOnNet(() -> {
         Log.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(cls);
+        T t = get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
@@ -214,12 +216,12 @@ public class MCache {
   }
 
   /**
-   * RxJava2 version of {@link #wrap(Observable, Class, boolean, boolean)}
+   * RxJava2 version of {@link #wrap(Observable, Class, CharSequence, boolean, boolean)}
    *
-   * @see #wrap(Observable, Class, boolean, boolean)
+   * @see #wrap(Observable, Class, CharSequence, boolean, boolean)
    */
   public static <T> rx.Observable<T> wrap(rx.Observable<T> o, Class<T> cls,
-      boolean condition, boolean force) {
+      CharSequence id, boolean condition, boolean force) {
     rx.subjects.PublishSubject<T> publishSubject =
         rx.subjects.PublishSubject.create();
     try {
@@ -228,12 +230,12 @@ public class MCache {
       Threader.runOnNet(() -> {
         Log.debug("Wrapped " + cls.getName() + " with condition " + condition
             + " and force " + force);
-        T t = get(cls);
+        T t = get(id, cls);
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
         if (t == null || condition || force) {
-          MCache.wrapSave(o).subscribe(publishSubject::onNext);
+          MCache.wrapSave(o, id).subscribe(publishSubject::onNext);
         }
       });
     }

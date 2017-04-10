@@ -25,9 +25,10 @@ class Github {
 
   @NonNull
   public static Observable<User> user(String username) {
-    return MCache.wrapRead(
+    return MCache.wrap(
         generate(create(Service.class).user(username)),
         User.class,
+        MCache.DEFAULT_ID,
         !username.equals(userUsername),
         username.equals(userUsername)
     ).map(user -> {
@@ -64,11 +65,9 @@ class Github {
   }
 
   private static <T> Observable<T> generate(Observable<T> observable) {
-    return MCache.wrapSave(
-        observable//.retryWhen(new RetryWithDelay())
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-    );
+    return observable
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
   private interface Service {
