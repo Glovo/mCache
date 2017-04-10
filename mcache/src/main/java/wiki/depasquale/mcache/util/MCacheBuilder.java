@@ -1,5 +1,6 @@
 package wiki.depasquale.mcache.util;
 
+import android.support.annotation.NonNull;
 import io.reactivex.Observable;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.DefaultIOHandler;
@@ -96,7 +97,7 @@ public class MCacheBuilder<T> {
    */
   public final Observable<T> with(Observable<T> o) {
     if (handler == null) { using(DefaultIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handler, identifier, precondition, force);
+    return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
   }
 
   /**
@@ -107,7 +108,7 @@ public class MCacheBuilder<T> {
    */
   public final rx.Observable<T> with(rx.Observable<T> o) {
     if (handler == null) { using(DefaultIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handler, identifier, precondition, force);
+    return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
   }
 
   /**
@@ -127,5 +128,23 @@ public class MCacheBuilder<T> {
    */
   public final void with(FinishedListener<T> listener) {
     Threader.runOnNet(() -> listener.onFinished(handler.get(identifier, cls)));
+  }
+
+  /**
+   * Saves given object to file with predefined conditions.
+   *
+   * @param object non null object
+   */
+  public final void save(@NonNull Object object) {
+    if (handler == null) { using(DefaultIOHandler.class); }
+    handler.save(object, identifier, cls);
+  }
+
+  /**
+   * @see IOHandler#clean()
+   */
+  public final void clean() {
+    if (handler == null) { using(DefaultIOHandler.class); }
+    handler.clean();
   }
 }

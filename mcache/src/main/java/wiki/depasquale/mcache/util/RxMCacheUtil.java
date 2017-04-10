@@ -13,7 +13,7 @@ import wiki.depasquale.mcache.core.Threader;
 class RxMCacheUtil {
 
   public static <T> Observable<T> wrap(Observable<T> o, Class<T> cls,
-      IOHandler handler, CharSequence id, boolean condition, boolean force) {
+      Class<? extends IOHandler> handler, CharSequence id, boolean condition, boolean force) {
     PublishSubject<T> publishSubject = PublishSubject.create();
     try {
       return publishSubject;
@@ -21,13 +21,19 @@ class RxMCacheUtil {
       Threader.runOnNet(() -> {
         L.debug("Wrapped " + cls.getName() + " with condition " + condition + " and force " +
             force);
-        T t = MCacheUtil.get(id, cls, handler);
+        T t = MCacheBuilder.request(cls)
+            .id(id)
+            .using(handler)
+            .with();
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
         if (t == null || condition || force) {
           o.map(u -> {
-            Threader.runOnNet(() -> MCacheUtil.save(u, u.getClass(), id, handler));
+            Threader.runOnNet(() -> MCacheBuilder.request(u.getClass())
+                .id(id)
+                .using(handler)
+                .save(u));
             return u;
           }).subscribe(publishSubject::onNext);
         }
@@ -35,8 +41,8 @@ class RxMCacheUtil {
     }
   }
 
-  public static <T> rx.Observable<T> wrap(rx.Observable<T> o, Class<T> cls, IOHandler handler,
-      CharSequence id, boolean condition, boolean force) {
+  public static <T> rx.Observable<T> wrap(rx.Observable<T> o, Class<T> cls,
+      Class<? extends IOHandler> handler, CharSequence id, boolean condition, boolean force) {
     rx.subjects.PublishSubject<T> publishSubject =
         rx.subjects.PublishSubject.create();
     try {
@@ -45,13 +51,19 @@ class RxMCacheUtil {
       Threader.runOnNet(() -> {
         L.debug("Wrapped " + cls.getName() + " with condition " + condition + " and force " +
             force);
-        T t = MCacheUtil.get(id, cls, handler);
+        T t = MCacheBuilder.request(cls)
+            .id(id)
+            .using(handler)
+            .with();
         if (t != null && !condition) {
           publishSubject.onNext(t);
         }
         if (t == null || condition || force) {
           o.map(u -> {
-            Threader.runOnNet(() -> MCacheUtil.save(u, t.getClass(), id, handler));
+            Threader.runOnNet(() -> MCacheBuilder.request(u.getClass())
+                .id(id)
+                .using(handler)
+                .save(u));
             return u;
           }).subscribe(publishSubject::onNext);
         }
