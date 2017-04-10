@@ -17,7 +17,7 @@ public interface IOHandler {
   <T> void save(T object, CharSequence identifier, Class<?> cls);
 
   /**
-   * Cleans mess which was created by {@link #save(Object, Class)} method.
+   * Cleans mess which was created by {@link #save(Object, CharSequence, Class)} method.
    */
   void clean();
 
