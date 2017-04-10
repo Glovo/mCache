@@ -75,17 +75,6 @@ public class MCache {
   }
 
   /**
-   * Sets new IOHandler for managing incoming and outgoing I/O.
-   *
-   * @param ioHandler Overridden {@link DefaultIOHandler} class.
-   * @return current instance
-   */
-  public final MCache addIOHandler(Class<? extends IOHandler> ioHandler) {
-    getIOHandler(ioHandler);
-    return this;
-  }
-
-  /**
    * Prefix have to start with . [dot] and end with . [dot]. This is only effective with {@link
    * DefaultIOHandler} otherwise it's up to you.
    *
