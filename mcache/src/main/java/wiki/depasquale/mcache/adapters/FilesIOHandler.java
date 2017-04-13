@@ -12,16 +12,11 @@ import java.io.InputStreamReader;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.IOHandler;
 
-/**
- * diareuse on 26.03.2017
- */
-
 public final class FilesIOHandler implements IOHandler {
 
   private static Gson gson;
 
-  public FilesIOHandler() {
-  }
+  public FilesIOHandler() {}
 
   private static Gson getGson() {
     if (gson == null) {
