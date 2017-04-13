@@ -32,12 +32,12 @@ How easy is that?
 
 ## Advanced tips
 
-Wrap observables!
+### Wrap observables!
 
 ```java
 MCacheBuilder
     .request(User.class)
-    //.using(DefaultIOHandler.class) //optional
+    //.using(FilesIOHandler.class) //optional
     //.id(MCache.DEFAULT_ID) //optional
     .precondition(!username.equals(userUsername)) //optional (default false)
     .force(username.equals(userUsername)) //optional (default false)
@@ -51,6 +51,52 @@ MCacheBuilder
     });
 ```
 
+### Use multiple handlers
+
+```java
+MCacheBuilder
+    ...
+    .using(CacheIOHandler.class, FilesIOHandler.class)
+    .readWith(1) //read with FilesIOHandler
+    ...
+    .with(Observable<?>);
+```
+
+### Use unique SharedPrefs handler
+* Annotate only generic types that are supported by SharedPreferences interface. ```(int, long, float, boolean, String)```
+
+Apply annotation.
+
+```java
+class User {
+
+  //jackson or Gson annotations ... or not
+  @PrefName("username") //Saves value of String login in SharedPrefs under "username" key
+  public String login;
+  ...
+}
+```
+
+Just add one more handler.
+
+```java
+MCacheBuilder
+    ...
+    .using(FilesIOHandler.class, SharedPrefsIOHandler.class)
+    ...
+    .with(Observable<User>);
+```
+
+Now retrieve your values like so:
+
+```java
+SharedPrefsIOHandler.getPrefs().getString("username", ":(");
+```
+
+And that's it. Easy right?
+
+### Customize
+
 Implement [`IOHandler`](https://github.com/diareuse/mCache/blob/master/mcache/src/main/java/wiki/depasquale/mcache/core/IOHandler.java)
 Use encryption within your app. Cache with different mechanism. Whatever! :)
 
@@ -60,20 +106,7 @@ Gson is very heavy a should be used only off main thread to prevent lag. By wrap
 
 ## Can I help?
 
-Yes please! More things we come up with the better. Create issues with ideas, pull requests and whatnot! :)
-
-## Dude what's this even for...?
-
-Main features:
-* Saves object as file
-* If previously saved, reads file as object
-* Compatible with RxJava and RxJava2
-
-Main uses:
-* Saving frequently queried data
-* Faster startups
-* Caching REST requests
-* You name it... everything that could be saved instead wasting processing time
+Yes! Create pull request, issue or both.
 
 # Download
 
@@ -102,3 +135,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https://www.cortex.cz/)
+
+# Changelog
+
+### 0.5
+* Refractored DefaultIOHandler to FilesIOHandler
+* Added CacheIOHandler
+  * Unlike FilesIOHandler saves files to cache folder which makes saved files vulnerable to getting deleted by system.
+  * However all the files are easily deletable, so user can do it too.
+  * In future versions this may become the default handler.
+* Added @interface PrefName
+* Added SharedPrefsIOHandler
+  * Saves fields annotated by PrefName in Shared Preferences folder
+  * Easily retrieved by it's getPrefs() method - even though it can return null value, don't be afraid of it, it probably won't happen as long as your app doesn't lose context
+* Removed logging/debugging option as it's no longer needed (can be added back upon request, however it will more likely crash than contain error)
+
+### 0.4
+* Final API, first stable release
+* Minor refractors
+* Minor logic changes
+
+### pre-0.4
+* Highly unstable
+* Experimental features
+* No standard API
