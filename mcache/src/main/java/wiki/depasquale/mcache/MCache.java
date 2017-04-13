@@ -19,7 +19,6 @@ public class MCache {
   public static final CharSequence DEFAULT_ID = "_default";
   static final String TAG = "mCacheLib";
   public static String sPrefix = ".wiki.depasquale.";
-  static boolean sDebug = false;
   private static Map<Class<?>, IOHandler> sIOHandlerInstance;
   private static WeakReference<Context> sContext;
 
@@ -92,17 +91,6 @@ public class MCache {
     } else {
       throw new IllegalArgumentException("Prefix must not be null");
     }
-    return this;
-  }
-
-  /**
-   * Sets debugging mode.
-   *
-   * @param debug boolean representation
-   * @return current instance
-   */
-  public final MCache setDebug(boolean debug) {
-    sDebug = debug;
     return this;
   }
 

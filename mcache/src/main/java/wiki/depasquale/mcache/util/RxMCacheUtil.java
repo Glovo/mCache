@@ -2,7 +2,6 @@ package wiki.depasquale.mcache.util;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import wiki.depasquale.mcache.L;
 import wiki.depasquale.mcache.core.IOHandler;
 import wiki.depasquale.mcache.core.Threader;
 
@@ -19,8 +18,6 @@ class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        L.debug("Wrapped " + cls.getName() + " with condition " + condition + " and force " +
-            force);
         T t = MCacheBuilder.request(cls)
             .id(id)
             .using(handler)
@@ -49,8 +46,6 @@ class RxMCacheUtil {
       return publishSubject;
     } finally {
       Threader.runOnNet(() -> {
-        L.debug("Wrapped " + cls.getName() + " with condition " + condition + " and force " +
-            force);
         T t = MCacheBuilder.request(cls)
             .id(id)
             .using(handler)
