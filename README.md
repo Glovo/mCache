@@ -148,7 +148,7 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 * Added SharedPrefsIOHandler
   * Saves fields annotated by PrefName in Shared Preferences folder
   * Easily retrieved by it's getPrefs() method - even though it can return null value, don't be afraid of it, it probably won't happen as long as your app doesn't lose context
-* Removed logging/debugging option as it's no longer needed (can be added back upon request, however it will more likely crash than contain error)
+* Removed logging/debugging option as it's no longer needed (can be added back upon request, however it will more likely crash than contain an error)
 
 ### 0.4
 * Final API, first stable release
