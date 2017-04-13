@@ -2,6 +2,7 @@ package wiki.depasquale.mcachepreview;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import wiki.depasquale.mcache.core.PrefName;
 
 /**
  * diareuse on 26.03.2017
@@ -11,9 +12,11 @@ class User {
 
   @SerializedName("login")
   @Expose
+  @PrefName("login")
   public String login;
   @SerializedName("id")
   @Expose
+  @PrefName("id")
   public Integer id;
   @SerializedName("avatar_url")
   @Expose
