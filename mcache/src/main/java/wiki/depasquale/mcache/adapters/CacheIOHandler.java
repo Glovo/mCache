@@ -12,7 +12,7 @@ import java.io.IOException;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.IOHandler;
 
-public class CacheIOHandler implements IOHandler {
+public final class CacheIOHandler implements IOHandler {
 
   private static Gson gson;
 
