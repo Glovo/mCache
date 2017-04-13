@@ -13,7 +13,6 @@ public class App extends Application {
   public final void onCreate() {
     super.onCreate();
     MCache.with(this)
-        .setDebug(true)
         .build();
   }
 }
