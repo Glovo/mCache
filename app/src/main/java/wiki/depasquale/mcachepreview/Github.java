@@ -15,7 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import wiki.depasquale.mcache.MCache;
-import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.util.MCacheBuilder;
 
 /**
@@ -32,7 +32,7 @@ class Github {
   public static Observable<User> user(String username) {
     return MCacheBuilder
         .request(User.class)
-        .using(DefaultIOHandler.class)
+        .using(FilesIOHandler.class)
         .id(MCache.DEFAULT_ID)
         .precondition(!username.equals(userUsername))
         .force(username.equals(userUsername))

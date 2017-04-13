@@ -3,7 +3,7 @@ package wiki.depasquale.mcache.util;
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
 import wiki.depasquale.mcache.MCache;
-import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.FinishedListener;
 import wiki.depasquale.mcache.core.IOHandler;
 import wiki.depasquale.mcache.core.Threader;
@@ -39,7 +39,7 @@ public class MCacheBuilder<T> {
   }
 
   /**
-   * Sets <b>IOHandler</b> to handle upcoming situation. If not set {@link DefaultIOHandler} will be
+   * Sets <b>IOHandler</b> to handle upcoming situation. If not set {@link FilesIOHandler} will be
    * used.
    *
    * @param handler Class of IOHandler. Custom or not it does not care.
@@ -96,7 +96,7 @@ public class MCacheBuilder<T> {
    * @return The same observable
    */
   public final Observable<T> with(Observable<T> o) {
-    if (handler == null) { using(DefaultIOHandler.class); }
+    if (handler == null) { using(FilesIOHandler.class); }
     return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
   }
 
@@ -107,7 +107,7 @@ public class MCacheBuilder<T> {
    * @return The same observable
    */
   public final rx.Observable<T> with(rx.Observable<T> o) {
-    if (handler == null) { using(DefaultIOHandler.class); }
+    if (handler == null) { using(FilesIOHandler.class); }
     return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
   }
 
@@ -117,7 +117,7 @@ public class MCacheBuilder<T> {
    * @return Corresponding object
    */
   public final T with() {
-    if (handler == null) { using(DefaultIOHandler.class); }
+    if (handler == null) { using(FilesIOHandler.class); }
     return handler.get(identifier, cls);
   }
 
@@ -136,7 +136,7 @@ public class MCacheBuilder<T> {
    * @param object non null object
    */
   public final void save(@NonNull Object object) {
-    if (handler == null) { using(DefaultIOHandler.class); }
+    if (handler == null) { using(FilesIOHandler.class); }
     handler.save(object, identifier, cls);
   }
 
@@ -144,7 +144,7 @@ public class MCacheBuilder<T> {
    * @see IOHandler#clean()
    */
   public final void clean() {
-    if (handler == null) { using(DefaultIOHandler.class); }
+    if (handler == null) { using(FilesIOHandler.class); }
     handler.clean();
   }
 }

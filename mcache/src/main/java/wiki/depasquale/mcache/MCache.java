@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import wiki.depasquale.mcache.adapters.DefaultIOHandler;
+import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.IOHandler;
 
 /**
@@ -41,7 +41,7 @@ public class MCache {
    * Initializes MCache with default parameters.
    * Debug - off
    * Prefix - .wiki.depasquale.
-   * IOHandler - {@link DefaultIOHandler}
+   * IOHandler - {@link FilesIOHandler}
    */
   public static MCache with(Application context) {
     return new MCache(context);
@@ -75,7 +75,7 @@ public class MCache {
 
   /**
    * Prefix have to start with . [dot] and end with . [dot]. This is only effective with {@link
-   * DefaultIOHandler} otherwise it's up to you.
+   * FilesIOHandler} otherwise it's up to you.
    *
    * @param prefix for saving files
    * @return current instance
@@ -97,7 +97,7 @@ public class MCache {
   @SuppressWarnings("MethodMayBeStatic")
   public final void build() {
     if (sIOHandlerInstance.isEmpty()) {
-      getIOHandler(DefaultIOHandler.class);
+      getIOHandler(FilesIOHandler.class);
     }
   }
 }

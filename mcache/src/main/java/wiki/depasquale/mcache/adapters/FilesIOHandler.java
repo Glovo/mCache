@@ -16,11 +16,11 @@ import wiki.depasquale.mcache.core.IOHandler;
  * diareuse on 26.03.2017
  */
 
-public final class DefaultIOHandler implements IOHandler {
+public final class FilesIOHandler implements IOHandler {
 
   private static Gson gson;
 
-  public DefaultIOHandler() {
+  public FilesIOHandler() {
   }
 
   private static Gson getGson() {
