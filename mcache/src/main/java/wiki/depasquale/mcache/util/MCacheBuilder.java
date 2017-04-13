@@ -2,6 +2,8 @@ package wiki.depasquale.mcache.util;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.FinishedListener;
@@ -15,10 +17,11 @@ import wiki.depasquale.mcache.core.Threader;
 public class MCacheBuilder<T> {
 
   private final Class<T> cls;
-  private IOHandler handler;
+  private List<IOHandler> handlers = new ArrayList<>(0);
   private CharSequence identifier = MCache.DEFAULT_ID;
   private boolean precondition = false;
   private boolean force = false;
+  private int readPosition = 0;
 
   @SuppressWarnings("unused") private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
@@ -42,11 +45,14 @@ public class MCacheBuilder<T> {
    * Sets <b>IOHandler</b> to handle upcoming situation. If not set {@link FilesIOHandler} will be
    * used.
    *
-   * @param handler Class of IOHandler. Custom or not it does not care.
+   * @param handlers Classes of IOHandler. Custom or not, it does not care.
    * @return building instance
    */
-  public final MCacheBuilder<T> using(Class<? extends IOHandler> handler) {
-    this.handler = MCache.getIOHandler(handler);
+  @SafeVarargs public final MCacheBuilder<T> using(Class<? extends IOHandler>... handlers) {
+    this.handlers.clear();
+    for (Class<? extends IOHandler> handler : handlers) {
+      this.handlers.add(MCache.getIOHandler(handler));
+    }
     return this;
   }
 
@@ -90,14 +96,29 @@ public class MCacheBuilder<T> {
   }
 
   /**
+   * Indicates with which handler should it read values. This is extremely useful if you input more
+   * than one handler to {@link #using(Class[])} method. First handler has 0 index.
+   *
+   * @param position valid position
+   * @return building instance
+   * @throws IllegalArgumentException when position is greater or equal to number of handlers
+   */
+  public final MCacheBuilder<T> readWith(int position) {
+    if (position < handlers.size()) { this.readPosition = position; } else {
+      throw new IllegalArgumentException("Position must not be greater than number of handlers");
+    }
+    return this;
+  }
+
+  /**
    * Creates map around given observable with earlier predefined conditions.
    *
    * @param o Observable of matching class
    * @return The same observable
    */
   public final Observable<T> with(Observable<T> o) {
-    if (handler == null) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
+    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, precondition, force, readPosition);
   }
 
   /**
@@ -107,44 +128,47 @@ public class MCacheBuilder<T> {
    * @return The same observable
    */
   public final rx.Observable<T> with(rx.Observable<T> o) {
-    if (handler == null) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handler.getClass(), identifier, precondition, force);
+    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, precondition, force, readPosition);
   }
 
   /**
-   * Synchronously returns saved object with earlier predefined conditions.
+   * Synchronously returns saved object with earlier predefined conditions. First handler in list will be used.
    *
    * @return Corresponding object
    */
   public final T with() {
-    if (handler == null) { using(FilesIOHandler.class); }
-    return handler.get(identifier, cls);
+    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
+    return handlers.get(0).get(identifier, cls);
   }
 
   /**
-   * Asynchronously returns saved object with earlier predefined conditions.
+   * Asynchronously returns saved object with earlier predefined conditions. First handler in list
+   * will be used.
    *
    * @param listener Listener with corresponding class
    */
   public final void with(FinishedListener<T> listener) {
-    Threader.runOnNet(() -> listener.onFinished(handler.get(identifier, cls)));
+    Threader.runOnNet(() -> listener.onFinished(handlers.get(0).get(identifier, cls)));
   }
 
   /**
-   * Saves given object to file with predefined conditions.
+   * Saves given object to file with predefined conditions. First handler in list will be used.
    *
    * @param object non null object
    */
   public final void save(@NonNull Object object) {
-    if (handler == null) { using(FilesIOHandler.class); }
-    handler.save(object, identifier, cls);
+    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
+    handlers.get(0).save(object, identifier, cls);
   }
 
   /**
+   * All handlers specified in {@link #using(Class[])} will be cleansed.
+   *
    * @see IOHandler#clean()
    */
   public final void clean() {
-    if (handler == null) { using(FilesIOHandler.class); }
-    handler.clean();
+    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
+    for (IOHandler handler : handlers) { handler.clean(); }
   }
 }
