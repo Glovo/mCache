@@ -93,11 +93,4 @@ public class MCache {
     }
     return this;
   }
-
-  @SuppressWarnings("MethodMayBeStatic")
-  public final void build() {
-    if (sIOHandlerInstance.isEmpty()) {
-      getIOHandler(FilesIOHandler.class);
-    }
-  }
 }
