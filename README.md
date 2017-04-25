@@ -8,8 +8,7 @@ public class App extends Application {
 
   @Override public void onCreate() {
     super.onCreate();
-    MCache.with(this)
-      .build();
+    MCache.with(this);
   }
 }
 ```
@@ -17,14 +16,14 @@ public class App extends Application {
 Save it.
 ```java
 MCacheBuilder.request(User.class)
-    .id(id) //optional
+    //.id(id) //optional
     .save(object));
 ```
 
 Get it.
 ```java
 MCacheBuilder.request(User.class)
-    .id(id) //optional
+    //.id(id) //optional
     .with(); //or asynchronously .with(FinishedListener<? extends User> listener)
 ```
 
@@ -39,7 +38,6 @@ MCacheBuilder
     .request(User.class)
     //.using(FilesIOHandler.class) //optional
     //.id(MCache.DEFAULT_ID) //optional
-    .precondition(!username.equals(userUsername)) //optional (default false)
     .force(username.equals(userUsername)) //optional (default false)
     .with(getRetrofit()
         .user(username)
@@ -100,10 +98,6 @@ And that's it. Easy right?
 Implement [`IOHandler`](https://github.com/diareuse/mCache/blob/master/mcache/src/main/java/wiki/depasquale/mcache/core/IOHandler.java)
 Use encryption within your app. Cache with different mechanism. Whatever! :)
 
-## Please read this!
-
-Gson is very heavy a should be used only off main thread to prevent lag. By wrapping Observable via `MCache` class you will prevent this issue because it's already wrapped in "network thread". Methods `<T> void save(T object, Class<?> cls)` and `<T> T get(Class<T> cls);` are executed on thread from which are called. So please keep this in mind. :)
-
 ## Can I help?
 
 Yes! Create pull request, issue or both.
@@ -137,6 +131,17 @@ limitations under the License.
 Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https://www.cortex.cz/)
 
 # Changelog
+
+### 0.6
+* Method precondition(boolean) was removed due to confusion, magic and mystery surrounding it
+  * Use combination of id(CharSequence) and force(boolean) to achieve the same effect
+* Libs were updated to bleeding edge versions
+* build() method was removed
+* Threader class was removed because it's no longer needed
+* Internals of wrapping observables were completely redone
+  * Cached object is returned by default
+    * Unless it has force(boolean) flag set
+  * No longer pushes 2 onNext(T) objects if is cached version present and force flag is set. If force flag is set it won't return cached version first anymore.
 
 ### 0.5
 * Refractored DefaultIOHandler to FilesIOHandler
