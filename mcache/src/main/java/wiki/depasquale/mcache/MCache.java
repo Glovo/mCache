@@ -58,6 +58,7 @@ public class MCache {
 
   public static IOHandler getIOHandler(Class<? extends IOHandler> cls) {
     initMap();
+    if (cls == null) { cls = FilesIOHandler.class; }
     if (sIOHandlerInstance.containsKey(cls)) {
       return sIOHandlerInstance.get(cls);
     } else {
@@ -69,6 +70,16 @@ public class MCache {
         throw new RuntimeException(cls.getName() + " cannot be instantiated.");
       } catch (IllegalAccessException e) {
         throw new RuntimeException(cls.getName() + " probably does not contain constructor.");
+      }
+    }
+  }
+
+  @SafeVarargs public static void clean(Class<? extends IOHandler>... cls) {
+    if (cls == null || cls.length == 0) {
+      getIOHandler(null).clean();
+    } else {
+      for (Class<? extends IOHandler> handler : cls) {
+        getIOHandler(handler).clean();
       }
     }
   }

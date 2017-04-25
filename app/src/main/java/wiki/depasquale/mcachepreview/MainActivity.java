@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
+import wiki.depasquale.mcache.MCache;
 
 public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
@@ -60,10 +61,14 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
         input.setError("Please fill this field :)");
         input.setErrorEnabled(true);
       } else {
-        input.setErrorEnabled(false);
-        user.setText(String.format("/users/%s", username));
-        startTime = System.nanoTime();
-        Github.user(username).subscribe(this);
+        if (username.equalsIgnoreCase("clean")) {
+          MCache.clean();
+        } else {
+          input.setErrorEnabled(false);
+          user.setText(String.format("/users/%s", username));
+          startTime = System.nanoTime();
+          Github.user(username).subscribe(this);
+        }
       }
     });
 
