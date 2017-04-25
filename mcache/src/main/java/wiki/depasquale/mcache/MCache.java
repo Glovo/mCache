@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
@@ -60,22 +59,16 @@ public class MCache {
   public static IOHandler getIOHandler(Class<? extends IOHandler> cls) {
     initMap();
     if (sIOHandlerInstance.containsKey(cls)) {
-      IOHandler handler = sIOHandlerInstance.get(cls);
-      if (handler == null) { sIOHandlerInstance.remove(cls); }
-      return getIOHandler(cls);
+      return sIOHandlerInstance.get(cls);
     } else {
       try {
-        IOHandler interfaceType = cls.getConstructor().newInstance();
+        IOHandler interfaceType = cls.newInstance();
         sIOHandlerInstance.put(cls, interfaceType);
         return interfaceType;
       } catch (InstantiationException e) {
         throw new RuntimeException(cls.getName() + " cannot be instantiated.");
       } catch (IllegalAccessException e) {
         throw new RuntimeException(cls.getName() + " probably does not contain constructor.");
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException(cls.getName() + " probably does not contain constructor.");
-      } catch (InvocationTargetException e) {
-        throw new RuntimeException(cls.getName() + " is beyond my understanding.");
       }
     }
   }
