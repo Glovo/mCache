@@ -132,6 +132,9 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 0.6.1
+* Added MCache.clean(Class<? extends IOHandler>...) method
+
 ### 0.6
 * Method precondition(boolean) was removed due to confusion, magic and mystery surrounding it
   * Use combination of id(CharSequence) and force(boolean) to achieve the same effect
