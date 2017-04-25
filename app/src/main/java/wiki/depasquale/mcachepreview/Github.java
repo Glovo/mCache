@@ -14,7 +14,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.util.MCacheBuilder;
 
@@ -24,7 +23,6 @@ import wiki.depasquale.mcache.util.MCacheBuilder;
 
 class Github {
 
-  private static String userUsername = "";
   private static Retrofit retrofit;
   private static Service service;
 
@@ -33,18 +31,11 @@ class Github {
     return MCacheBuilder
         .request(User.class)
         .using(FilesIOHandler.class)
-        .id(MCache.DEFAULT_ID)
-        .precondition(!username.equals(userUsername))
-        .force(username.equals(userUsername))
+        .id(username)
         .with(getRetrofit()
             .user(username)
             .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread()))
-        .map(user -> {
-          userUsername = username;
-          Log.d("mCachePreview", "DEBUG: saved username: " + username);
-          return user;
-        });
+            .observeOn(AndroidSchedulers.mainThread()));
   }
 
   private static Service getRetrofit() {

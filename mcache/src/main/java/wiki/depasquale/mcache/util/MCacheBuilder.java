@@ -2,13 +2,14 @@ package wiki.depasquale.mcache.util;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.FinishedListener;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.core.Threader;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -19,7 +20,6 @@ public class MCacheBuilder<T> {
   private final Class<T> cls;
   private List<IOHandler> handlers = new ArrayList<>(0);
   private CharSequence identifier = MCache.DEFAULT_ID;
-  private boolean precondition = false;
   private boolean force = false;
   private int readPosition = 0;
 
@@ -70,19 +70,6 @@ public class MCacheBuilder<T> {
   }
 
   /**
-   * Sets precondition for reading saved file. If it's true saved file will not be read, otherwise
-   * it will. <b>If you are not using RxJava with this library you can freely skip this, it won't
-   * have any effect.</b> Default is false.
-   *
-   * @param precondition Boolean representation of precondition
-   * @return building instance
-   */
-  public final MCacheBuilder<T> precondition(boolean precondition) {
-    this.precondition = precondition;
-    return this;
-  }
-
-  /**
    * Sets whether it should forcefully update the data within later given Observable. If false given
    * Observable won't be subscribed to unless there's no saved data. <b>If you are not using RxJava
    * with this library you can freely skip this, it won't have any effect.</b> Default is false.
@@ -118,7 +105,7 @@ public class MCacheBuilder<T> {
    */
   public final Observable<T> with(Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, precondition, force, readPosition);
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition);
   }
 
   /**
@@ -129,11 +116,12 @@ public class MCacheBuilder<T> {
    */
   public final rx.Observable<T> with(rx.Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, precondition, force, readPosition);
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition);
   }
 
   /**
-   * Synchronously returns saved object with earlier predefined conditions. First handler in list will be used.
+   * Synchronously returns saved object with earlier predefined conditions. First handler in list
+   * will be used.
    *
    * @return Corresponding object
    */
@@ -149,7 +137,11 @@ public class MCacheBuilder<T> {
    * @param listener Listener with corresponding class
    */
   public final void with(FinishedListener<T> listener) {
-    Threader.runOnNet(() -> listener.onFinished(handlers.get(0).get(identifier, cls)));
+    Observable.just(handlers.get(0))
+        .observeOn(Schedulers.io())
+        .map(handler -> handler.get(identifier, cls))
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(listener::onFinished);
   }
 
   /**

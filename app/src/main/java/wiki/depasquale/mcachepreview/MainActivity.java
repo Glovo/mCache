@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
-import wiki.depasquale.mcache.core.Threader;
 
 public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
@@ -72,11 +71,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
   @Override
   public void accept(@NonNull User user) throws Exception {
-    Threader.runOnUI(() -> {
-      responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
-      responseTime.append(String.format(Locale.getDefault(), "%d ms",
-          (System.nanoTime() - startTime) / 1000000));
-      message.setText(new Gson().toJson(user));
-    });
+    responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
+    responseTime.append(String.format(Locale.getDefault(), "%d ms",
+        (System.nanoTime() - startTime) / 1000000));
+    message.setText(new Gson().toJson(user));
   }
 }
