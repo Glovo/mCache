@@ -22,23 +22,23 @@ class RxMCacheUtil {
     } finally {
       Observable.just(cls)
           .observeOn(Schedulers.io())
-          .map(concreteClass -> getObject(concreteClass, id, handlers, readAt))
-          .observeOn(AndroidSchedulers.mainThread())
-          .map(concreteObject -> {
+          .flatMap(concreteClass -> {
+            T concreteObject = getObject(concreteClass, id, handlers, readAt);
             if (concreteObject != null && returnImmediately) {
-              publishSubject.onNext(concreteObject);
-              if (!force) { publishSubject.onComplete(); }
+              Observable.just(concreteObject)
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribe(object -> {
+                    publishSubject.onNext(object);
+                    if (!force) { publishSubject.onComplete(); }
+                  });
             }
-            return concreteObject;
-          })
-          .observeOn(Schedulers.io())
-          .flatMap(concreteObject -> {
             if (concreteObject == null || force) {
               return o;
             } else {
               return Observable.just(concreteObject);
             }
           })
+          .observeOn(Schedulers.io())
           .map(rawObject -> {
             for (IOHandler handler : handlers) {
               MCacheBuilder.request(rawObject.getClass())
@@ -55,8 +55,7 @@ class RxMCacheUtil {
     }
   }
 
-  private static <R> R getObject(Class<R> cls, CharSequence id,
-      List<IOHandler> handlers,
+  private static <R> R getObject(Class<R> cls, CharSequence id, List<IOHandler> handlers,
       int readAt) {
     return MCacheBuilder.request(cls)
         .id(id)
@@ -74,23 +73,23 @@ class RxMCacheUtil {
     } finally {
       rx.Observable.just(cls)
           .observeOn(rx.schedulers.Schedulers.io())
-          .map(concreteClass -> getObject(concreteClass, id, handlers, readAt))
-          .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-          .map(concreteObject -> {
+          .flatMap(concreteClass -> {
+            T concreteObject = getObject(concreteClass, id, handlers, readAt);
             if (concreteObject != null && returnImmediately) {
-              publishSubject.onNext(concreteObject);
-              if (!force) { publishSubject.onCompleted(); }
+              rx.Observable.just(concreteObject)
+                  .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
+                  .subscribe(object -> {
+                    publishSubject.onNext(object);
+                    if (!force) { publishSubject.onCompleted(); }
+                  });
             }
-            return concreteObject;
-          })
-          .observeOn(rx.schedulers.Schedulers.io())
-          .flatMap(concreteObject -> {
             if (concreteObject == null || force) {
               return o;
             } else {
               return rx.Observable.just(concreteObject);
             }
           })
+          .observeOn(rx.schedulers.Schedulers.io())
           .map(rawObject -> {
             for (IOHandler handler : handlers) {
               MCacheBuilder.request(rawObject.getClass())
