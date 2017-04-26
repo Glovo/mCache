@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import java.lang.reflect.Field;
+import wiki.depasquale.mcache.BuildConfig;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.IOHandler;
 import wiki.depasquale.mcache.core.PrefName;
@@ -65,7 +66,7 @@ public final class SharedPrefsIOHandler implements IOHandler {
         try {
           save(mEditor, f, object);
         } catch (IllegalAccessException e) {
-          e.printStackTrace();
+          if (BuildConfig.DEBUG) { e.printStackTrace(); }
         }
       }
     }

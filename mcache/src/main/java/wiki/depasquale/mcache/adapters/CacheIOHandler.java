@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import wiki.depasquale.mcache.BuildConfig;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.IOHandler;
 
@@ -34,7 +35,7 @@ public final class CacheIOHandler implements IOHandler {
       try {
         return getGson().fromJson(string, cls);
       } catch (Exception e) {
-        e.printStackTrace();
+        if (BuildConfig.DEBUG) { e.printStackTrace(); }
         return null;
       }
     }
@@ -79,7 +80,7 @@ public final class CacheIOHandler implements IOHandler {
       reader.close();
       return reconstruct(sb.toString(), cls);
     } catch (IOException e) {
-      e.printStackTrace();
+      if (BuildConfig.DEBUG) { e.printStackTrace(); }
     }
     return null;
   }
@@ -101,7 +102,7 @@ public final class CacheIOHandler implements IOHandler {
       fos.write(getGson().toJson(object));
       fos.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      if (BuildConfig.DEBUG) { e.printStackTrace(); }
     }
   }
 
