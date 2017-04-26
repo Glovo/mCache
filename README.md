@@ -132,6 +132,9 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 0.7
+* (Re)Added method pullIfNotNull(boolean) which purpose is to handle whether cached version is immediately thrown into onNext or not. Only effective in combination with wrapping Observables and force(true).
+
 ### 0.6.1
 * Added MCache.clean(Class<? extends IOHandler>...) method
 
