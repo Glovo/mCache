@@ -27,6 +27,7 @@ class RxMCacheUtil {
           .map(concreteObject -> {
             if (concreteObject != null && returnImmediately) {
               publishSubject.onNext(concreteObject);
+              if (!force) { publishSubject.onComplete(); }
             }
             return concreteObject;
           })
@@ -78,6 +79,7 @@ class RxMCacheUtil {
           .map(concreteObject -> {
             if (concreteObject != null && returnImmediately) {
               publishSubject.onNext(concreteObject);
+              if (!force) { publishSubject.onCompleted(); }
             }
             return concreteObject;
           })

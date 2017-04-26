@@ -32,7 +32,7 @@ class Github {
         .request(User.class)
         .using(FilesIOHandler.class)
         .pullIfNotNull(true)
-        .force(true)
+        .force(false)
         .id(username)
         .with(getRetrofit()
             .user(username)
