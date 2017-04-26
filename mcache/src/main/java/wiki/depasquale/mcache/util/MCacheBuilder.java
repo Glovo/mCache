@@ -22,6 +22,7 @@ public class MCacheBuilder<T> {
   private CharSequence identifier = MCache.DEFAULT_ID;
   private boolean force = false;
   private int readPosition = 0;
+  private boolean pullIfNotNull = true;
 
   @SuppressWarnings("unused") private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
@@ -83,6 +84,18 @@ public class MCacheBuilder<T> {
   }
 
   /**
+   * Overrides caching process to immediately return cached version so onNext method will be
+   * effectively called twice. Default is true.
+   *
+   * @param pullIfNotNull Boolean representation of condition
+   * @return building instance
+   */
+  public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
+    this.pullIfNotNull = pullIfNotNull;
+    return this;
+  }
+
+  /**
    * Indicates with which handler should it read values. This is extremely useful if you input more
    * than one handler to {@link #using(Class[])} method. First handler has 0 index.
    *
@@ -105,7 +118,7 @@ public class MCacheBuilder<T> {
    */
   public final Observable<T> with(Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition);
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition, pullIfNotNull);
   }
 
   /**
@@ -116,7 +129,7 @@ public class MCacheBuilder<T> {
    */
   public final rx.Observable<T> with(rx.Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition);
+    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition, pullIfNotNull);
   }
 
   /**
