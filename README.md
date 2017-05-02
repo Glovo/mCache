@@ -132,6 +132,12 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 0.7.2
+* Fixes issue with incompatible libraries to latest stable channel
+
+### 0.7.1
+* Fixes issue in 0.7 where files that are not on hand will not be read ever
+
 ### 0.7
 * (Re)Added method pullIfNotNull(boolean) which purpose is to handle whether cached version is immediately thrown into onNext or not. Only effective in combination with wrapping Observables and force(true).
 
