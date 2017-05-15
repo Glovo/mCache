@@ -132,6 +132,11 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 0.7.3
+* Updates build script
+* Adds option to enable/disable passing errors within to final observable
+* Fixes issue with final observable not being subscribed to immediately results in lost data
+
 ### 0.7.2
 * Fixes issue with incompatible libraries to latest stable channel
 
