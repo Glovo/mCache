@@ -12,6 +12,6 @@ public class App extends Application {
   @Override
   public final void onCreate() {
     super.onCreate();
-    MCache.with(this);
+    MCache.with(this).setCatchByDefault(false);
   }
 }

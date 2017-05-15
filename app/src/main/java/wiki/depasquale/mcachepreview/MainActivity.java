@@ -10,6 +10,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.Toolbar;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.gson.Gson;
@@ -67,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
           input.setErrorEnabled(false);
           user.setText(String.format("/users/%s", username));
           startTime = System.nanoTime();
-          Github.user(username).subscribe(this);
+          Github.user(username).subscribe(this,
+              error -> Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show());
         }
       }
     });

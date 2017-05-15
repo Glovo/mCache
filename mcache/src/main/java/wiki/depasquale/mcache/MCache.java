@@ -19,6 +19,7 @@ public class MCache {
   public static final CharSequence DEFAULT_ID = "_default";
   static final String TAG = "mCacheLib";
   public static String sPrefix = ".wiki.depasquale.";
+  public static boolean sCatch = true;
   private static Map<Class<?>, IOHandler> sIOHandlerInstance;
   private static WeakReference<Context> sContext;
 
@@ -102,6 +103,17 @@ public class MCache {
     } else {
       throw new IllegalArgumentException("Prefix must not be null");
     }
+    return this;
+  }
+
+  /**
+   * Catch Rx errors with Throwable::printStackTrace [true] or pass them to Observable [false]
+   *
+   * @param catchByDefault boolean representation of status
+   * @return current instance
+   */
+  public final MCache setCatchByDefault(boolean catchByDefault) {
+    MCache.sCatch = catchByDefault;
     return this;
   }
 }
