@@ -132,6 +132,10 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 0.7.4 [future release]
+* Remove RxJava (first gen) as it's no longer actively maintained 
+    * RxJava2 is kept and remains recommended way to cache
+
 ### 0.7.3
 * Updates build script
 * Adds option to enable/disable passing errors within to final observable
