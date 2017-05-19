@@ -28,7 +28,7 @@ public class MCacheBuilder<T> {
     throw new RuntimeException("This shall not be used!");
   }
 
-  public MCacheBuilder(Class<T> cls) {
+  private MCacheBuilder(Class<T> cls) {
     this.cls = cls;
   }
 
