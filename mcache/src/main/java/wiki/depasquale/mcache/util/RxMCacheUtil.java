@@ -59,43 +59,4 @@ class RxMCacheUtil {
         .using(handlers.get(readAt).getClass())
         .with();
   }
-
-  static <T> rx.Observable<T> wrap(rx.Observable<T> o, Class<T> cls,
-      List<IOHandler> handlers, CharSequence id, boolean force, int readAt,
-      boolean returnImmediately) {
-    rx.subjects.PublishSubject<T> publishSubject =
-        rx.subjects.PublishSubject.create();
-    return publishSubject.doOnSubscribe(() -> rx.Observable.just(cls)
-        .observeOn(rx.schedulers.Schedulers.io())
-        .flatMap(concreteClass -> {
-          T concreteObject = getObject(concreteClass, id, handlers, readAt);
-          if (concreteObject != null && returnImmediately) {
-            rx.Observable.just(concreteObject)
-                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-                .subscribe(object -> {
-                  publishSubject.onNext(object);
-                  if (!force) { publishSubject.onCompleted(); }
-                });
-          }
-          if (concreteObject == null || force) {
-            return o;
-          } else {
-            return rx.Observable.just(concreteObject);
-          }
-        })
-        .observeOn(rx.schedulers.Schedulers.io())
-        .map(rawObject -> {
-          for (IOHandler handler : handlers) {
-            MCacheBuilder.request(rawObject.getClass())
-                .id(id)
-                .using(handler.getClass())
-                .save(rawObject);
-          }
-          return rawObject;
-        })
-        .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
-        .subscribe(publishSubject::onNext,
-            MCache.sCatch ? Throwable::printStackTrace : publishSubject::onError,
-            publishSubject::onCompleted));
-  }
 }

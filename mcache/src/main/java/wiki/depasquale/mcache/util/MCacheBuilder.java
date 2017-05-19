@@ -122,17 +122,6 @@ public class MCacheBuilder<T> {
   }
 
   /**
-   * Creates map around given observable with earlier predefined conditions.
-   *
-   * @param o Observable of matching class
-   * @return The same observable
-   */
-  public final rx.Observable<T> with(rx.Observable<T> o) {
-    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition, pullIfNotNull);
-  }
-
-  /**
    * Synchronously returns saved object with earlier predefined conditions. First handler in list
    * will be used.
    *
