@@ -105,6 +105,7 @@ Yes! Create pull request, issue or both.
 # Download
 
 [ ![Download](https://api.bintray.com/packages/diareuse/libs/mcache/images/download.svg) ](https://bintray.com/diareuse/libs/mcache/_latestVersion)
+[![Build Status](https://travis-ci.org/diareuse/mCache.svg?branch=master)](https://travis-ci.org/diareuse/mCache)
 
 ```java
 dependencies {
