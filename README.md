@@ -132,7 +132,11 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
-### 0.7.4 [future release]
+### [future release]
+* Kotlin module to support it's great language features
+* You name it (create issues for feature requests)
+
+### 0.7.4
 * Remove RxJava (first gen) as it's no longer actively maintained 
     * RxJava2 is kept and remains recommended way to cache
 
