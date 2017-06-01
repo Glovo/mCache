@@ -29,10 +29,6 @@ artifacts {
     archives sourcesJar
 }
 
-// Bintray
-//Properties properties = new Properties()
-//properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
 bintray {
     user = bintrayUser
     key = bintrayAPI
@@ -49,6 +45,10 @@ bintray {
         publicDownloadNumbers = true
         version {
             desc = libraryDescription
+            gpg {
+                sign = true
+                passphrase = System.getenv('GPG_SIGN_KEY')
+            }
         }
     }
 }

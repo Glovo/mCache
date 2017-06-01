@@ -1,6 +1,6 @@
 ext {
-    vName = '0.7.5'
-    vCode = 75
+    vName = '0.7.6-SNAPSHOT'
+    vCode = 76
 
     bintrayUser = System.getenv('BIN_USER')
     bintrayAPI = System.getenv('API_KEY')

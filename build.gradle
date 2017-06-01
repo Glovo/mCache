@@ -1,18 +1,31 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+/*def artifactory_user = System.getenv('BIN_USER')
+def artifactory_password = System.getenv('API_KEY')
+def artifactory_contextUrl = "https://oss.jfrog.org/artifactory"*/
 
 buildscript {
+    def artifactory_user = System.getenv('BIN_USER')
+    def artifactory_password = System.getenv('API_KEY')
     repositories {
         jcenter()
+        maven {
+            url 'https://oss.jfrog.org/artifactory/plugins-release'
+            credentials {
+                username = artifactory_user
+                password = artifactory_password
+            }
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.2'
         classpath 'me.tatarka:gradle-retrolambda:3.6.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.18"
     }
 }
 
 allprojects {
+    apply plugin: "com.jfrog.artifactory"
     repositories {
         jcenter()
     }
@@ -20,4 +33,27 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+artifactory {
+    def artifactory_user = System.getenv('BIN_USER')
+    def artifactory_password = System.getenv('API_KEY')
+    def artifactory_contextUrl = "https://oss.jfrog.org/artifactory"
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = artifactory_user
+            password = artifactory_password
+            maven = true
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-snapshot'
+            username = artifactory_user
+            password = artifactory_password
+            maven = true
+        }
+    }
 }
