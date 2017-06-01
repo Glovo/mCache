@@ -2,17 +2,17 @@ package wiki.depasquale.mcache.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import java.lang.reflect.Field;
-import wiki.depasquale.mcache.BuildConfig;
+import android.support.annotation.NonNull;
+import io.reactivex.Observable;
 import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.core.PrefName;
 
 /**
  * Created by diareuse on 13/04/2017. Yeah. Suck it.
  */
 
+// TODO: 01/06/2017 redo with new standard
 public final class SharedPrefsIOHandler implements IOHandler {
 
   private static SharedPreferences sPrefs;
@@ -29,7 +29,7 @@ public final class SharedPrefsIOHandler implements IOHandler {
     return sPrefs;
   }
 
-  private static void save(Editor mPrefs, Field f, Object object)
+  /*private static void save(Editor mPrefs, Field f, Object object)
       throws IllegalAccessException {
     Object fieldValue = f.get(object);
     String fieldName = f.getAnnotation(PrefName.class).value();
@@ -71,6 +71,14 @@ public final class SharedPrefsIOHandler implements IOHandler {
       }
     }
     mEditor.apply();
+  }*/
+
+  @Override public <T> Observable<T> get(@NonNull FileParams<T> params) {
+    return null;
+  }
+
+  @Override public <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+
   }
 
   @Override public final void clean() {

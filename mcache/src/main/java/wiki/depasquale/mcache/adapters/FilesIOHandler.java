@@ -1,16 +1,15 @@
 package wiki.depasquale.mcache.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import com.google.gson.Gson;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import wiki.depasquale.mcache.BuildConfig;
 import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.core.FileMap;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
 
 public final class FilesIOHandler implements IOHandler {
@@ -43,35 +42,21 @@ public final class FilesIOHandler implements IOHandler {
 
   @Override
   @Nullable
-  public final <T> T get(CharSequence identifier, Class<T> cls) {
-    String filename = String.format("%s%s%s", MCache.sPrefix,
-        Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
-            .trim().replace("=", ""),
-        identifier);
-    try {
-      Context context = MCache.get();
-      if (context == null) {
-        return null;
-      }
-      FileInputStream in = context.openFileInput(filename);
-      InputStreamReader inputStreamReader = new InputStreamReader(in);
-      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-      StringBuilder sb = new StringBuilder(0);
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        sb.append(line);
-      }
-      inputStreamReader.close();
-      return reconstruct(sb.toString(), cls);
-    } catch (IOException e) {
-      if (BuildConfig.DEBUG) { e.printStackTrace(); }
+  public final <T> Observable<T> get(@NonNull FileParams<T> params) {
+    Class<T> cls = params.getFileClass();
+    FileMap<T> fileMap = FileMap.forFolder(cls, false);
+    if (fileMap != null) {
+      return fileMap.matching(params)
+          .flatMapIterable(it -> it)
+          .map(fileMap::getObject);
     }
-    return null;
+    PublishSubject<T> empty = PublishSubject.create();
+    return empty.doOnSubscribe(disposable -> empty.onError(new Throwable("No file was found.")));
   }
 
   @Override
-  public final <T> void save(T object, CharSequence identifier, Class<?> cls) {
-    String filename = String.format("%s%s%s",
+  public final <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+    /*String filename = String.format("%s%s%s",
         MCache.sPrefix,
         Base64.encodeToString(cls.getSimpleName().getBytes(), Base64.DEFAULT)
             .trim().replace("=", ""),
@@ -86,7 +71,7 @@ public final class FilesIOHandler implements IOHandler {
       fos.close();
     } catch (IOException e) {
       if (BuildConfig.DEBUG) { e.printStackTrace(); }
-    }
+    }*/
   }
 
   @Override

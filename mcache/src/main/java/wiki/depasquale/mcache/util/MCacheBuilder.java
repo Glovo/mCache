@@ -2,8 +2,6 @@ package wiki.depasquale.mcache.util;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 import wiki.depasquale.mcache.MCache;
@@ -129,7 +127,7 @@ public class MCacheBuilder<T> {
    */
   public final T with() {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return handlers.get(0).get(identifier, cls);
+    return null;//handlers.get(0).get(identifier, cls);
   }
 
   /**
@@ -139,11 +137,11 @@ public class MCacheBuilder<T> {
    * @param listener Listener with corresponding class
    */
   public final void with(FinishedListener<T> listener) {
-    Observable.just(handlers.get(0))
+    /*Observable.just(handlers.get(0))
         .observeOn(Schedulers.io())
         .map(handler -> handler.get(identifier, cls))
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(listener::onFinished);
+        .subscribe(listener::onFinished);*/
   }
 
   /**
@@ -153,7 +151,7 @@ public class MCacheBuilder<T> {
    */
   public final void save(@NonNull Object object) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    handlers.get(0).save(object, identifier, cls);
+    //handlers.get(0).save(object, identifier, cls);
   }
 
   /**
