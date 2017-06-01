@@ -134,10 +134,11 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 # Changelog
 
 ### [future release]
-* Kotlin module to support it's great language features
-* You name it (create issues for feature requests)
+* **Whole api will be redone**, because I felt like it's not extensible and versatile enough.
+  * If you are interested in those changes and want to help before it comes official, keep an eye on branch [upcoming](https://github.com/diareuse/mCache/tree/upcoming)
+* And that's not it! In final stages I will be adding Kotlin module to support it's great language features
 
-### 0.7.4
+### 0.7.4 - 0.7.5
 * Remove RxJava (first gen) as it's no longer actively maintained 
     * RxJava2 is kept and remains recommended way to cache
 
