@@ -6,7 +6,7 @@ import com.google.gson.annotations.Expose;
  * Created by diareuse on 01/06/2017. Yeah. Suck it.
  */
 
-public class FileParams {
+public class FileParams<T> {
 
   public static final int MATCHING_DES_ID = 0x0101;
   public static final int MATCHING_DES = 0x0100;
@@ -15,7 +15,7 @@ public class FileParams {
   @Expose private long id = -1;
   @Expose private long timeCreated = -1;
   @Expose private long timeChanged = -1;
-  private Class<?> fileClass = null;
+  private Class<T> fileClass = null;
   @Expose private String descriptor = null;
   private boolean force;
   private boolean pullIfNotNull;
@@ -73,11 +73,11 @@ public class FileParams {
     this.timeChanged = timeChanged;
   }
 
-  public Class<?> getFileClass() {
+  public Class<T> getFileClass() {
     return fileClass;
   }
 
-  public void setFileClass(Class<?> fileClass) {
+  public void setFileClass(Class<T> fileClass) {
     if (this.fileClass == null) { this.fileClass = fileClass; } else {
       throw new UnsupportedOperationException("You may not change class." + error);
     }

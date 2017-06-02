@@ -64,7 +64,7 @@ class RxMCacheUtil {
   }*/
 
   public static <T> Observable<T> wrap(@Nullable Observable<T> o, List<IOHandler> handlers,
-      FileParams params, Class<T> cls) {
+      FileParams<T> params) {
     if (o == null) { o = Observable.empty(); }
     Observable<T> finalO = o.map(it -> {
       for (IOHandler handler : handlers) {
@@ -77,9 +77,19 @@ class RxMCacheUtil {
     final Disposable[] requestDisposable = {null};
     return publishSubject.doOnSubscribe(disposable -> {
       Observable.just(handlers)
+          .doOnSubscribe(it -> {
+            if (requestDisposable[0] == null) {
+              Log.d("RxU", "subscribed to o");
+              requestDisposable[0] = finalO.subscribe(
+                  publishSubject::onNext,
+                  publishSubject::onError,
+                  publishSubject::onComplete
+              );
+            }
+          })
           .observeOn(Schedulers.io())
           .flatMapIterable(it -> it)
-          .flatMap(it -> it.get(cls, params))
+          .flatMap(it -> it.get(params))
           /*.onErrorResumeNext(throwable -> {
             throwable.printStackTrace();
             return finalO;
@@ -91,16 +101,6 @@ class RxMCacheUtil {
             return Observable.empty();*//*
           })*/
           .observeOn(AndroidSchedulers.mainThread())
-          .doOnSubscribe(it -> {
-            if (requestDisposable[0] == null) {
-              Log.d("RxU", "subscribed to o");
-              requestDisposable[0] = finalO.subscribe(
-                  publishSubject::onNext,
-                  publishSubject::onError,
-                  publishSubject::onComplete
-              );
-            }
-          })
           .subscribe(
               publishSubject::onNext,
               publishSubject::onError,

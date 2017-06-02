@@ -174,7 +174,8 @@ public class FileMap<T> {
     return Observable.just(files)
         .observeOn(Schedulers.computation())
         .flatMapIterable(items -> items)
-        .filter(item -> FileParams.compare(item, params) == FileParams.MATCHING)
+        .filter(item -> (FileParams.compare(item, params) & FileParams.MATCHING_DES)
+            == FileParams.MATCHING_DES)
         .toList()
         .toObservable()
         .observeOn(AndroidSchedulers.mainThread());

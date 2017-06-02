@@ -15,7 +15,7 @@ public final class FilesIOHandler implements IOHandler {
 
   @Override
   @NonNull
-  public final <T> Observable<T> get(Class<T> cls, @NonNull FileParams params) {
+  public final <T> Observable<T> get(@NonNull FileParams<T> params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), false);
     if (fileMap != null) {
       return fileMap.matching(params)
@@ -28,7 +28,7 @@ public final class FilesIOHandler implements IOHandler {
   }
 
   @Override
-  public final <T> void save(@NonNull T object, @NonNull FileParams params) {
+  public final <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), false);
     if (fileMap != null) {
       Log.d("RxU", "saving...");

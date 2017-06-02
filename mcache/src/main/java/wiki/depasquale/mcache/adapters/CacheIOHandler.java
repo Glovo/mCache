@@ -14,7 +14,7 @@ public final class CacheIOHandler implements IOHandler {
   public CacheIOHandler() {}
 
 
-  @Override public <T> Observable<T> get(Class<T> cls, @NonNull FileParams params) {
+  @Override public <T> Observable<T> get(@NonNull FileParams<T> params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), true);
     if (fileMap != null) {
       return fileMap.matching(params)
@@ -26,7 +26,7 @@ public final class CacheIOHandler implements IOHandler {
     return empty/*.doOnSubscribe(disposable -> empty.onError(new Throwable("No file was found.")))*/;
   }
 
-  @Override public <T> void save(@NonNull T object, @NonNull FileParams params) {
+  @Override public <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), false);
     if (fileMap != null) {
       fileMap.save(object, params);

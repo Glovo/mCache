@@ -18,8 +18,7 @@ import wiki.depasquale.mcache.core.IOHandler;
 public class MCacheBuilder<T> {
 
   private List<IOHandler> handlers = new ArrayList<>(0);
-  private FileParams params;
-  private Class<T> cls = null;
+  private FileParams<T> params;
 
   @SuppressWarnings("unused") private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
@@ -28,7 +27,6 @@ public class MCacheBuilder<T> {
   private MCacheBuilder(Class<T> cls) {
     params = new FileParams();
     params.setFileClass(cls);
-    this.cls = cls;
   }
 
   /**
@@ -116,7 +114,7 @@ public class MCacheBuilder<T> {
    */
   public final Observable<T> with(@Nullable Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, handlers, params, cls);
+    return RxMCacheUtil.wrap(o, handlers, params);
   }
 
   /**

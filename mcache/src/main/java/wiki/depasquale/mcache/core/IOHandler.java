@@ -12,12 +12,12 @@ public interface IOHandler {
   /**
    * Creates object with class of param cls. <b>Unsafe on main thread.</b>
    */
-  <T> Observable<T> get(Class<T> cls, @NonNull FileParams params);
+  <T> Observable<T> get(@NonNull FileParams<T> params);
 
   /**
    * Saves object of class cls. <b>Unsafe on main thread.</b>
    */
-  <T> void save(@NonNull T object, @NonNull FileParams params);
+  <T> void save(@NonNull T object, @NonNull FileParams<T> params);
 
   /**
    * Cleans mess which was created by {@link #save(Object, CharSequence, Class)} method.

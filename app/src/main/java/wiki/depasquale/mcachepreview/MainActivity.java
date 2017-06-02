@@ -69,7 +69,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
           user.setText(String.format("/users/%s", username));
           startTime = System.nanoTime();
           Github.user(username).subscribe(this,
-              error -> Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show());
+              error -> {
+                error.printStackTrace();
+                Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+              });
         }
       }
     });
