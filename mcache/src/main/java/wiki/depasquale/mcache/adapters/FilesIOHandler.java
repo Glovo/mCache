@@ -1,12 +1,10 @@
 package wiki.depasquale.mcache.adapters;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.util.Log;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.subjects.PublishSubject;
-import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.FileMap;
 import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
@@ -16,8 +14,8 @@ public final class FilesIOHandler implements IOHandler {
   public FilesIOHandler() {}
 
   @Override
-  @Nullable
-  public final <T> Observable<T> get(@NonNull FileParams<T> params) {
+  @NonNull
+  public final <T> Observable<T> get(Class<T> cls, @NonNull FileParams params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), false);
     if (fileMap != null) {
       return fileMap.matching(params)
@@ -30,16 +28,19 @@ public final class FilesIOHandler implements IOHandler {
   }
 
   @Override
-  public final <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+  public final <T> void save(@NonNull T object, @NonNull FileParams params) {
     FileMap<T> fileMap = FileMap.forFolder(params.getFileClass(), false);
     if (fileMap != null) {
+      Log.d("RxU", "saving...");
       fileMap.save(object, params);
+    } else {
+      Log.d("RxU", "Map is null, the hell?");
     }
   }
 
   @Override
   public final void clean() {
-    Context context = MCache.get();
+    /*Context context = MCache.get();
     if (context == null) {
       return;
     }
@@ -47,6 +48,6 @@ public final class FilesIOHandler implements IOHandler {
       if (file.startsWith(MCache.sPrefix)) {
         context.deleteFile(file);
       }
-    }
+    }*/
   }
 }

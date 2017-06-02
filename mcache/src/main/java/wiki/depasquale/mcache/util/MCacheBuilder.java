@@ -1,11 +1,13 @@
 package wiki.depasquale.mcache.util;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.List;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.FinishedListener;
 import wiki.depasquale.mcache.core.IOHandler;
 
@@ -15,18 +17,17 @@ import wiki.depasquale.mcache.core.IOHandler;
 
 public class MCacheBuilder<T> {
 
-  private final Class<T> cls;
   private List<IOHandler> handlers = new ArrayList<>(0);
-  private CharSequence identifier = MCache.DEFAULT_ID;
-  private boolean force = false;
-  private int readPosition = 0;
-  private boolean pullIfNotNull = true;
+  private FileParams params;
+  private Class<T> cls = null;
 
   @SuppressWarnings("unused") private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
   }
 
   private MCacheBuilder(Class<T> cls) {
+    params = new FileParams();
+    params.setFileClass(cls);
     this.cls = cls;
   }
 
@@ -56,15 +57,14 @@ public class MCacheBuilder<T> {
   }
 
   /**
-   * Sets identifier for saving/loading given class. It will be appended to file name. Simple yet
-   * effective.
+   * Sets descriptor for saving/loading given class.
    *
-   * @param identifier Preferably following this pattern "_somePostFix" or ".somePostFix". This is
+   * @param descriptor Preferably following this pattern "_somePostFix" or ".somePostFix". This is
    * just a suggestion.
    * @return building instance
    */
-  public final MCacheBuilder<T> id(CharSequence identifier) {
-    this.identifier = identifier;
+  public final MCacheBuilder<T> descriptor(String descriptor) {
+    params.setDescriptor(descriptor);
     return this;
   }
 
@@ -77,7 +77,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> force(boolean force) {
-    this.force = force;
+    params.setForce(force);
     return this;
   }
 
@@ -89,7 +89,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
-    this.pullIfNotNull = pullIfNotNull;
+    params.setPullIfNotNull(pullIfNotNull);
     return this;
   }
 
@@ -102,9 +102,9 @@ public class MCacheBuilder<T> {
    * @throws IllegalArgumentException when position is greater or equal to number of handlers
    */
   public final MCacheBuilder<T> readWith(int position) {
-    if (position < handlers.size()) { this.readPosition = position; } else {
-      throw new IllegalArgumentException("Position must not be greater than number of handlers");
-    }
+    /*if (position < handlers.size() && position >= 0) { this.readPosition = position; } else {
+      throw new IllegalArgumentException("Position must not be greater or lower than number of handlers");
+    }*/
     return this;
   }
 
@@ -114,20 +114,9 @@ public class MCacheBuilder<T> {
    * @param o Observable of matching class
    * @return The same observable
    */
-  public final Observable<T> with(Observable<T> o) {
+  public final Observable<T> with(@Nullable Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, cls, handlers, identifier, force, readPosition, pullIfNotNull);
-  }
-
-  /**
-   * Synchronously returns saved object with earlier predefined conditions. First handler in list
-   * will be used.
-   *
-   * @return Corresponding object
-   */
-  public final T with() {
-    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return null;//handlers.get(0).get(identifier, cls);
+    return RxMCacheUtil.wrap(o, handlers, params, cls);
   }
 
   /**
@@ -149,9 +138,11 @@ public class MCacheBuilder<T> {
    *
    * @param object non null object
    */
-  public final void save(@NonNull Object object) {
+  public final void save(@NonNull T object) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    //handlers.get(0).save(object, identifier, cls);
+    for (IOHandler handler : handlers) {
+      handler.save(object, params);
+    }
   }
 
   /**

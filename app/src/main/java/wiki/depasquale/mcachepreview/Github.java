@@ -33,7 +33,7 @@ class Github {
         .using(FilesIOHandler.class)
         .pullIfNotNull(true)
         .force(true)
-        .id(username)
+        .descriptor(username)
         .with(getRetrofit()
             .user(username)
             .subscribeOn(Schedulers.newThread())

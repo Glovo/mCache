@@ -1,21 +1,26 @@
 package wiki.depasquale.mcache.core;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Created by diareuse on 01/06/2017. Yeah. Suck it.
  */
 
-public class FileParams<T> {
+public class FileParams {
 
   public static final int MATCHING_DES_ID = 0x0101;
+  public static final int MATCHING_DES = 0x0100;
   private static final String error = "\nThis operation could have corrupted the file.";
   public static int MATCHING = 0x1111;
-  private long id = -1;
-  private long timeCreated = -1;
-  private long timeChanged = -1;
-  private Class<T> fileClass = null;
-  private CharSequence descriptor = null;
+  @Expose private long id = -1;
+  @Expose private long timeCreated = -1;
+  @Expose private long timeChanged = -1;
+  private Class<?> fileClass = null;
+  @Expose private String descriptor = null;
+  private boolean force;
+  private boolean pullIfNotNull;
 
-  public static int compare(FileParams<?> fp1, FileParams<?> fp2) {
+  public static int compare(FileParams fp1, FileParams fp2) {
     int result = 0x0;
     if (fp1.id == fp2.id) {
       result += 0x1;
@@ -68,11 +73,11 @@ public class FileParams<T> {
     this.timeChanged = timeChanged;
   }
 
-  public Class<T> getFileClass() {
+  public Class<?> getFileClass() {
     return fileClass;
   }
 
-  public void setFileClass(Class<T> fileClass) {
+  public void setFileClass(Class<?> fileClass) {
     if (this.fileClass == null) { this.fileClass = fileClass; } else {
       throw new UnsupportedOperationException("You may not change class." + error);
     }
@@ -82,9 +87,25 @@ public class FileParams<T> {
     return descriptor;
   }
 
-  public void setDescriptor(CharSequence descriptor) {
+  public void setDescriptor(String descriptor) {
     if (this.descriptor == null) { this.descriptor = descriptor; } else {
       throw new UnsupportedOperationException("You may not change descriptor." + error);
     }
+  }
+
+  public boolean isForce() {
+    return force;
+  }
+
+  public void setForce(boolean force) {
+    this.force = force;
+  }
+
+  public boolean isPullIfNotNull() {
+    return pullIfNotNull;
+  }
+
+  public void setPullIfNotNull(boolean pullIfNotNull) {
+    this.pullIfNotNull = pullIfNotNull;
   }
 }

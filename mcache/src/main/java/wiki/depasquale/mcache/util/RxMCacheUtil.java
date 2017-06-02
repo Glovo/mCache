@@ -1,11 +1,14 @@
 package wiki.depasquale.mcache.util;
 
+import android.support.annotation.Nullable;
+import android.util.Log;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
-import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
 
 /**
@@ -14,7 +17,7 @@ import wiki.depasquale.mcache.core.IOHandler;
 
 class RxMCacheUtil {
 
-  static <T> Observable<T> wrap(Observable<T> o, Class<T> cls,
+  /*static <T> Observable<T> wrap(Observable<T> o, Class<T> cls,
       List<IOHandler> handlers, CharSequence id, boolean force, int readAt,
       boolean returnImmediately) {
     PublishSubject<T> publishSubject = PublishSubject.create();
@@ -58,5 +61,52 @@ class RxMCacheUtil {
         .id(id)
         .using(handlers.get(readAt).getClass())
         .with();
+  }*/
+
+  public static <T> Observable<T> wrap(@Nullable Observable<T> o, List<IOHandler> handlers,
+      FileParams params, Class<T> cls) {
+    if (o == null) { o = Observable.empty(); }
+    Observable<T> finalO = o.map(it -> {
+      for (IOHandler handler : handlers) {
+        Log.d("RxU", "saved");
+        handler.save(it, params);
+      }
+      return it;
+    }).observeOn(AndroidSchedulers.mainThread());
+    PublishSubject<T> publishSubject = PublishSubject.create();
+    final Disposable[] requestDisposable = {null};
+    return publishSubject.doOnSubscribe(disposable -> {
+      Observable.just(handlers)
+          .observeOn(Schedulers.io())
+          .flatMapIterable(it -> it)
+          .flatMap(it -> it.get(cls, params))
+          /*.onErrorResumeNext(throwable -> {
+            throwable.printStackTrace();
+            return finalO;
+            *//*if (requestDisposable[0] == null) {
+              Log.d("RxU", "returned o");
+              return finalO;
+            }
+            Log.d("RxU", "returned empty observable");
+            return Observable.empty();*//*
+          })*/
+          .observeOn(AndroidSchedulers.mainThread())
+          .doOnSubscribe(it -> {
+            if (requestDisposable[0] == null) {
+              Log.d("RxU", "subscribed to o");
+              requestDisposable[0] = finalO.subscribe(
+                  publishSubject::onNext,
+                  publishSubject::onError,
+                  publishSubject::onComplete
+              );
+            }
+          })
+          .subscribe(
+              publishSubject::onNext,
+              publishSubject::onError,
+              publishSubject::onComplete
+          );
+
+    });
   }
 }

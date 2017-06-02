@@ -73,11 +73,11 @@ public final class SharedPrefsIOHandler implements IOHandler {
     mEditor.apply();
   }*/
 
-  @Override public <T> Observable<T> get(@NonNull FileParams<T> params) {
+  @Override public <T> Observable<T> get(Class<T> cls, @NonNull FileParams params) {
     return null;
   }
 
-  @Override public <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+  @Override public <T> void save(@NonNull T object, @NonNull FileParams params) {
 
   }
 
