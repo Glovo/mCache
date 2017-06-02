@@ -6,6 +6,7 @@ package wiki.depasquale.mcache.core;
 
 public class FileParams<T> {
 
+  public static final int MATCHING_DES_ID = 0x0101;
   private static final String error = "\nThis operation could have corrupted the file.";
   public static int MATCHING = 0x1111;
   private long id = -1;
@@ -43,6 +44,10 @@ public class FileParams<T> {
     if (this.id == -1) { this.id = id; } else {
       throw new UnsupportedOperationException("You may not change id." + error);
     }
+  }
+
+  void internalForceSetId(long id) {
+    this.id = id;
   }
 
   public long getTimeCreated() {

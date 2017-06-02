@@ -133,9 +133,17 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
-### [future release]
-* Kotlin module to support it's great language features
-* You name it (create issues for feature requests)
+### 1.0.0 [TBR]
+* Totally redone whole caching system. Your files will be **stranded**.
+  * RxJava is now heavily used throughout the library
+  * Library is with those changes little slower however those changes allow greater versatility
+* Params started to be messy and so they are replaced with FileParams class
+  * It can be overridden if you wish to do so
+* Since we can have random number of params identifiers can be no longer embedded to file name so this system is replaced by folder-per-class system with unique map inside each folder which will store params for each file
+  * Files are now stored under unique id which cannot be changed
+    * Current id is replaced with Descriptor by default
+* Multiple "handbreaks" were added to make sure you will never get null through RxJava (as it's no longer possible due to internal changes to RxJava). Instead exceptions are thrown or onError methods are invoked directly if file does not exist.
+  * TL;DR use onError while subscribing.
 
 ### 0.7.4
 * Remove RxJava (first gen) as it's no longer actively maintained 
