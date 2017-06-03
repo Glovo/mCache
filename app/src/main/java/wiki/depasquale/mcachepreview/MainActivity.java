@@ -8,6 +8,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
           input.setErrorEnabled(false);
           user.setText(String.format("/users/%s", username));
           startTime = System.nanoTime();
-          Github.user(username).subscribe(this,
+          Github.user(username).subscribe(it -> {
+                Log.d("Rx Sub", new Gson().toJson(it));
+              },
               error -> {
                 error.printStackTrace();
                 Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();

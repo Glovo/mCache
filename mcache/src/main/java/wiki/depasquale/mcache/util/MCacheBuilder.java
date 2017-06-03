@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
-import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.FinishedListener;
 import wiki.depasquale.mcache.core.IOHandler;
+import wiki.depasquale.mcache.testing.FileParams;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.

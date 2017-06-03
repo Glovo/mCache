@@ -8,8 +8,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
-import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
+import wiki.depasquale.mcache.testing.FileParams;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.

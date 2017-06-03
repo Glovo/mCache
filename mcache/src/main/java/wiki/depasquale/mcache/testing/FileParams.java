@@ -1,10 +1,8 @@
-package wiki.depasquale.mcache.core;
+package wiki.depasquale.mcache.testing;
 
 import com.google.gson.annotations.Expose;
 
-/**
- * Created by diareuse on 01/06/2017. Yeah. Suck it.
- */
+// This is extremely stupid and unreliable solution and it's discontinued.
 
 public class FileParams<T> {
 

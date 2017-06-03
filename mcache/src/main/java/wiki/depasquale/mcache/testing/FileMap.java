@@ -1,4 +1,4 @@
-package wiki.depasquale.mcache.core;
+package wiki.depasquale.mcache.testing;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,7 +8,6 @@ import android.util.Log;
 import android.util.Pair;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -28,23 +27,28 @@ import java.util.List;
 import wiki.depasquale.mcache.BuildConfig;
 import wiki.depasquale.mcache.MCache;
 
-/**
- * Created by diareuse on 01/06/2017. Yeah. Suck it.
- */
+// This is extremely stupid and unreliable solution and it's discontinued.
 
-public class FileMap<T> {
+public class FileMap<T extends FileParams<?>> {
 
   private static final String MAP_NAME = "map.fmp";
-  private static Gson gson;
-  @Expose List<FileParams> files = new ArrayList<>(0);
-  private File rootFolder;
+  private final File folder;
+  private List<T> files = new ArrayList<>(0);
+  private Type type;
 
-  private FileMap(File parent) {
-    rootFolder = parent;
+  private FileMap(File parent, Type type) {
+    this.folder = parent;
+    this.type = type;
     boolean exists = false;
     for (File file : parent.listFiles()) {
       if (MAP_NAME.equals(file.getName())) {
         exists = true;
+        FileMap<T> map = reconstruct(readFile(file), type);
+        if (map != null) {
+          this.files = map.files;
+        } else {
+          exists = false;
+        }
         break;
       }
     }
@@ -54,7 +58,7 @@ public class FileMap<T> {
   }
 
   @Nullable
-  public static <P> FileMap<P> forFolder(@NonNull Class cls, boolean isCache) {
+  public static <P> FileMap<FileParams<P>> forClass(@NonNull Class<P> cls, boolean isCache) {
     String folderName = getFolderName(cls);
     Context context = MCache.get();
     if (context == null) {
@@ -85,53 +89,35 @@ public class FileMap<T> {
   }
 
   @Nullable
-  private static <P> FileMap<P> buildFileMapForFolder(@NonNull File child) {
-    String data = null;
-    for (File potentialMap : child.listFiles()) {
-      if (MAP_NAME.equals(potentialMap.getName())) {
-        data = readFile(potentialMap);
-        break;
-      }
-    }
-    if (data == null) {
-      Log.d("RxU", "Data are null");
-      return new FileMap<>(child);
-    } else {
-      Log.d("RxU", data);
-      FileMap<P> map = reconstruct(data, new TypeToken<FileMap<P>>() {}.getType());
-      if (map != null) { map.rootFolder = child; } else {
-        Log.d("RxU", "Map returned as null");
-      }
-      return map;
-    }
+  private static <P> FileMap<FileParams<P>> buildFileMapForFolder(@NonNull File child) {
+    return new FileMap<>(child, new TypeToken<P>() {}.getType());
   }
 
-  private static Gson getGson() {
-    if (gson == null) {
+  private static Gson getGson(Type type) {
+    return new GsonBuilder()
+        .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
+        /*.registerTypeAdapter(type, new TypeAdapter<>() {
+          @Override
+          public void write(JsonWriter out, Object value) throws IOException {
+
+          }
+
+          @Override
+          public Object read(JsonReader in) throws IOException {
+            return null;
+          }
+        })*/
+        .create();
+    /*if (gson == null) {
       gson = new GsonBuilder()
           .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
-          //.serializeNulls()
-          .excludeFieldsWithoutExposeAnnotation()
+          .registerTypeAdapter(type,null)
           .create();
     }
-    return gson;
+    return gson;*/
   }
 
-  private static <T> T reconstruct(String string, Type cls) {
-    if (string == null) {
-      Log.d("RxU", "Gson - String was null");
-      return null;
-    } else {
-      try {
-        return getGson().fromJson(string, cls);
-      } catch (Exception e) {
-        e.printStackTrace();
-        Log.d("RxU", "Gson - something fucked up");
-        return null;
-      }
-    }
-  }
-
+  @Nullable
   private static String readFile(File fileToRead) {
     try {
       FileInputStream in = new FileInputStream(fileToRead);
@@ -160,34 +146,14 @@ public class FileMap<T> {
     return new Pair<>(isLong, longNumber);
   }
 
-  public Observable<List<FileParams>> similar(FileParams params) {
-    return Observable.just(files)
-        .observeOn(Schedulers.computation())
-        .flatMapIterable(items -> items)
-        .filter(item -> FileParams.compare(item, params) > 0)
-        .toList()
-        .toObservable()
-        .observeOn(AndroidSchedulers.mainThread());
-  }
-
-  public Observable<List<FileParams>> matching(FileParams params) {
-    return Observable.just(files)
-        .observeOn(Schedulers.computation())
-        .flatMapIterable(items -> items)
-        .filter(item -> (FileParams.compare(item, params) & FileParams.MATCHING_DES)
-            == FileParams.MATCHING_DES)
-        .toList()
-        .toObservable()
-        .observeOn(AndroidSchedulers.mainThread());
-  }
-
-  public Observable<T> getObject(FileParams fPam) {
-    if (rootFolder == null) {
+  public static <O> Observable<O> getObjectObservable(FileMap<FileParams<O>> map,
+      FileParams<O> params) {
+    if (map.folder == null) {
       throw new RuntimeException(
-          "Object " + this.toString() + " not initialized with static method?");
+          "Object " + map.toString() + " not initialized with static method?");
     }
 
-    return Observable.just(rootFolder.listFiles())
+    return Observable.just(map.folder.listFiles())
         .observeOn(Schedulers.io())
         .map(array -> {
           ArrayList<File> files = new ArrayList<>(0);
@@ -197,21 +163,22 @@ public class FileMap<T> {
         .flatMapIterable(it -> it)
         .filter(it -> {
           Pair<Boolean, Long> values = checkLong(it.getName());
-          return values.first && fPam.getId() == values.second;
+          return values.first && params.getId() == values.second;
         })
         .map(FileMap::readFile)
         .map(it -> {
-          T finalObject = reconstruct(it, new TypeToken<T>() {}.getType());
+          O finalObject = map.reconstruct(it, map.type);
           if (finalObject == null) {
             throw new RuntimeException("File specified is null, empty or non existing.");
           }
+          Log.d("RxU final", new Gson().toJson(finalObject));
           return finalObject;
         }).observeOn(AndroidSchedulers.mainThread());
   }
 
-  public void save(T file, FileParams params) {
+  public static <O> void save(FileMap<FileParams<O>> map, O file, FileParams params) {
     Log.d("RxU", "saving... in method");
-    Observable.just(files)
+    Observable.just(map.files)
         .doOnSubscribe(it -> {
           Log.d("RxU", "saving... subscribed");
         })
@@ -225,10 +192,10 @@ public class FileMap<T> {
         .toList()
         .map(it -> {
           if (it.size() == 0) {
-            params.internalForceSetId(getNewId());
+            params.internalForceSetId(map.getNewId());
             params.setTimeCreated(System.currentTimeMillis());
             params.setTimeChanged(params.getTimeCreated());
-            updateMap(params);
+            map.updateMap(params);
             return params;
           } else if (it.size() > 1) {
             throw new RuntimeException("Internal problem with non-unique descriptors.");
@@ -236,7 +203,57 @@ public class FileMap<T> {
             return it.get(0);
           }
         })
-        .subscribe(it -> saveFile(file, String.valueOf(it.getId())), Throwable::printStackTrace);
+        .subscribe(it -> saveFile(map, file, String.valueOf(it.getId())),
+            Throwable::printStackTrace);
+  }
+
+  private static <O> void saveFile(FileMap<FileParams<O>> map, O file, String fileName) {
+    Log.d("RxU", "saved file: " + fileName);
+    if (map.folder != null) {
+      try {
+        FileOutputStream fos = new FileOutputStream(new File(map.folder, fileName));
+        fos.write(new Gson().toJson(file).getBytes());
+        fos.close();
+      } catch (IOException e) {
+        if (BuildConfig.DEBUG) { e.printStackTrace(); }
+      }
+    } else { throw new RuntimeException("Root folder is null hence I can't save the file."); }
+  }
+
+  private <T> T reconstruct(String string, @NonNull Type cls) {
+    if (string == null) {
+      Log.d("RxU", "Gson - String was null");
+      return null;
+    } else {
+      try {
+        return getGson(type).fromJson(string, cls);
+      } catch (Exception e) {
+        e.printStackTrace();
+        Log.d("RxU", "Gson - something fucked up");
+        return null;
+      }
+    }
+  }
+
+  public Observable<List<T>> similar(FileParams params) {
+    return Observable.just(files)
+        .observeOn(Schedulers.computation())
+        .flatMapIterable(items -> items)
+        .filter(item -> FileParams.compare(item, params) > 0)
+        .toList()
+        .toObservable()
+        .observeOn(AndroidSchedulers.mainThread());
+  }
+
+  public Observable<List<T>> matching(FileParams params) {
+    return Observable.just(files)
+        .observeOn(Schedulers.computation())
+        .flatMapIterable(items -> items)
+        .filter(item -> (FileParams.compare(item, params) & FileParams.MATCHING_DES)
+            == FileParams.MATCHING_DES)
+        .toList()
+        .toObservable()
+        .observeOn(AndroidSchedulers.mainThread());
   }
 
   private long getNewId() {
@@ -248,30 +265,17 @@ public class FileMap<T> {
     return id + 1;
   }
 
-  private void updateMap(FileParams params) {
+  private void updateMap(T params) {
     if (params != null) { files.add(params); }
     saveFile(this, MAP_NAME);
   }
 
-  private void saveFile(T file, String fileName) {
-    Log.d("RxU", "saved file: " + fileName);
-    if (rootFolder != null) {
-      try {
-        FileOutputStream fos = new FileOutputStream(new File(rootFolder, fileName));
-        fos.write(getGson().toJson(file).getBytes());
-        fos.close();
-      } catch (IOException e) {
-        if (BuildConfig.DEBUG) { e.printStackTrace(); }
-      }
-    } else { throw new RuntimeException("Root folder is null hence I can't save the file."); }
-  }
-
   private void saveFile(FileMap<T> file, String fileName) {
     Log.d("RxU", "saved file: " + fileName);
-    if (rootFolder != null) {
+    if (folder != null) {
       try {
-        FileOutputStream fos = new FileOutputStream(new File(rootFolder, fileName));
-        fos.write(getGson().toJson(file).getBytes());
+        FileOutputStream fos = new FileOutputStream(new File(folder, fileName));
+        fos.write(getGson(type).toJson(file).getBytes());
         fos.close();
       } catch (IOException e) {
         if (BuildConfig.DEBUG) { e.printStackTrace(); }
