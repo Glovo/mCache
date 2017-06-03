@@ -96,6 +96,7 @@ public class FileMap<T extends FileParams<?>> {
   private static Gson getGson(Type type) {
     return new GsonBuilder()
         .excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC)
+        .excludeFieldsWithoutExposeAnnotation()
         /*.registerTypeAdapter(type, new TypeAdapter<>() {
           @Override
           public void write(JsonWriter out, Object value) throws IOException {

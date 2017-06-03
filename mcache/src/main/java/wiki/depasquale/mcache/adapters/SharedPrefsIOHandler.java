@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import io.reactivex.Observable;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.testing.FileParams;
 
 /**
  * Created by diareuse on 13/04/2017. Yeah. Suck it.
@@ -72,12 +71,14 @@ public final class SharedPrefsIOHandler implements IOHandler {
     }
     mEditor.apply();
   }*/
-
-  @Override public <T> Observable<T> get(@NonNull FileParams<T> params) {
+  @Override
+  public <T> Observable<T> get(@NonNull Class<T> type,
+      @NonNull wiki.depasquale.mcache.core.FileParams params) {
     return null;
   }
 
-  @Override public <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+  @Override
+  public <T> void save(@NonNull T object, @NonNull wiki.depasquale.mcache.core.FileParams params) {
 
   }
 

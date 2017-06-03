@@ -2,8 +2,9 @@ package wiki.depasquale.mcache.adapters;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
+import wiki.depasquale.mcache.core.FileMap;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.testing.FileParams;
 
 public final class FilesIOHandler implements IOHandler {
 
@@ -11,7 +12,8 @@ public final class FilesIOHandler implements IOHandler {
 
   @Override
   @NonNull
-  public final <T> Observable<T> get(@NonNull FileParams<T> params) {
+  public <T> Observable<T> get(@NonNull Class<T> type, @NonNull FileParams params) {
+    FileMap.Companion.forClass((Class<Object>) type, false);
     /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
       return fileMap.matching(params)
@@ -21,11 +23,11 @@ public final class FilesIOHandler implements IOHandler {
     }
     PublishSubject<T> empty = PublishSubject.create();
     return empty.doOnSubscribe(disposable -> empty.onError(new Throwable("No file was found.")));*/
-    return null;
+    return Observable.empty();
   }
 
   @Override
-  public final <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
+  public <T> void save(@NonNull T object, @NonNull FileParams params) {
     /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
       Log.d("RxU", "saving...");

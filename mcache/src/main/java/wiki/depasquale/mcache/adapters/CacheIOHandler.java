@@ -2,11 +2,9 @@ package wiki.depasquale.mcache.adapters;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.subjects.PublishSubject;
+import wiki.depasquale.mcache.core.FileMap;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.testing.FileMap;
-import wiki.depasquale.mcache.testing.FileParams;
 
 // TODO: 01/06/2017 redo with new standard
 public final class CacheIOHandler implements IOHandler {
@@ -15,8 +13,10 @@ public final class CacheIOHandler implements IOHandler {
 
 
   @Override
-  public <T> Observable<T> get(@NonNull FileParams<T> params) {
-    FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), true);
+  @NonNull
+  public <T> Observable<T> get(@NonNull Class<T> type, @NonNull FileParams params) {
+    FileMap.Companion.forClass((Class<Object>) type, false);
+    /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
       return fileMap.matching(params)
           .flatMapIterable(it -> it)
@@ -24,15 +24,19 @@ public final class CacheIOHandler implements IOHandler {
           .observeOn(AndroidSchedulers.mainThread());
     }
     PublishSubject<T> empty = PublishSubject.create();
-    return empty/*.doOnSubscribe(disposable -> empty.onError(new Throwable("No file was found.")))*/;
+    return empty.doOnSubscribe(disposable -> empty.onError(new Throwable("No file was found.")));*/
+    return Observable.empty();
   }
 
   @Override
-  public <T> void save(@NonNull T object, @NonNull FileParams<T> params) {
-    FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), true);
+  public <T> void save(@NonNull T object, @NonNull FileParams params) {
+    /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
+      Log.d("RxU", "saving...");
       FileMap.save(fileMap, object, params);
-    }
+    } else {
+      Log.d("RxU", "Map is null, the hell?");
+    }*/
   }
 
   @Override

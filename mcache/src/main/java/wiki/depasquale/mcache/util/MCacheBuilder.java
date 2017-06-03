@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.FinishedListener;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.testing.FileParams;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -18,7 +18,7 @@ import wiki.depasquale.mcache.testing.FileParams;
 public class MCacheBuilder<T> {
 
   private List<IOHandler> handlers = new ArrayList<>(0);
-  private FileParams<T> params;
+  private FileParams params;
 
   @SuppressWarnings("unused") private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
@@ -26,7 +26,7 @@ public class MCacheBuilder<T> {
 
   private MCacheBuilder(Class<T> cls) {
     params = new FileParams();
-    params.setFileClass(cls);
+    //params.setFileClass(cls);
   }
 
   /**
@@ -75,7 +75,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> force(boolean force) {
-    params.setForce(force);
+    //params.setForce(force);
     return this;
   }
 
@@ -87,7 +87,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
-    params.setPullIfNotNull(pullIfNotNull);
+    //params.setPullIfNotNull(pullIfNotNull);
     return this;
   }
 
@@ -139,7 +139,7 @@ public class MCacheBuilder<T> {
   public final void save(@NonNull T object) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
     for (IOHandler handler : handlers) {
-      handler.save(object, params);
+      //handler.save(object, params);
     }
   }
 

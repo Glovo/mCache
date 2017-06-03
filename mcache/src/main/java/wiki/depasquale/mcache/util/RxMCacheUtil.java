@@ -8,8 +8,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
+import wiki.depasquale.mcache.core.FileMap;
+import wiki.depasquale.mcache.core.FileParams;
 import wiki.depasquale.mcache.core.IOHandler;
-import wiki.depasquale.mcache.testing.FileParams;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -64,12 +65,12 @@ class RxMCacheUtil {
   }*/
 
   public static <T> Observable<T> wrap(@Nullable Observable<T> o, List<IOHandler> handlers,
-      FileParams<T> params) {
+      FileParams params) {
     if (o == null) { o = Observable.empty(); }
     Observable<T> finalO = o.map(it -> {
       for (IOHandler handler : handlers) {
         Log.d("RxU", "saved");
-        handler.save(it, params);
+        //handler.save(it, params);
       }
       return it;
     }).observeOn(AndroidSchedulers.mainThread());
@@ -89,7 +90,7 @@ class RxMCacheUtil {
           })
           .observeOn(Schedulers.io())
           .flatMapIterable(it -> it)
-          .flatMap(it -> it.get(params))
+          .flatMap(it -> it.get(FileMap.class, params))
           /*.onErrorResumeNext(throwable -> {
             throwable.printStackTrace();
             return finalO;
@@ -102,7 +103,7 @@ class RxMCacheUtil {
           })*/
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe(
-              publishSubject::onNext,
+              it -> {publishSubject.onNext((T) it);},
               publishSubject::onError,
               publishSubject::onComplete
           );
