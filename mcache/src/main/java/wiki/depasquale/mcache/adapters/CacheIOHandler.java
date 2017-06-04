@@ -15,7 +15,7 @@ public final class CacheIOHandler implements IOHandler {
   @Override
   @NonNull
   public <T> Observable<T> get(@NonNull Class<T> type, @NonNull FileParams params) {
-    FileMap.Companion.forClass((Class<Object>) type, false);
+    FileMap.Companion.forClass(type, false);
     /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
       return fileMap.matching(params)

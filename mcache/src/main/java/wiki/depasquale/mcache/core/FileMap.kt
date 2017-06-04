@@ -121,7 +121,7 @@ class FileMap private constructor() {
     }
 
     companion object {
-        fun forClass(cls: Class<Any>, isCache: Boolean = false): FileMap {
+        fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
             return FileMap(cls.simpleName, isCache)
         }
     }

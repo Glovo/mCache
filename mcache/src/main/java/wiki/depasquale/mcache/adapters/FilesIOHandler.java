@@ -13,7 +13,7 @@ public final class FilesIOHandler implements IOHandler {
   @Override
   @NonNull
   public <T> Observable<T> get(@NonNull Class<T> type, @NonNull FileParams params) {
-    FileMap map = FileMap.Companion.forClass((Class<Object>) type, false);
+    FileMap map = FileMap.Companion.forClass(type, false);
     return map.findObjectByParams(type, params);
     /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
@@ -28,7 +28,7 @@ public final class FilesIOHandler implements IOHandler {
 
   @Override
   public <T> void save(@NonNull T object, @NonNull FileParams params) {
-    FileMap.Companion.forClass((Class<Object>) object.getClass(), false)
+    FileMap.Companion.forClass(object.getClass(), false)
         .saveObjectWithParams(object, params);
     /*FileMap<FileParams<T>> fileMap = FileMap.forClass(params.getFileClass(), false);
     if (fileMap != null) {
