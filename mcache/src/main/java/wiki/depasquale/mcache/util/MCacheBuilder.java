@@ -17,16 +17,17 @@ import wiki.depasquale.mcache.core.IOHandler;
 
 public class MCacheBuilder<T> {
 
+  private final Class<T> cls;
   private List<IOHandler> handlers = new ArrayList<>(0);
-  private FileParams params;
+  private FileParams params = new FileParams("default");
 
-  @SuppressWarnings("unused") private MCacheBuilder() {
+  @SuppressWarnings("unused")
+  private MCacheBuilder() {
     throw new RuntimeException("This shall not be used!");
   }
 
   private MCacheBuilder(Class<T> cls) {
-    params = new FileParams();
-    //params.setFileClass(cls);
+    this.cls = cls;
   }
 
   /**
@@ -46,7 +47,8 @@ public class MCacheBuilder<T> {
    * @param handlers Classes of IOHandler. Custom or not, it does not care.
    * @return building instance
    */
-  @SafeVarargs public final MCacheBuilder<T> using(Class<? extends IOHandler>... handlers) {
+  @SafeVarargs
+  public final MCacheBuilder<T> using(Class<? extends IOHandler>... handlers) {
     this.handlers.clear();
     for (Class<? extends IOHandler> handler : handlers) {
       this.handlers.add(MCache.getIOHandler(handler));
@@ -62,7 +64,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> descriptor(String descriptor) {
-    params.setDescriptor(descriptor);
+    params = new FileParams(descriptor);
     return this;
   }
 
@@ -114,7 +116,7 @@ public class MCacheBuilder<T> {
    */
   public final Observable<T> with(@Nullable Observable<T> o) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, handlers, params);
+    return RxMCacheUtil.wrap(o, handlers, params, cls);
   }
 
   /**
@@ -139,7 +141,7 @@ public class MCacheBuilder<T> {
   public final void save(@NonNull T object) {
     if (handlers.isEmpty()) { using(FilesIOHandler.class); }
     for (IOHandler handler : handlers) {
-      //handler.save(object, params);
+      handler.save(object, params);
     }
   }
 

@@ -4,7 +4,7 @@ import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
-import wiki.depasquale.mcache.BuildConfig
+import io.reactivex.Observable
 import wiki.depasquale.mcache.MCache
 import java.io.*
 import java.text.Normalizer
@@ -22,6 +22,9 @@ class FileMap private constructor() {
         GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .create()
+    }
+    private val objectGson: Gson by lazy {
+        Gson()
     }
 
     private constructor(className: String, isCache: Boolean = false) : this() {
@@ -62,21 +65,59 @@ class FileMap private constructor() {
 
     private fun updateMap(params: FileParams? = null) {
         if (params != null) {
-            files.add(params)
-        }
-        if (folder != null) {
-            try {
-                val fos = FileOutputStream(File(folder, MAP_NAME))
-                fos.write(gson.toJson(this).toByteArray())
-                fos.close()
-            } catch (e: IOException) {
-                if (BuildConfig.DEBUG) {
-                    e.printStackTrace()
+            var found: Boolean = false
+            for ((index, param) in files.withIndex()) {
+                if (param.descriptor == params.descriptor) {
+                    param.id = params.id
+                    param.timeCreated = params.timeCreated
+                    param.timeChanged = params.timeChanged
+                    files[index] = param
+                    found = true
+                    break
                 }
             }
+            if (!found) {
+                files.add(params)
+            }
+        }
+        if (folder != null) {
+            File(folder, MAP_NAME).write(this, gson = gson)
         } else {
             throw RuntimeException("Root folder is null hence I can't save the file.")
         }
+    }
+
+    fun <T> findObjectByParams(cls: Class<T>, params: FileParams): Observable<T> {
+        val wantedFiles = files.filter { it.descriptor == params.descriptor }
+        if (wantedFiles.size > 1 || wantedFiles.isEmpty()) {
+            throw RuntimeException("FileMap Panic", Throwable("Non unique descriptor for single class."))
+        } else {
+            val wantedFile = wantedFiles[0]
+            val final = File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
+            if (final == null) {
+                val observable = Observable.empty<T>()
+                return observable
+            } else return final.toObservable()
+        }
+    }
+
+    fun saveObjectWithParams(file: Any, params: FileParams) {
+        if (files.any { it.descriptor == params.descriptor }) {
+            for (param in files) {
+                if (param.descriptor == params.descriptor) {
+                    params.id = param.id
+                    params.timeCreated = param.timeCreated
+                    params.timeChanged = System.currentTimeMillis()
+                    break
+                }
+            }
+        } else {
+            params.id = files.computeNewId()
+            params.timeCreated = System.currentTimeMillis()
+            params.timeChanged = params.timeCreated
+        }
+        File(folder, params.id.toString()).write(file)
+        updateMap(params)
     }
 
     companion object {
@@ -105,10 +146,35 @@ class FileMap private constructor() {
                 return@use it.readText()
             }
         } catch (e: IOException) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace()
-            }
+            e.printStackTrace()
         }
         return null
+    }
+
+    private fun <T> String.convertToObject(cls: Class<T>): T? {
+        return objectGson.fromJson(this, cls)
+    }
+
+    private fun File.write(file: Any, gson: Gson = objectGson) {
+        try {
+            val fos = FileOutputStream(this)
+            fos.write(gson.toJson(file).toByteArray())
+            fos.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun <T> T.toObservable(): Observable<T> {
+        return Observable.just(this)
+    }
+
+    private fun List<FileParams>.computeNewId(): Long {
+        var id = 0L
+        this
+            .asSequence()
+            .filter { it.id > id }
+            .forEach { id = it.id }
+        return id + 1L
     }
 }
