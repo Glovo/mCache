@@ -1,7 +1,4 @@
 ext {
-    vName = '1.0.0-SNAPSHOT'
-    vCode = 1000
-
     bintrayUser = System.getenv('BIN_USER')
     bintrayAPI = System.getenv('API_KEY')
 

@@ -1,5 +1,8 @@
 package wiki.depasquale.mcache.core.internal
 
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+
 /**
  * diareuse on 03.06.2017
  */
@@ -94,23 +97,31 @@ class FileMap private constructor() {
         }
     }
 
-    fun saveObjectWithParams(file: Any, params: FileParams) {
-        if (files.any { it.descriptor == params.descriptor }) {
-            for (param in files) {
-                if (param.descriptor == params.descriptor) {
-                    params.id = param.id
-                    params.timeCreated = param.timeCreated
-                    params.timeChanged = System.currentTimeMillis()
-                    break
+    fun saveObjectWithParams(file: Any, params: FileParams): Observable<Boolean> {
+        return Observable.just(files)
+            .observeOn(Schedulers.io())
+            .map {
+                if (it.any { it.descriptor == params.descriptor }) {
+                    for (param in it) {
+                        if (param.descriptor == params.descriptor) {
+                            params.id = param.id
+                            params.timeCreated = param.timeCreated
+                            params.timeChanged = System.currentTimeMillis()
+                            break
+                        }
+                    }
+                } else {
+                    params.id = it.computeNewId()
+                    params.timeCreated = System.currentTimeMillis()
+                    params.timeChanged = params.timeCreated
                 }
+                return@map it
             }
-        } else {
-            params.id = files.computeNewId()
-            params.timeCreated = System.currentTimeMillis()
-            params.timeChanged = params.timeCreated
-        }
-        java.io.File(folder, params.id.toString()).write(file)
-        updateMap(params)
+            .map {
+                java.io.File(folder, params.id.toString()).write(file)
+                updateMap(params)
+                return@map true
+            }
     }
 
     companion object {

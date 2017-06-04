@@ -5,12 +5,12 @@ apply plugin: 'me.tatarka.retrolambda'
 apply from: 'defaults.gradle'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion vSDK
     buildToolsVersion "25.0.3"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion vMinSDK
+        targetSdkVersion vSDK
         versionCode vCode
         versionName vName
     }

@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
@@ -119,7 +120,7 @@ public class MCacheBuilder<T> {
    *
    * @param listener Listener with corresponding class
    */
-  public final void with(FinishedListener<T> listener) {
+  public final void with(FinishedListener<T> listener, Consumer<Throwable> errorConsumer) {
     FileParamsInternal.Companion.checkParams(internalParams);
     Observable.just(internalParams.getHandlers().get(internalParams.getReadWith()))
         .observeOn(Schedulers.io())
@@ -127,7 +128,7 @@ public class MCacheBuilder<T> {
             .get(internalParams.getRequestedClass(), internalParams.getFileParams()))
         .observeOn(AndroidSchedulers.mainThread())
         .flatMap(it -> it)
-        .subscribe(listener::onFinished);
+        .subscribe(listener::onFinished, errorConsumer);
   }
 
   /**
@@ -139,6 +140,7 @@ public class MCacheBuilder<T> {
     for (IOHandler handler : internalParams.getHandlers()) {
       handler.save(object, internalParams.getFileParams());
     }
+    // TODO: 04.06.2017 Detect completion
   }
 
   /**

@@ -1,7 +1,10 @@
 buildscript {
+
     ext.kotlin_version = '1.1.2-4'
-    def artifactory_user = System.getenv('BIN_USER')
-    def artifactory_password = System.getenv('API_KEY')
+    ext.artifactory_user = System.getenv('BIN_USER')
+    ext.artifactory_password = System.getenv('API_KEY')
+    ext.artifactory_contextUrl = "https://oss.jfrog.org/artifactory"
+
     repositories {
         jcenter()
         maven {
@@ -22,6 +25,13 @@ buildscript {
     }
 }
 
+ext {
+    vName = '1.0.0-SNAPSHOT'
+    vCode = 1000
+    vSDK = 25
+    vMinSDK = 9
+}
+
 allprojects {
     apply plugin: "com.jfrog.artifactory"
     repositories {
@@ -34,9 +44,6 @@ task clean(type: Delete) {
 }
 
 artifactory {
-    def artifactory_user = System.getenv('BIN_USER')
-    def artifactory_password = System.getenv('API_KEY')
-    def artifactory_contextUrl = "https://oss.jfrog.org/artifactory"
     contextUrl = "${artifactory_contextUrl}"
     publish {
         repository {
