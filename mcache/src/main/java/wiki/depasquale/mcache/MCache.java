@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import wiki.depasquale.mcache.adapters.CacheIOHandler;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.IOHandler;
 
@@ -16,10 +17,6 @@ import wiki.depasquale.mcache.core.IOHandler;
 @SuppressWarnings("unused")
 public class MCache {
 
-  public static final CharSequence DEFAULT_ID = "_default";
-  static final String TAG = "mCacheLib";
-  public static String sPrefix = ".wiki.depasquale.";
-  public static boolean sCatch = true;
   private static Map<Class<?>, IOHandler> sIOHandlerInstance;
   private static WeakReference<Context> sContext;
 
@@ -39,10 +36,8 @@ public class MCache {
   }
 
   /**
-   * Initializes MCache with default parameters.
-   * Debug - off
-   * Prefix - .wiki.depasquale.
-   * IOHandler - {@link FilesIOHandler}
+   * Initializes MCache
+   * IOHandler - {@link CacheIOHandler}
    */
   public static MCache with(Application context) {
     return new MCache(context);
@@ -83,37 +78,5 @@ public class MCache {
         getIOHandler(handler).clean();
       }
     }
-  }
-
-  /**
-   * Prefix have to start with . [dot] and end with . [dot]. This is only effective with {@link
-   * FilesIOHandler} otherwise it's up to you.
-   *
-   * @param prefix for saving files
-   * @return current instance
-   */
-  public final MCache setPrefix(String prefix) {
-    if (prefix != null) {
-      if (prefix.startsWith(".") && prefix.endsWith(".") && prefix.length() >= 3) {
-        MCache.sPrefix = prefix;
-      } else {
-        throw new IllegalArgumentException("Prefix have to start and end with a dot (.) "
-            + "with minimum length of 3");
-      }
-    } else {
-      throw new IllegalArgumentException("Prefix must not be null");
-    }
-    return this;
-  }
-
-  /**
-   * Catch Rx errors with Throwable::printStackTrace [true] or pass them to Observable [false]
-   *
-   * @param catchByDefault boolean representation of status
-   * @return current instance
-   */
-  public final MCache setCatchByDefault(boolean catchByDefault) {
-    MCache.sCatch = catchByDefault;
-    return this;
   }
 }

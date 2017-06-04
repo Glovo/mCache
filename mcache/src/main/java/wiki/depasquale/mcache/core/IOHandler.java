@@ -2,6 +2,7 @@ package wiki.depasquale.mcache.core;
 
 import android.support.annotation.NonNull;
 import io.reactivex.Observable;
+import wiki.depasquale.mcache.core.internal.FileParams;
 
 /**
  * diareuse on 26.03.2017

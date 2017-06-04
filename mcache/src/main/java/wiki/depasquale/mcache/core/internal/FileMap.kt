@@ -1,13 +1,4 @@
-package wiki.depasquale.mcache.core
-
-import android.util.Base64
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
-import io.reactivex.Observable
-import wiki.depasquale.mcache.MCache
-import java.io.*
-import java.text.Normalizer
+package wiki.depasquale.mcache.core.internal
 
 /**
  * diareuse on 03.06.2017
@@ -16,19 +7,19 @@ import java.text.Normalizer
 class FileMap private constructor() {
 
     private val MAP_NAME = "map.fmp"
-    private var folder: File? = null
-    @Expose private val files: MutableList<FileParams> = ArrayList(0)
-    private val gson: Gson by lazy {
-        GsonBuilder()
+    private var folder: java.io.File? = null
+    @com.google.gson.annotations.Expose private val files: MutableList<FileParams> = ArrayList(0)
+    private val gson: com.google.gson.Gson by lazy {
+        com.google.gson.GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .create()
     }
-    private val objectGson: Gson by lazy {
-        Gson()
+    private val objectGson: com.google.gson.Gson by lazy {
+        com.google.gson.Gson()
     }
 
     private constructor(className: String, isCache: Boolean = false) : this() {
-        MCache.get()?.let {
+        wiki.depasquale.mcache.MCache.get()?.let {
             val dir = if (isCache) it.cacheDir else it.filesDir
             val desiredName = className.getNameForClass()
             val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
@@ -36,7 +27,7 @@ class FileMap private constructor() {
                 throw RuntimeException("FileMap Panic", Throwable("There is more than one folder with desired name."))
             }
             if (foldersWithDesiredName.isEmpty()) {
-                val folder = File(dir, desiredName)
+                val folder = java.io.File(dir, desiredName)
                 folder.mkdirs()
                 foldersWithDesiredName.add(folder)
             }
@@ -56,7 +47,7 @@ class FileMap private constructor() {
         }
     }
 
-    private fun readMap(file: File) {
+    private fun readMap(file: java.io.File) {
         file.read()?.convertToMap()?.files?.let {
             files.clear()
             files.addAll(it)
@@ -81,21 +72,23 @@ class FileMap private constructor() {
             }
         }
         if (folder != null) {
-            File(folder, MAP_NAME).write(this, gson = gson)
+            java.io.File(folder, MAP_NAME).write(this, gson = gson)
         } else {
             throw RuntimeException("Root folder is null hence I can't save the file.")
         }
     }
 
-    fun <T> findObjectByParams(cls: Class<T>, params: FileParams): Observable<T> {
+    fun <T> findObjectByParams(cls: Class<T>, params: FileParams): io.reactivex.Observable<T> {
         val wantedFiles = files.filter { it.descriptor == params.descriptor }
-        if (wantedFiles.size > 1 || wantedFiles.isEmpty()) {
+        if (wantedFiles.size > 1) {
             throw RuntimeException("FileMap Panic", Throwable("Non unique descriptor for single class."))
+        } else if (wantedFiles.isEmpty()) {
+            return io.reactivex.Observable.empty()
         } else {
             val wantedFile = wantedFiles[0]
-            val final = File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
+            val final = java.io.File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
             if (final == null) {
-                val observable = Observable.empty<T>()
+                val observable = io.reactivex.Observable.empty<T>()
                 return observable
             } else return final.toObservable()
         }
@@ -116,36 +109,36 @@ class FileMap private constructor() {
             params.timeCreated = System.currentTimeMillis()
             params.timeChanged = params.timeCreated
         }
-        File(folder, params.id.toString()).write(file)
+        java.io.File(folder, params.id.toString()).write(file)
         updateMap(params)
     }
 
     companion object {
-        fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
-            return FileMap(cls.simpleName, isCache)
+        fun forClass(cls: Class<*>, isCache: Boolean = false): wiki.depasquale.mcache.core.internal.FileMap {
+            return wiki.depasquale.mcache.core.internal.FileMap(cls.simpleName, isCache)
         }
     }
 
     /**
      * This may throw an exception, but it's nothing bad really...
      */
-    private fun String.convertToMap(): FileMap {
-        return gson.fromJson(this, FileMap::class.java)
+    private fun String.convertToMap(): wiki.depasquale.mcache.core.internal.FileMap {
+        return gson.fromJson(this, wiki.depasquale.mcache.core.internal.FileMap::class.java)
     }
 
     private fun String.getNameForClass(): String {
-        var tempName = Base64.encodeToString(this.toByteArray(), Base64.DEFAULT).replace("=", "")
-        tempName = Normalizer.normalize(tempName, Normalizer.Form.NFD)
+        var tempName = android.util.Base64.encodeToString(this.toByteArray(), android.util.Base64.DEFAULT).replace("=", "").replace(Regex("\\s+"), "")
+        tempName = java.text.Normalizer.normalize(tempName, java.text.Normalizer.Form.NFD)
         return tempName
     }
 
-    private fun File.read(): String? {
+    private fun java.io.File.read(): String? {
         try {
-            val inputStreamReader = InputStreamReader(FileInputStream(this))
+            val inputStreamReader = java.io.InputStreamReader(java.io.FileInputStream(this))
             return inputStreamReader.use {
                 return@use it.readText()
             }
-        } catch (e: IOException) {
+        } catch (e: java.io.IOException) {
             e.printStackTrace()
         }
         return null
@@ -155,18 +148,18 @@ class FileMap private constructor() {
         return objectGson.fromJson(this, cls)
     }
 
-    private fun File.write(file: Any, gson: Gson = objectGson) {
+    private fun java.io.File.write(file: Any, gson: com.google.gson.Gson = objectGson) {
         try {
-            val fos = FileOutputStream(this)
+            val fos = java.io.FileOutputStream(this)
             fos.write(gson.toJson(file).toByteArray())
             fos.close()
-        } catch (e: IOException) {
+        } catch (e: java.io.IOException) {
             e.printStackTrace()
         }
     }
 
-    private fun <T> T.toObservable(): Observable<T> {
-        return Observable.just(this)
+    private fun <T> T.toObservable(): io.reactivex.Observable<T> {
+        return io.reactivex.Observable.just(this)
     }
 
     private fun List<FileParams>.computeNewId(): Long {

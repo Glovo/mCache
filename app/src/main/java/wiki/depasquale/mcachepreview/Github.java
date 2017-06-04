@@ -15,7 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
-import wiki.depasquale.mcache.util.MCacheBuilder;
+import wiki.depasquale.mcache.core.MCacheBuilder;
 
 /**
  * diareuse on 26.03.2017

@@ -1,4 +1,4 @@
-package wiki.depasquale.mcache.core
+package wiki.depasquale.mcache.core.internal
 
 import com.google.gson.annotations.Expose
 

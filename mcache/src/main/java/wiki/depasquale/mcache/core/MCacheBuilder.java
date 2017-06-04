@@ -1,15 +1,14 @@
-package wiki.depasquale.mcache.util;
+package wiki.depasquale.mcache.core;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import io.reactivex.Observable;
-import java.util.ArrayList;
-import java.util.List;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
-import wiki.depasquale.mcache.core.FileParams;
-import wiki.depasquale.mcache.core.FinishedListener;
-import wiki.depasquale.mcache.core.IOHandler;
+import wiki.depasquale.mcache.core.internal.FileParams;
+import wiki.depasquale.mcache.core.internal.FileParamsInternal;
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -17,9 +16,7 @@ import wiki.depasquale.mcache.core.IOHandler;
 
 public class MCacheBuilder<T> {
 
-  private final Class<T> cls;
-  private List<IOHandler> handlers = new ArrayList<>(0);
-  private FileParams params = new FileParams("default");
+  private FileParamsInternal<T> internalParams = new FileParamsInternal<>();
 
   @SuppressWarnings("unused")
   private MCacheBuilder() {
@@ -27,7 +24,7 @@ public class MCacheBuilder<T> {
   }
 
   private MCacheBuilder(Class<T> cls) {
-    this.cls = cls;
+    internalParams.setRequestedClass$production_sources_for_module_mcache(cls);
   }
 
   /**
@@ -49,9 +46,9 @@ public class MCacheBuilder<T> {
    */
   @SafeVarargs
   public final MCacheBuilder<T> using(Class<? extends IOHandler>... handlers) {
-    this.handlers.clear();
+    internalParams.getHandlers().clear();
     for (Class<? extends IOHandler> handler : handlers) {
-      this.handlers.add(MCache.getIOHandler(handler));
+      internalParams.getHandlers().add(MCache.getIOHandler(handler));
     }
     return this;
   }
@@ -64,7 +61,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> descriptor(String descriptor) {
-    params = new FileParams(descriptor);
+    internalParams.setFileParams$production_sources_for_module_mcache(new FileParams(descriptor));
     return this;
   }
 
@@ -77,7 +74,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> force(boolean force) {
-    //params.setForce(force);
+    internalParams.setForce$production_sources_for_module_mcache(force);
     return this;
   }
 
@@ -89,7 +86,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
-    //params.setPullIfNotNull(pullIfNotNull);
+    internalParams.setReturnImmediately$production_sources_for_module_mcache(pullIfNotNull);
     return this;
   }
 
@@ -102,9 +99,7 @@ public class MCacheBuilder<T> {
    * @throws IllegalArgumentException when position is greater or equal to number of handlers
    */
   public final MCacheBuilder<T> readWith(int position) {
-    /*if (position < handlers.size() && position >= 0) { this.readPosition = position; } else {
-      throw new IllegalArgumentException("Position must not be greater or lower than number of handlers");
-    }*/
+    internalParams.setReadWith$production_sources_for_module_mcache(position);
     return this;
   }
 
@@ -115,8 +110,7 @@ public class MCacheBuilder<T> {
    * @return The same observable
    */
   public final Observable<T> with(@Nullable Observable<T> o) {
-    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    return RxMCacheUtil.wrap(o, handlers, params, cls);
+    return FileParamsInternal.Companion.wrap(internalParams);
   }
 
   /**
@@ -126,11 +120,14 @@ public class MCacheBuilder<T> {
    * @param listener Listener with corresponding class
    */
   public final void with(FinishedListener<T> listener) {
-    /*Observable.just(handlers.get(0))
+    FileParamsInternal.Companion.checkParams(internalParams);
+    Observable.just(internalParams.getHandlers().get(internalParams.getReadWith()))
         .observeOn(Schedulers.io())
-        .map(handler -> handler.get(identifier, cls))
+        .map(handler -> handler
+            .get(internalParams.getRequestedClass(), internalParams.getFileParams()))
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(listener::onFinished);*/
+        .flatMap(it -> it)
+        .subscribe(listener::onFinished);
   }
 
   /**
@@ -139,9 +136,8 @@ public class MCacheBuilder<T> {
    * @param object non null object
    */
   public final void save(@NonNull T object) {
-    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    for (IOHandler handler : handlers) {
-      handler.save(object, params);
+    for (IOHandler handler : internalParams.getHandlers()) {
+      handler.save(object, internalParams.getFileParams());
     }
   }
 
@@ -151,7 +147,6 @@ public class MCacheBuilder<T> {
    * @see IOHandler#clean()
    */
   public final void clean() {
-    if (handlers.isEmpty()) { using(FilesIOHandler.class); }
-    for (IOHandler handler : handlers) { handler.clean(); }
+    internalParams.getHandlers().forEach(IOHandler::clean);
   }
 }
