@@ -12,4 +12,5 @@ data class FileParams(@Expose val descriptor: String) {
   @Expose var timeCreated: Long = -1L
     internal set
   @Expose var timeChanged: Long = -1L
+  var listener: (Boolean) -> Unit = {}
 }

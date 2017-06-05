@@ -28,19 +28,20 @@ fun <T> Class<T>.request(
       .with(listener, errorConsumer)
 }
 
-fun <T : Any> T.saveAsCache(descriptor: String = "default") =
-    this.save<T>(handlers = arrayOf(CacheIOHandler::class.java), descriptor = descriptor)
+fun <T : Any> T.saveAsCache(descriptor: String = "default", listener: (Boolean) -> Unit = {}) =
+    this.save<T>(handlers = arrayOf(CacheIOHandler::class.java), descriptor = descriptor, listener = listener)
 
-fun <T : Any> T.saveAsFile(descriptor: String = "default") =
-    this.save<T>(handlers = arrayOf(FilesIOHandler::class.java), descriptor = descriptor)
+fun <T : Any> T.saveAsFile(descriptor: String = "default", listener: (Boolean) -> Unit = {}) =
+    this.save<T>(handlers = arrayOf(FilesIOHandler::class.java), descriptor = descriptor, listener = listener)
 
 private fun <T : Any> T.save(
     handlers: Array<Class<out IOHandler>> = arrayOf(CacheIOHandler::class.java),
-    descriptor: String = "default") {
+    descriptor: String = "default",
+    listener: (Boolean) -> Unit = {}) {
   MCacheBuilder.request(this.javaClass)
       .using(*handlers)
       .descriptor(descriptor)
-      .save(this)
+      .save(this, listener)
 }
 
 fun <T : Any> T.loadFromCache(): Observable<T> {

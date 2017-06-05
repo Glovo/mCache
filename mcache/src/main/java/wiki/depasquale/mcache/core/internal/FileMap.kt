@@ -1,7 +1,13 @@
 package wiki.depasquale.mcache.core.internal
 
+import android.util.*
+import com.google.gson.*
+import com.google.gson.annotations.*
 import io.reactivex.*
 import io.reactivex.schedulers.*
+import wiki.depasquale.mcache.*
+import java.io.*
+import java.text.*
 
 /**
  * diareuse on 03.06.2017
@@ -11,18 +17,18 @@ class FileMap private constructor() {
 
   private val MAP_NAME = "map.fmp"
   private var folder: java.io.File? = null
-  @com.google.gson.annotations.Expose private val files: MutableList<FileParams> = ArrayList(0)
-  private val gson: com.google.gson.Gson by lazy {
-    com.google.gson.GsonBuilder()
+  @Expose private val files: MutableList<FileParams> = ArrayList(0)
+  private val gson: Gson by lazy {
+    GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
         .create()
   }
-  private val objectGson: com.google.gson.Gson by lazy {
-    com.google.gson.Gson()
+  private val objectGson: Gson by lazy {
+    Gson()
   }
 
   private constructor(className: String, isCache: Boolean = false) : this() {
-    wiki.depasquale.mcache.MCache.get()?.let {
+    MCache.get()?.let {
       val dir = if (isCache) it.cacheDir else it.filesDir
       val desiredName = className.getNameForClass()
       val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
@@ -81,24 +87,24 @@ class FileMap private constructor() {
     }
   }
 
-  fun <T> findObjectByParams(cls: Class<T>, params: FileParams): io.reactivex.Observable<T> {
+  fun <T> findObjectByParams(cls: Class<T>, params: FileParams): Observable<T> {
     val wantedFiles = files.filter { it.descriptor == params.descriptor }
     if (wantedFiles.size > 1) {
       throw RuntimeException("FileMap Panic", Throwable("Non unique descriptor for single class."))
     } else if (wantedFiles.isEmpty()) {
-      return io.reactivex.Observable.empty()
+      return Observable.empty()
     } else {
       val wantedFile = wantedFiles[0]
       val final = java.io.File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
       if (final == null) {
-        val observable = io.reactivex.Observable.empty<T>()
+        val observable = Observable.empty<T>()
         return observable
       } else return final.toObservable()
     }
   }
 
-  fun saveObjectWithParams(file: Any, params: FileParams): Observable<Boolean> {
-    return Observable.just(files)
+  fun saveObjectWithParams(file: Any, params: FileParams) {
+    Observable.just(files)
         .observeOn(Schedulers.io())
         .map {
           if (it.any { it.descriptor == params.descriptor }) {
@@ -122,30 +128,36 @@ class FileMap private constructor() {
           updateMap(params)
           return@map true
         }
+        .subscribe({
+          params.listener(it)
+        }, {
+          it.printStackTrace()
+          params.listener(false)
+        })
   }
 
   companion object {
-    fun forClass(cls: Class<*>, isCache: Boolean = false): wiki.depasquale.mcache.core.internal.FileMap {
-      return wiki.depasquale.mcache.core.internal.FileMap(cls.simpleName, isCache)
+    fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
+      return FileMap(cls.simpleName, isCache)
     }
   }
 
   /**
    * This may throw an exception, but it's nothing bad really...
    */
-  private fun String.convertToMap(): wiki.depasquale.mcache.core.internal.FileMap {
-    return gson.fromJson(this, wiki.depasquale.mcache.core.internal.FileMap::class.java)
+  private fun String.convertToMap(): FileMap {
+    return gson.fromJson(this, FileMap::class.java)
   }
 
   private fun String.getNameForClass(): String {
-    var tempName = android.util.Base64.encodeToString(this.toByteArray(), android.util.Base64.DEFAULT).replace("=", "").replace(Regex("\\s+"), "")
-    tempName = java.text.Normalizer.normalize(tempName, java.text.Normalizer.Form.NFD)
+    var tempName = Base64.encodeToString(this.toByteArray(), Base64.DEFAULT).replace("=", "").replace(Regex("\\s+"), "")
+    tempName = Normalizer.normalize(tempName, Normalizer.Form.NFD)
     return tempName
   }
 
   private fun java.io.File.read(): String? {
     try {
-      val inputStreamReader = java.io.InputStreamReader(java.io.FileInputStream(this))
+      val inputStreamReader = InputStreamReader(FileInputStream(this))
       return inputStreamReader.use {
         return@use it.readText()
       }
@@ -159,24 +171,23 @@ class FileMap private constructor() {
     return objectGson.fromJson(this, cls)
   }
 
-  private fun java.io.File.write(file: Any, gson: com.google.gson.Gson = objectGson) {
+  private fun java.io.File.write(file: Any, gson: Gson = objectGson) {
     try {
-      val fos = java.io.FileOutputStream(this)
+      val fos = FileOutputStream(this)
       fos.write(gson.toJson(file).toByteArray())
       fos.close()
-    } catch (e: java.io.IOException) {
+    } catch (e: IOException) {
       e.printStackTrace()
     }
   }
 
-  private fun <T> T.toObservable(): io.reactivex.Observable<T> {
-    return io.reactivex.Observable.just(this)
+  private fun <T> T.toObservable(): Observable<T> {
+    return Observable.just(this)
   }
 
   private fun List<FileParams>.computeNewId(): Long {
     var id = 0L
-    this
-        .asSequence()
+    this.asSequence()
         .filter { it.id > id }
         .forEach { id = it.id }
     return id + 1L

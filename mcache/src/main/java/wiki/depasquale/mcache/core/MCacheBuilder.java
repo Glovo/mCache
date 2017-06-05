@@ -6,6 +6,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.internal.FileParams;
@@ -111,7 +113,8 @@ public class MCacheBuilder<T> {
    * @return The same observable
    */
   public final Observable<T> with(@Nullable Observable<T> o) {
-    return FileParamsInternal.Companion.wrap(internalParams);
+    internalParams.setObservable(o);
+    return FileParamsInternal.wrap(internalParams);
   }
 
   /**
@@ -121,7 +124,7 @@ public class MCacheBuilder<T> {
    * @param listener Listener with corresponding class
    */
   public final void with(FinishedListener<T> listener, Consumer<Throwable> errorConsumer) {
-    FileParamsInternal.Companion.checkParams(internalParams);
+    FileParamsInternal.checkParams(internalParams);
     Observable.just(internalParams.getHandlers().get(internalParams.getReadWith()))
         .observeOn(Schedulers.io())
         .map(handler -> handler
@@ -136,11 +139,12 @@ public class MCacheBuilder<T> {
    *
    * @param object non null object
    */
-  public final void save(@NonNull T object) {
+  public final void save(@NonNull T object, Function1<Boolean, Unit> listener) {
     for (IOHandler handler : internalParams.getHandlers()) {
-      handler.save(object, internalParams.getFileParams());
+      FileParams params = internalParams.getFileParams();
+      params.setListener(listener);
+      handler.save(object, params);
     }
-    // TODO: 04.06.2017 Detect completion
   }
 
   /**

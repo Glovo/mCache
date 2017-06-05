@@ -32,6 +32,7 @@ class SharedPrefsIOHandler : IOHandler {
           }
         }
     mEditor.apply()
+    params.listener(true)
   }
 
   override fun clean() {
