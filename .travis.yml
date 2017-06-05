@@ -16,7 +16,7 @@ before_script:
   - unset ANDROID_NDK_HOME
 
 after_success:
-  - ./gradlew clean mCache:artifactoryPublish
+  - ./gradlew clean mcache:artifactoryPublish mcache-kotlin-extensions:artifactoryPublish
 
 script:
   - ./gradlew install connectedCheck
