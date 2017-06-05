@@ -114,7 +114,7 @@ Yes! Create pull request, issue or both.
 
 ```java
 dependencies {
-  compile 'wiki.depasquale:mcache:latest_version'
+  compile 'wiki.depasquale:mcache:latest.release'
 }
 ```
 

@@ -16,10 +16,11 @@ before_script:
   - unset ANDROID_NDK_HOME
 
 after_success:
-  - ./gradlew clean mcache:artifactoryPublish mcache-kotlin-extensions:artifactoryPublish
+  #- ./gradlew clean mcache:artifactoryPublish mcache-kotlin-extensions:artifactoryPublish
+  - bash <(curl -s https://codecov.io/bash)
 
 script:
-  - ./gradlew install connectedCheck
+  - ./gradlew connectedCheck
 
 notifications:
   email: false

@@ -35,7 +35,7 @@ ext {
 allprojects {
     apply plugin: "com.jfrog.artifactory"
     tasks.withType(Javadoc) {
-        options.addBooleanOption('Xdoclint:none', true)
+        enabled = false
     }
     repositories {
         jcenter()
