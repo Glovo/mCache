@@ -16,7 +16,7 @@ class FilesIOHandler : IOHandler {
         .saveObjectWithParams(t, params)
   }
 
-  override fun clean() {
-
+  override fun <T : Any?> remove(type: Class<T>, params: FileParams) {
+    FileMap.forClass(type, false).removeObjectWithParams(params)
   }
 }

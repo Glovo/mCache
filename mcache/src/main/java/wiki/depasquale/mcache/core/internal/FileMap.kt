@@ -95,7 +95,7 @@ class FileMap private constructor() {
       return Observable.empty()
     } else {
       val wantedFile = wantedFiles[0]
-      val final = java.io.File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
+      val final = File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
       if (final == null) {
         val observable = Observable.empty<T>()
         return observable
@@ -134,6 +134,35 @@ class FileMap private constructor() {
           it.printStackTrace()
           params.listener(false)
         })
+  }
+
+  fun removeObjectWithParams(params: FileParams) {
+    if (params.removeAll) {
+      removeAllObjects()
+      params.listener(true)
+      return
+    }
+    files.filter { it.descriptor == params.descriptor }
+        .forEach {
+          val file = File(folder, it.id.toString())
+          if (file.exists()) {
+            file.deleteRecursively()
+            files.remove(it)
+          }
+        }
+    updateMap()
+    params.listener(true)
+  }
+
+  fun removeAllObjects() {
+    files.forEach {
+      val file = File(folder, it.id.toString())
+      if (file.exists()) {
+        file.deleteRecursively()
+        files.remove(it)
+      }
+    }
+    updateMap()
   }
 
   companion object {

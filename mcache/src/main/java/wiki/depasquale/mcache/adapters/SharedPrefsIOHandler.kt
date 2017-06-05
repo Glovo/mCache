@@ -12,7 +12,6 @@ import java.lang.reflect.*
  * Created by diareuse on 13/04/2017. Yeah. Suck it.
  */
 
-// TODO: 01/06/2017 redo with new standard
 class SharedPrefsIOHandler : IOHandler {
 
   override fun <T> get(type: Class<T>, params: FileParams): Observable<T> {
@@ -35,7 +34,7 @@ class SharedPrefsIOHandler : IOHandler {
     params.listener(true)
   }
 
-  override fun clean() {
+  override fun <T : Any?> remove(type: Class<T>, params: FileParams) {
     prefs.edit().clear().apply()
   }
 

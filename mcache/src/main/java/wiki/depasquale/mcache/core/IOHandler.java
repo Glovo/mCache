@@ -20,9 +20,6 @@ public interface IOHandler {
    */
   <T> void save(@NonNull T object, @NonNull FileParams params);
 
-  /**
-   * Cleans the mess.
-   */
-  void clean();
+  <T> void remove(@NonNull Class<T> type, @NonNull FileParams params);
 
 }
