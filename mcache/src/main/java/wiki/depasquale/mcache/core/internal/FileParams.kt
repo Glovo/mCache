@@ -1,6 +1,6 @@
 package wiki.depasquale.mcache.core.internal
 
-import com.google.gson.annotations.Expose
+import com.google.gson.annotations.*
 
 /**
  * diareuse on 03.06.2017

@@ -89,7 +89,7 @@ Now retrieve your values like so:
 
 java:
 ```java
-SharedPrefsIOHandler.Companion.getPrefs().getString("username", ":(");
+SharedPrefsIOHandler.getPrefs().getString("username", ":(");
 ```
 kotlin:
 ```kotlin

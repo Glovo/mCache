@@ -25,7 +25,7 @@ public class MCacheBuilder<T> {
   }
 
   private MCacheBuilder(Class<T> cls) {
-    internalParams.setRequestedClass$production_sources_for_module_mcache(cls);
+    internalParams.setRequestedClass(cls);
   }
 
   /**
@@ -62,7 +62,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> descriptor(String descriptor) {
-    internalParams.setFileParams$production_sources_for_module_mcache(new FileParams(descriptor));
+    internalParams.setFileParams(new FileParams(descriptor));
     return this;
   }
 
@@ -75,7 +75,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> force(boolean force) {
-    internalParams.setForce$production_sources_for_module_mcache(force);
+    internalParams.setForce(force);
     return this;
   }
 
@@ -87,7 +87,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
-    internalParams.setReturnImmediately$production_sources_for_module_mcache(pullIfNotNull);
+    internalParams.setReturnImmediately(pullIfNotNull);
     return this;
   }
 
@@ -100,7 +100,7 @@ public class MCacheBuilder<T> {
    * @throws IllegalArgumentException when position is greater or equal to number of handlers
    */
   public final MCacheBuilder<T> readWith(int position) {
-    internalParams.setReadWith$production_sources_for_module_mcache(position);
+    internalParams.setReadWith(position);
     return this;
   }
 

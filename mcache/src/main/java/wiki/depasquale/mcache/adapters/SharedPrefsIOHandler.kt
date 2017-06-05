@@ -1,14 +1,12 @@
 package wiki.depasquale.mcache.adapters
 
-import android.content.Context
-import android.content.SharedPreferences
-import android.content.SharedPreferences.Editor
-import io.reactivex.Observable
-import wiki.depasquale.mcache.MCache
-import wiki.depasquale.mcache.core.IOHandler
-import wiki.depasquale.mcache.core.PrefName
-import wiki.depasquale.mcache.core.internal.FileParams
-import java.lang.reflect.Field
+import android.content.*
+import android.content.SharedPreferences.*
+import io.reactivex.*
+import wiki.depasquale.mcache.*
+import wiki.depasquale.mcache.core.*
+import wiki.depasquale.mcache.core.internal.*
+import java.lang.reflect.*
 
 /**
  * Created by diareuse on 13/04/2017. Yeah. Suck it.
@@ -41,6 +39,7 @@ class SharedPrefsIOHandler : IOHandler {
     }
 
     companion object {
+      @JvmStatic
         val prefs: SharedPreferences by lazy {
             val context = MCache.get() ?: throw RuntimeException("Prefs Panic", Throwable("Context is not valid anymore."))
             return@lazy context.getSharedPreferences(
