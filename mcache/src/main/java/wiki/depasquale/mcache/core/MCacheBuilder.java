@@ -150,9 +150,10 @@ public class MCacheBuilder<T> {
   /**
    * All handlers specified in {@link #using(Class[])} will be cleansed.
    *
-   * @see IOHandler#clean()
+   * @see IOHandler#remove(Class, FileParams)
    */
-  public final void clean() {
-    internalParams.getHandlers().forEach(IOHandler::clean);
+  public final void remove() {
+    internalParams.getHandlers().forEach(it ->
+        it.remove(internalParams.getRequestedClass(), internalParams.getFileParams()));
   }
 }
