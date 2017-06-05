@@ -1,7 +1,5 @@
 buildscript {
     ext.kotlin_version = '1.1.2-4'
-    ext.artifactory_user = System.getenv('BIN_USER')
-    ext.artifactory_password = System.getenv('API_KEY')
 
     repositories {
         jcenter()
