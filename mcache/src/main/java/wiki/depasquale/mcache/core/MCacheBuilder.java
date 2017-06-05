@@ -8,6 +8,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import org.jetbrains.annotations.NotNull;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.internal.FileParams;
@@ -36,6 +37,7 @@ public class MCacheBuilder<T> {
    * @param cls Class of the object which needs to be saved/loaded.
    * @return new <b>MCacheBuilder</b>
    */
+  @NotNull
   public static <U> MCacheBuilder<U> request(Class<U> cls) {
     return new MCacheBuilder<>(cls);
   }
@@ -48,6 +50,7 @@ public class MCacheBuilder<T> {
    * @return building instance
    */
   @SafeVarargs
+  @NotNull
   public final MCacheBuilder<T> using(Class<? extends IOHandler>... handlers) {
     internalParams.getHandlers().clear();
     for (Class<? extends IOHandler> handler : handlers) {
@@ -63,6 +66,7 @@ public class MCacheBuilder<T> {
    * just a suggestion.
    * @return building instance
    */
+  @NotNull
   public final MCacheBuilder<T> descriptor(String descriptor) {
     internalParams.setFileParams(new FileParams(descriptor));
     return this;
@@ -76,6 +80,7 @@ public class MCacheBuilder<T> {
    * @param force Boolean representation of precondition
    * @return building instance
    */
+  @NotNull
   public final MCacheBuilder<T> force(boolean force) {
     internalParams.setForce(force);
     return this;
@@ -88,6 +93,7 @@ public class MCacheBuilder<T> {
    * @param pullIfNotNull Boolean representation of condition
    * @return building instance
    */
+  @NotNull
   public final MCacheBuilder<T> pullIfNotNull(boolean pullIfNotNull) {
     internalParams.setReturnImmediately(pullIfNotNull);
     return this;
@@ -101,8 +107,15 @@ public class MCacheBuilder<T> {
    * @return building instance
    * @throws IllegalArgumentException when position is greater or equal to number of handlers
    */
+  @NotNull
   public final MCacheBuilder<T> readWith(int position) {
     internalParams.setReadWith(position);
+    return this;
+  }
+
+  @NotNull
+  public final MCacheBuilder<T> params(FileParams params) {
+    if (params != null) { internalParams.setFileParams(params); }
     return this;
   }
 
@@ -112,6 +125,7 @@ public class MCacheBuilder<T> {
    * @param o Observable of matching class
    * @return The same observable
    */
+  @NotNull
   public final Observable<T> with(@Nullable Observable<T> o) {
     internalParams.setObservable(o);
     return FileParamsInternal.wrap(internalParams);
@@ -139,11 +153,9 @@ public class MCacheBuilder<T> {
    *
    * @param object non null object
    */
-  public final void save(@NonNull T object, Function1<Boolean, Unit> listener) {
+  public final void save(@NonNull T object) {
     for (IOHandler handler : internalParams.getHandlers()) {
-      FileParams params = internalParams.getFileParams();
-      params.setListener(listener);
-      handler.save(object, params);
+      handler.save(object, internalParams.getFileParams());
     }
   }
 
@@ -155,5 +167,17 @@ public class MCacheBuilder<T> {
   public final void remove() {
     internalParams.getHandlers().forEach(it ->
         it.remove(internalParams.getRequestedClass(), internalParams.getFileParams()));
+  }
+
+  @NotNull
+  public MCacheBuilder<T> listener(Function1<Boolean, Unit> listener) {
+    internalParams.getFileParams().setListener(listener);
+    return this;
+  }
+
+  @NotNull
+  public MCacheBuilder<T> removeAll(boolean removeAll) {
+    internalParams.getFileParams().setRemoveAll(removeAll);
+    return this;
   }
 }
