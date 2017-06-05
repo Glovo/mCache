@@ -7,9 +7,9 @@ import com.google.gson.annotations.*
  */
 
 data class FileParams(@Expose val descriptor: String) {
-    @Expose var id: Long = -1L
-        internal set
-    @Expose var timeCreated: Long = -1L
-        internal set
-    @Expose var timeChanged: Long = -1L
+  @Expose var id: Long = -1L
+    internal set
+  @Expose var timeCreated: Long = -1L
+    internal set
+  @Expose var timeChanged: Long = -1L
 }
