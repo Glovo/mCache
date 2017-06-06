@@ -14,9 +14,7 @@ import java.lang.reflect.*
 
 class SharedPrefsIOHandler : IOHandler {
 
-  override fun <T> get(type: Class<T>, params: FileParams): Observable<T> {
-    return Observable.empty<T>()
-  }
+  override fun <T> get(type: Class<T>, params: FileParams): Observable<T> = Observable.empty<T>()
 
   override fun <T : Any> save(t: T, params: FileParams) {
     val mPrefs = prefs
@@ -34,9 +32,9 @@ class SharedPrefsIOHandler : IOHandler {
     params.listener(true)
   }
 
-  override fun <T : Any?> remove(type: Class<T>, params: FileParams) {
-    prefs.edit().clear().apply()
-  }
+  override fun <T : Any?> remove(type: Class<T>, params: FileParams) = clean()
+
+  override fun clean() = prefs.edit().clear().apply()
 
   companion object {
     @JvmStatic

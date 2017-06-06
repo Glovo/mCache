@@ -22,4 +22,6 @@ public interface IOHandler {
 
   <T> void remove(@NonNull Class<T> type, @NonNull FileParams params);
 
+  void clean();
+
 }

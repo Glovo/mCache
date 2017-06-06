@@ -29,7 +29,7 @@ class FileMap private constructor() {
 
   private constructor(className: String, isCache: Boolean = false) : this() {
     MCache.get()?.let {
-      val dir = if (isCache) it.cacheDir else it.filesDir
+      val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
       val desiredName = className.getNameForClass()
       val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
       if (foldersWithDesiredName.size > 1) {
@@ -168,6 +168,13 @@ class FileMap private constructor() {
   companion object {
     fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
       return FileMap(cls.simpleName, isCache)
+    }
+
+    fun clean(isCache: Boolean = false) {
+      MCache.get()?.let {
+        val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
+        if (dir.exists()) dir.deleteRecursively()
+      }
     }
   }
 
