@@ -7,7 +7,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import wiki.depasquale.mcache.adapters.CacheIOHandler;
-import wiki.depasquale.mcache.adapters.FilesIOHandler;
 import wiki.depasquale.mcache.core.IOHandler;
 
 /**
@@ -17,7 +16,7 @@ import wiki.depasquale.mcache.core.IOHandler;
 @SuppressWarnings("unused")
 public class MCache {
 
-  private static Map<Class<?>, IOHandler> sIOHandlerInstance;
+  private static Map<Class<?>, IOHandler> sIOHandlerInstance = new HashMap<>(0);
   private static WeakReference<Context> sContext;
 
   private MCache() {
@@ -26,13 +25,6 @@ public class MCache {
 
   private MCache(Application application) {
     MCache.sContext = new WeakReference<>(application);
-    initMap();
-  }
-
-  private static void initMap() {
-    if (sIOHandlerInstance == null) {
-      sIOHandlerInstance = new HashMap<>(0);
-    }
   }
 
   /**
@@ -53,8 +45,7 @@ public class MCache {
   }
 
   public static IOHandler getIOHandler(Class<? extends IOHandler> cls) {
-    initMap();
-    if (cls == null) { cls = FilesIOHandler.class; }
+    if (cls == null) { cls = CacheIOHandler.class; }
     if (sIOHandlerInstance.containsKey(cls)) {
       return sIOHandlerInstance.get(cls);
     } else {
