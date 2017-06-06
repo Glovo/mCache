@@ -30,6 +30,7 @@ class FileMap private constructor() {
   private constructor(className: String, isCache: Boolean = false) : this() {
     MCache.get()?.let {
       val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
+      dir.mkdirs()
       val desiredName = className.getNameForClass()
       val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
       if (foldersWithDesiredName.size > 1) {
@@ -166,8 +167,14 @@ class FileMap private constructor() {
   }
 
   companion object {
+    private val fileMaps: MutableMap<Class<*>, FileMap> by lazy {
+      LinkedHashMap<Class<*>, FileMap>(0)
+    }
+
     fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
-      return FileMap(cls.simpleName, isCache)
+      return fileMaps.getOrPut(cls) {
+        FileMap(cls.simpleName, isCache)
+      }
     }
 
     fun clean(isCache: Boolean = false) {
