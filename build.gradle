@@ -38,17 +38,8 @@ task bintrayMCache(type: GradleBuild) {
     tasks = ['install', 'bintrayUpload']
 }
 
-task bintrayMCacheKotlin(type: GradleBuild) {
-    description = 'mCache Kotlin Extensions publish routine to Bintray'
-    group = 'Publishing'
-    buildFile = file('mcache-kotlin-extensions/build.gradle')
-    startParameter.projectProperties = gradle.startParameter.projectProperties
-    tasks = ['install', 'bintrayUpload']
-}
-
 task bintrayUploadProject(type: GradleBuild) {
     description = 'mCache publishing to Bintray'
     group = 'Publishing'
     dependsOn bintrayMCache
-    dependsOn bintrayMCacheKotlin
 }

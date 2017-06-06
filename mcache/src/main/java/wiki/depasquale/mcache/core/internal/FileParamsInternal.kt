@@ -13,7 +13,7 @@ import wiki.depasquale.mcache.core.*
  */
 
 class FileParamsInternal<T> {
-  var observable: io.reactivex.Observable<T>? = null
+  var observable: Observable<T>? = null
   var requestedClass: Class<T>? = null
   var handlers: MutableList<IOHandler> = mutableListOf(MCache.getIOHandler(CacheIOHandler::class.java))
   var fileParams: FileParams = FileParams("default")
@@ -29,7 +29,7 @@ class FileParamsInternal<T> {
     }
 
     @JvmStatic
-    fun <T> wrap(iP: FileParamsInternal<T>): Observable<T> {
+    fun <T : Any> wrap(iP: FileParamsInternal<T>): Observable<T> {
 
       FileParamsInternal.checkParams(iP)
 
@@ -38,8 +38,8 @@ class FileParamsInternal<T> {
         Observable.just(iP.observable)
             .observeOn(Schedulers.io())
             .flatMap {
-              val concreteObject = iP.handlers[iP.readWith].get(iP.requestedClass!!, iP.fileParams)
-              if (concreteObject != null && iP.force) {
+              val concreteObject = iP.handlers[iP.readWith][iP.requestedClass!!, iP.fileParams]
+              if (iP.force) {
                 concreteObject
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -49,7 +49,7 @@ class FileParamsInternal<T> {
                       }
                     })
               }
-              if (concreteObject == null || iP.returnImmediately) {
+              if (iP.returnImmediately) {
                 return@flatMap iP.observable
               } else {
                 return@flatMap concreteObject

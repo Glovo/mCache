@@ -16,14 +16,14 @@ class SharedPrefsIOHandler : IOHandler {
 
   override fun <T> get(type: Class<T>, params: FileParams): Observable<T> = Observable.empty<T>()
 
-  override fun <T : Any> save(t: T, params: FileParams) {
+  override fun <T : Any> save(obj: T, params: FileParams) {
     val mPrefs = prefs
     val mEditor = mPrefs.edit()
-    t.javaClass.declaredFields
+    obj.javaClass.declaredFields
         .filter { it.isAnnotationPresent(PrefName::class.java) }
         .forEach {
           try {
-            save(mEditor, it, t)
+            save(mEditor, it, obj)
           } catch (e: IllegalAccessException) {
             e.printStackTrace()
           }

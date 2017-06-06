@@ -1,17 +1,16 @@
-package wiki.depasquale.mcache.kotlin
+package wiki.depasquale.mcache.core.internal
 
 import android.app.*
 import io.reactivex.*
 import wiki.depasquale.mcache.*
 import wiki.depasquale.mcache.adapters.*
 import wiki.depasquale.mcache.core.*
-import wiki.depasquale.mcache.core.internal.*
 
 fun Application.mCache() {
   MCache.with(this)
 }
 
-fun <T> Class<T>.request(
+fun <T : Any> Class<T>.request(
     handlers: Array<Class<out IOHandler>> = arrayOf(CacheIOHandler::class.java),
     params: FileParams = FileParams("default"),
     force: Boolean = true,
@@ -38,7 +37,6 @@ fun <T : Any> T.saveAsFile(params: FileParams = FileParams("default")) =
 fun <T : Any> T.save(
     handlers: Array<Class<out IOHandler>> = arrayOf(CacheIOHandler::class.java),
     params: FileParams = FileParams("default")) {
-  params
   MCacheBuilder.request(this.javaClass)
       .using(*handlers)
       .params(params)
@@ -49,7 +47,7 @@ fun <T : Any> T.loadFromCache(): Observable<T> {
   return this.javaClass.fastLoad(Observable.empty())
 }
 
-fun <T> Class<T>.fastLoad(actualRequest: Observable<T>): Observable<T> {
+fun <T : Any> Class<T>.fastLoad(actualRequest: Observable<T>): Observable<T> {
   return MCacheBuilder.request(this).with(actualRequest)
 }
 

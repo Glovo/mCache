@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    compile project(":mcache-kotlin-extensions")
+    compile project(":mcache")
 
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
