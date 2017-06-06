@@ -64,7 +64,7 @@ private fun <T : Any> T.remove(
     listener: (Boolean) -> Unit = {}) {
   MCacheBuilder.request(this::class.java)
       .using(*handlers)
-  MCacheBuilder.params(FileParams)
+      .params(FileParams(descriptor))
       .listener(listener)
       .removeAll(removeAll)
       .remove()

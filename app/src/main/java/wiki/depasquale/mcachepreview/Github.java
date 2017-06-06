@@ -15,8 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import wiki.depasquale.mcache.adapters.FilesIOHandler;
-import wiki.depasquale.mcache.core.IOHandler;
 import wiki.depasquale.mcache.core.MCacheBuilder;
+import wiki.depasquale.mcache.core.internal.FileParams;
 
 /**
  * diareuse on 26.03.2017
@@ -27,16 +27,13 @@ class Github {
   private static Retrofit retrofit;
   private static Service service;
 
-  public static void user(Class<? extends IOHandler> cls) {}
-
   @SuppressLint("LogConditional") @NonNull
   public static Observable<User> user(String username) {
     return MCacheBuilder
         .request(User.class)
         .using(FilesIOHandler.class)
-        .returnCache(true)
         .force(true)
-        .descriptor(username)
+        .params(new FileParams(username))
         .with(getRetrofit()
             .user(username)
             .subscribeOn(Schedulers.newThread())
