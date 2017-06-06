@@ -30,7 +30,7 @@ class FileMap private constructor() {
   private constructor(className: String, isCache: Boolean = false) : this() {
     MCache.get()?.let {
       val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
-      dir.mkdirs()
+      if (!dir.exists()) dir.mkdirs()
       val desiredName = className.getNameForClass()
       val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
       if (foldersWithDesiredName.size > 1) {
