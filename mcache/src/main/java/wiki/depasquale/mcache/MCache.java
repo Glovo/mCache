@@ -23,16 +23,12 @@ public class MCache {
     throw new RuntimeException("This constructor shall not be used!");
   }
 
-  private MCache(Application application) {
-    MCache.sContext = new WeakReference<>(application);
-  }
-
   /**
    * Initializes MCache
    * IOHandler - {@link CacheIOHandler}
    */
-  public static MCache with(Application context) {
-    return new MCache(context);
+  public static void with(Application context) {
+    MCache.sContext = new WeakReference<>(context);
   }
 
   @Nullable
