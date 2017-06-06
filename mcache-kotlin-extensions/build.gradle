@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+apply from: 'defaults.gradle'
+
 android {
     compileSdkVersion vSDK
     buildToolsVersion vBuildTools
@@ -29,3 +31,6 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'

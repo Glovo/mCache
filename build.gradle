@@ -30,10 +30,6 @@ allprojects {
     }
 }
 
-ext.addParams = {}
-ext.addBintray = {}
-ext.addInstall = {}
-
 task bintrayMCache(type: GradleBuild) {
     description = 'mCache publish routine to Bintray'
     group = 'Publishing'
