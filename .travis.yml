@@ -16,10 +16,10 @@ before_script:
   - unset ANDROID_NDK_HOME
 
 after_success:
-  - ./gradlew clean mCache:artifactoryPublish
+  - ./gradlew clean bintrayUploadProject
 
 script:
-  - ./gradlew install connectedCheck
+  - ./gradlew connectedCheck
 
 notifications:
   email: false

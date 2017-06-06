@@ -16,14 +16,14 @@ public class App extends Application {
 Save it.
 ```java
 MCacheBuilder.request(User.class)
-    //.id(id) //optional
+    //.descriptor(descriptor) //optional
     .save(object));
 ```
 
 Get it.
 ```java
 MCacheBuilder.request(User.class)
-    //.id(id) //optional
+    //.descriptor(descriptor) //optional
     .with(); //or asynchronously .with(FinishedListener<? extends User> listener)
 ```
 
@@ -37,7 +37,7 @@ How easy is that?
 MCacheBuilder
     .request(User.class)
     //.using(FilesIOHandler.class) //optional
-    //.id(MCache.DEFAULT_ID) //optional
+    //.descriptor("default") //optional
     .force(username.equals(userUsername)) //optional (default false)
     .with(getRetrofit()
         .user(username)
@@ -109,7 +109,7 @@ Yes! Create pull request, issue or both.
 
 ```java
 dependencies {
-  compile 'wiki.depasquale:mcache:latest_version'
+  compile 'wiki.depasquale:mcache:latest.release'
 }
 ```
 
@@ -133,14 +133,25 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
-### [future release]
-* **Whole api will be redone**, because I felt like it's not extensible and versatile enough.
-  * If you are interested in those changes and want to help before it comes official, keep an eye on branch [upcoming](https://github.com/diareuse/mCache/tree/upcoming)
-* And that's not it! In final stages I will be adding Kotlin module to support it's great language features
+### 1.0.0 [TBR]
+* Totally redone whole caching system. Your files will be **stranded**.
+  * ~~RxJava is now heavily used throughout the library~~ Since Kotlin is actually readable it's not mandatory
+  * Library is with those changes ~~little slower~~ **(nope, it's absolutely comparable to latest version maybe even faster)** however those changes allow greater **versatility**
+* Params started to be messy and so they are replaced with FileParams class
+  * It ~~can be overridden~~ if you wish to do so
+    * This is not true, because it is deeply embedded into the **core** package
+* Since we can have random number of params identifiers can be no longer embedded to file name so this system is replaced by folder-per-class system with unique map inside each folder which will store params for each file
+  * Files are now stored under unique id which cannot be changed
+    * Current id is replaced with Descriptor by default
+* ~~Multiple "handbreaks" were added to make sure you will never get null through RxJava (as it's no longer possible due to internal changes to RxJava). Instead exceptions are thrown or onError methods are invoked directly if file does not exist.~~
+  * ~~TL;DR use onError while subscribing.~~ 
+  * Since Kotlin is in the game this is no longer necessary and for what it's worth if something goes wrong it will be probably your fault.
+* MCacheBuilder is moved in package so it can access essential parts without exposing interface (you'll need to replace the imports, that's it)
+* All initialization params are now removed
 
 ### 0.7.4 - 0.7.5
 * Remove RxJava (first gen) as it's no longer actively maintained 
-    * RxJava2 is kept and remains recommended way to cache
+  * RxJava2 is kept and remains recommended way to cache
 
 ### 0.7.3
 * Updates build script

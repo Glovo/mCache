@@ -3,11 +3,13 @@ package wiki.depasquale.mcachepreview;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import wiki.depasquale.mcache.core.PrefName;
+import wiki.depasquale.mcache.core.PrepareCache;
 
 /**
  * diareuse on 26.03.2017
  */
 
+@PrepareCache
 class User {
 
   @SerializedName("login")
