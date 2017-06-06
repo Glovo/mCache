@@ -14,7 +14,6 @@ fun <T : Any> Class<T>.request(
     handlers: Array<Class<out IOHandler>> = arrayOf(CacheIOHandler::class.java),
     params: FileParams = FileParams("default"),
     force: Boolean = true,
-    pullIfNotNull: Boolean = true,
     readWith: Int = 0,
     listener: (T) -> Unit = {},
     errorConsumer: (Throwable) -> Unit = {}) {
@@ -23,7 +22,6 @@ fun <T : Any> Class<T>.request(
       .using(*handlers)
       .params(params)
       .force(force)
-      .pullIfNotNull(pullIfNotNull)
       .readWith(readWith)
       .with(listener, errorConsumer)
 }
@@ -66,7 +64,7 @@ private fun <T : Any> T.remove(
     listener: (Boolean) -> Unit = {}) {
   MCacheBuilder.request(this::class.java)
       .using(*handlers)
-      .descriptor(descriptor)
+  MCacheBuilder.params(FileParams)
       .listener(listener)
       .removeAll(removeAll)
       .remove()

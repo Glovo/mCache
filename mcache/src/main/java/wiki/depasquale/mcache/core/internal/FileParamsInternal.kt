@@ -17,7 +17,6 @@ class FileParamsInternal<T> {
   var requestedClass: Class<T>? = null
   var handlers: MutableList<IOHandler> = mutableListOf(MCache.getIOHandler(CacheIOHandler::class.java))
   var fileParams: FileParams = FileParams("default")
-  var returnImmediately: Boolean = true
   var force: Boolean = true
   var readWith: Int = 0
 
@@ -30,9 +29,7 @@ class FileParamsInternal<T> {
 
     @JvmStatic
     fun <T : Any> wrap(iP: FileParamsInternal<T>): Observable<T> {
-
       FileParamsInternal.checkParams(iP)
-
       val publishSubject = PublishSubject.create<T>()
       return publishSubject.doOnSubscribe {
         Observable.just(iP.observable)
@@ -42,18 +39,9 @@ class FileParamsInternal<T> {
               if (iP.force) {
                 concreteObject
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                      publishSubject.onNext(it)
-                      if (!iP.returnImmediately) {
-                        publishSubject.onComplete()
-                      }
-                    })
+                    .subscribe { publishSubject.onNext(it) }
               }
-              if (iP.returnImmediately) {
-                return@flatMap iP.observable
-              } else {
-                return@flatMap concreteObject
-              }
+              return@flatMap iP.observable
             }
             .map {
               for (handler in iP.handlers) {

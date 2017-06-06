@@ -4,7 +4,6 @@ import io.reactivex.*
 import io.reactivex.android.schedulers.*
 import io.reactivex.schedulers.*
 import wiki.depasquale.mcache.*
-import wiki.depasquale.mcache.adapters.*
 import wiki.depasquale.mcache.core.internal.*
 
 /**
@@ -24,12 +23,10 @@ class MCacheBuilder<T : Any> {
   }
 
   /**
-   * Sets **IOHandler** to handle upcoming situation. If not set [FilesIOHandler] will be
-   * used.
-
-   * @param handlers Classes of IOHandler. Custom or not, it does not care.
-   * *
-   * @return building instance
+   * **Base function**: Replaces current IOHandlers with given
+   *
+   * **Detailed function**: Clears current handlers, then it creates instance for each given
+   * IOHandler javaClass and adds them to current handlers.
    */
   @SafeVarargs
   fun using(vararg handlers: Class<out IOHandler>): MCacheBuilder<T> {
@@ -41,26 +38,23 @@ class MCacheBuilder<T : Any> {
   }
 
   /**
-   * Sets descriptor for saving/loading given class.
-
-   * @param descriptor Preferably following this pattern "_somePostFix" or ".somePostFix". This is
-   * * just a suggestion.
-   * *
-   * @return building instance
+   * **Base function**: Creates descriptor
+   *
+   * **Detailed function**: Replaces FileParams with new descriptor. Make sure you are not using
+   * this with **params(FileParams)** function. Since it's deprecated you should be using
+   * **params(FileParams)** method.
    */
+  @Deprecated("This will be probably removed sooner or later.", ReplaceWith("MCacheBuilder.params(FileParams)"))
   fun descriptor(descriptor: String): MCacheBuilder<T> {
     internalParams.fileParams = FileParams(descriptor)
     return this
   }
 
   /**
-   * Sets whether it should forcefully update the data within later given Observable. If false given
-   * Observable won't be subscribed to unless there's no saved data. **If you are not using RxJava
-   * with this library you can freely skip this, it won't have any effect.** Default is false.
-
-   * @param force Boolean representation of precondition
-   * *
-   * @return building instance
+   * **Base function**: Sets force
+   *
+   * **Detailed function**: Force indicates whether given observable should be subscribed to or not.
+   * If you set this as >true< it will be subscribed immediately upon creation.
    */
   fun force(force: Boolean): MCacheBuilder<T> {
     internalParams.force = force
@@ -68,46 +62,32 @@ class MCacheBuilder<T : Any> {
   }
 
   /**
-   * Overrides caching process to immediately return cached version so onNext method will be
-   * effectively called twice. Default is true.
-
-   * @param pullIfNotNull Boolean representation of condition
-   * *
-   * @return building instance
-   */
-  fun pullIfNotNull(pullIfNotNull: Boolean): MCacheBuilder<T> {
-    internalParams.returnImmediately = pullIfNotNull
-    return this
-  }
-
-  /**
-   * Indicates with which handler should it read values. This is extremely useful if you input more
-   * than one handler to [.using] method. First handler has 0 index.
-
-   * @param position valid position
-   * *
-   * @return building instance
-   * *
-   * @throws IllegalArgumentException when position is greater or equal to number of handlers
+   * **Base function**: Read by handler with position useful with multiple handlers
+   *
+   * **Detailed function**: Integer interprets position of handler wanted to be read with.
+   * Defaults to >0<.
    */
   fun readWith(position: Int): MCacheBuilder<T> {
     internalParams.readWith = position
     return this
   }
 
-  fun params(params: FileParams?): MCacheBuilder<T> {
-    if (params != null) {
-      internalParams.fileParams = params
-    }
+  /**
+   * **Base function**: Sets params
+   *
+   * **Detailed function**: Unconditionally sets params given as parameter. This is more useful
+   * than using **descriptor(String)** method which won't allow this very versatility
+   */
+  fun params(params: FileParams): MCacheBuilder<T> {
+    internalParams.fileParams = params
     return this
   }
 
   /**
-   * Creates map around given observable with earlier predefined conditions.
-
-   * @param o Observable of matching class
-   * *
-   * @return The same observable
+   * **Base function**: Sets observable
+   *
+   * **Detailed function**: Wraps given Observable by params described before and returns
+   * Observable with cache.
    */
   fun with(o: Observable<T>?): Observable<T> {
     internalParams.observable = o
@@ -115,28 +95,26 @@ class MCacheBuilder<T : Any> {
   }
 
   /**
-   * Asynchronously returns saved object with earlier predefined conditions. First handler in list
-   * will be used.
-
-   * @param listener Listener with corresponding class
+   * **Base function**: Immediately pushes the cache to the listener.
+   *
+   * **Detailed function**: Creates an Observable with handler and spec to read with. Requests
+   * given class with params.
    */
-  fun with(listener: (T) -> Unit, errorConsumer: (Throwable) -> Unit) {
+  fun with(listener: (T) -> Unit, errorConsumer: (Throwable) -> Unit = {}) {
     FileParamsInternal.checkParams(internalParams)
     Observable.just(internalParams.handlers[internalParams.readWith])
         .observeOn(Schedulers.io())
-        .map { handler ->
-          handler
-              .get(internalParams.requestedClass!!, internalParams.fileParams)
-        }
+        .map { it[internalParams.requestedClass!!, internalParams.fileParams] }
         .observeOn(AndroidSchedulers.mainThread())
         .flatMap { it -> it }
         .subscribe({ listener.invoke(it) }, { errorConsumer.invoke(it) })
   }
 
   /**
-   * Saves given object to file with predefined conditions. First handler in list will be used.
-
-   * @param object non null object
+   * **Base function**: Saves object
+   *
+   * **Detailed function**: Uses all handlers specified to save given object with params specified
+   * before.
    */
   fun save(t: T) {
     for (handler in internalParams.handlers) {
@@ -145,19 +123,32 @@ class MCacheBuilder<T : Any> {
   }
 
   /**
-   * All handlers specified in [.using] will be cleansed.
-
-   * @see IOHandler.remove
+   * **Base function**: Removes object with params
+   *
+   * **Detailed function**: Uses all handlers specified to remove object with params speficied
+   * before.
    */
   fun remove() {
     internalParams.handlers.forEach { it -> it.remove(internalParams.requestedClass!!, internalParams.fileParams) }
   }
 
+  /**
+   * **Base function**: Adds listener to FileParams
+   *
+   * **Detailed function**: Adds listener to FileParams, it does not delete or replace the
+   * FileParams, only the listener.
+   */
   fun listener(listener: Function1<Boolean, Unit>): MCacheBuilder<T> {
     internalParams.fileParams.listener = listener
     return this
   }
 
+  /**
+   * **Base function**: Adds removeAll flag to FileParams
+   *
+   * **Detailed function**: Adds removeAll flag to FileParams, it does not delete or replace the
+   * FileParams, only the removeAll flag.
+   */
   fun removeAll(removeAll: Boolean): MCacheBuilder<T> {
     internalParams.fileParams.removeAll = removeAll
     return this
@@ -166,11 +157,9 @@ class MCacheBuilder<T : Any> {
   companion object {
 
     /**
-     * Creates new **MCacheBuilder** with affinity to class given as parameter.
-
-     * @param cls Class of the object which needs to be saved/loaded.
-     * *
-     * @return new **MCacheBuilder**
+     * **Base function**: Initializes builder with Class given
+     *
+     * **Detailed function**: Adds class to request base and creates builder.
      */
     @JvmStatic
     fun <U : Any> request(cls: Class<U>): MCacheBuilder<U> {

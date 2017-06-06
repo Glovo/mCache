@@ -9,14 +9,8 @@ import wiki.depasquale.mcache.core.internal.*
 
 interface IOHandler {
 
-  /**
-   * Creates object with class of type and params of FileParams.
-   */
   operator fun <T> get(type: Class<T>, params: FileParams): Observable<T>
 
-  /**
-   * Saves object of class cls. **Unsafe on main thread.**
-   */
   fun <T : Any> save(obj: T, params: FileParams)
 
   fun <T> remove(type: Class<T>, params: FileParams)

@@ -34,7 +34,7 @@ class Github {
     return MCacheBuilder
         .request(User.class)
         .using(FilesIOHandler.class)
-        .pullIfNotNull(true)
+        .returnCache(true)
         .force(true)
         .descriptor(username)
         .with(getRetrofit()
