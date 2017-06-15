@@ -1,1 +1,1 @@
-include ':app', ':mcache', ':mcache-kotlin-extensions'
+include ':app', ':mcache'
