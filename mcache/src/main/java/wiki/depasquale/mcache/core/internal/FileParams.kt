@@ -1,6 +1,6 @@
 package wiki.depasquale.mcache.core.internal
 
-import com.google.gson.annotations.*
+import com.google.gson.annotations.Expose
 
 /**
  * diareuse on 03.06.2017
@@ -14,4 +14,5 @@ data class FileParams(@Expose val descriptor: String) {
   @Expose var timeChanged: Long = -1L
   var listener: (Boolean) -> Unit = {}
   var removeAll: Boolean = false
+  var all: Boolean = false
 }

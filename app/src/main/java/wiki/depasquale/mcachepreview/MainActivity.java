@@ -14,10 +14,13 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.gson.Gson;
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
 import wiki.depasquale.mcache.MCache;
+import wiki.depasquale.mcache.core.MCacheBuilder;
+import wiki.depasquale.mcache.core.internal.FileParams;
 
 public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
     setSupportActionBar(toolbar);
 
     et.setText("diareuse");
+    et.post(() -> fab.performClick());
 
     fab.setOnClickListener(v -> {
       message.setText(null);
@@ -64,19 +68,42 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
       } else {
         if (username.equalsIgnoreCase("clean")) {
           MCache.clean();
+        } else if (username.equalsIgnoreCase("all")) {
+          retrieveAll();
         } else {
-          input.setErrorEnabled(false);
-          user.setText(String.format("/users/%s", username));
-          startTime = System.nanoTime();
-          Github.user(username).subscribe(this,
-              error -> {
-                error.printStackTrace();
-                Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
-              });
+          retrieveUser(username);
         }
       }
     });
 
+  }
+
+  private void retrieveAll() {
+    startTime = System.nanoTime();
+    FileParams params = new FileParams("");
+    params.setAll(true);
+    MCacheBuilder.request(User.class)
+        .params(params)
+        .with(Observable.empty())
+        .toList()
+        .subscribe(it -> {
+          user.setText(String.format("/users/%s", "all"));
+          responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
+          responseTime.append(String.format(Locale.getDefault(), "%d ms",
+              (System.nanoTime() - startTime) / 1000000));
+          message.setText(new Gson().toJson(it));
+        });
+  }
+
+  private void retrieveUser(String username) {
+    input.setErrorEnabled(false);
+    user.setText(String.format("/users/%s", username));
+    startTime = System.nanoTime();
+    Github.user(username).subscribe(this,
+        error -> {
+          error.printStackTrace();
+          Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+        });
   }
 
   @Override

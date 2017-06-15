@@ -1,13 +1,14 @@
 package wiki.depasquale.mcache.core.internal
 
-import android.util.*
-import com.google.gson.*
-import com.google.gson.annotations.*
-import io.reactivex.*
-import io.reactivex.schedulers.*
-import wiki.depasquale.mcache.*
+import android.util.Base64
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.annotations.Expose
+import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
+import wiki.depasquale.mcache.MCache
 import java.io.*
-import java.text.*
+import java.text.Normalizer
 
 class FileMap private constructor() {
 
@@ -93,6 +94,10 @@ class FileMap private constructor() {
    * none else the object is reconstructed and converted to Observable.
    */
   fun <T> findObjectByParams(cls: Class<T>, params: FileParams): Observable<T> {
+    if (params.all) {
+      return files.map { File(folder, it.id.toString()).read()?.convertToObject(cls) }.toObservable().flatMapIterable { it }
+    }
+
     val wantedFiles = files.filter { it.descriptor == params.descriptor }
     if (wantedFiles.size > 1) {
       throw RuntimeException("FileMap Panic", Throwable("Non unique descriptor for single class."))
