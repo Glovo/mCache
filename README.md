@@ -133,6 +133,9 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 1.0.1
+* Added option to retrieve all objects for given class
+
 ### 1.0.0
 * Totally redone whole caching system. Your files will be **stranded**.
   * Project is redone in Kotlin
