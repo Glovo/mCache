@@ -14,11 +14,11 @@ buildscript {
 }
 
 ext {
-    vName = '1.0.0'
-    vCode = 1000
-    vSDK = 25
+    vName = '1.0.1'
+    vCode = 1001
+    vSDK = 26
     vMinSDK = 9
-    vBuildTools = "25.0.3"
+    vBuildTools = "26.0.0"
 }
 
 allprojects {
