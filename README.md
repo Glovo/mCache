@@ -133,6 +133,10 @@ Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https:
 
 # Changelog
 
+### 1.0.2
+* Stability update; removeAll flag won't throw concurrent exceptions no more
+* Other stability fixes, see commits
+
 ### 1.0.1
 * Added option to retrieve all objects for given class
 
