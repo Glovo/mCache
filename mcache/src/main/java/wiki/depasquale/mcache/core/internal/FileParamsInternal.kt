@@ -1,12 +1,12 @@
 package wiki.depasquale.mcache.core.internal
 
-import io.reactivex.*
-import io.reactivex.android.schedulers.*
-import io.reactivex.schedulers.*
-import io.reactivex.subjects.*
-import wiki.depasquale.mcache.*
-import wiki.depasquale.mcache.adapters.*
-import wiki.depasquale.mcache.core.*
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
+import wiki.depasquale.mcache.MCache
+import wiki.depasquale.mcache.adapters.CacheIOHandler
+import wiki.depasquale.mcache.core.IOHandler
 
 /**
  * diareuse on 03.06.2017
@@ -39,7 +39,7 @@ class FileParamsInternal<T> {
               if (iP.force) {
                 concreteObject
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { publishSubject.onNext(it) }
+                    .subscribe({ publishSubject.onNext(it) }, { publishSubject.onError(it) })
               }
               return@flatMap iP.observable
             }
