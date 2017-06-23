@@ -70,12 +70,30 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
           MCache.clean();
         } else if (username.equalsIgnoreCase("all")) {
           retrieveAll();
+        } else if (username.equalsIgnoreCase("removeall")) {
+          removeAll();
         } else {
           retrieveUser(username);
         }
       }
     });
 
+  }
+
+  private void removeAll() {
+    startTime = System.nanoTime();
+    FileParams params = new FileParams("");
+    params.setRemoveAll(true);
+    params.setListener(success -> {
+      responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
+      responseTime.append(String.format(Locale.getDefault(), "%d ms",
+          (System.nanoTime() - startTime) / 1000000));
+      message.setText(success ? "OK" : "FAILED");
+      return null;
+    });
+    MCacheBuilder.request(User.class)
+        .params(params)
+        .remove();
   }
 
   private void retrieveAll() {

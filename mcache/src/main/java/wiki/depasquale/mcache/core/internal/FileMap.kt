@@ -187,12 +187,13 @@ class FileMap private constructor() {
    * **Detailed function**: For each file in files index checks whether the file exists and then it deletes it recursively and removes it from files index.
    */
   fun removeAllObjects() {
-    files.forEach {
+    files.forEachRemove {
       val file = File(folder, it.id.toString())
       if (file.exists()) {
         file.deleteRecursively()
-        files.remove(it)
+        return@forEachRemove true
       }
+      return@forEachRemove false
     }
     updateMap()
   }
@@ -231,6 +232,13 @@ class FileMap private constructor() {
         val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
         if (dir.exists()) dir.deleteRecursively()
       }
+    }
+  }
+
+  private inline fun <T> MutableList<T>.forEachRemove(call: (T) -> Boolean) {
+    val iterator = this.iterator()
+    while (iterator.hasNext()) {
+      if (call(iterator.next())) iterator.remove()
     }
   }
 
