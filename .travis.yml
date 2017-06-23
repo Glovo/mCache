@@ -16,7 +16,7 @@ before_script:
   - unset ANDROID_NDK_HOME
 
 after_success:
-  - ./gradlew clean bintrayUploadProject
+  - ./gradlew clean install bintrayUploadProject
 
 script:
   - ./gradlew connectedCheck
