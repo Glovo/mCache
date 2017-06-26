@@ -29,7 +29,7 @@ allprojects {
         jcenter()
     }
     ext."signing.keyId" = System.getenv('GPG_KEY_NAME')
-    ext."signing.secretKeyRingFile" = "codesign.asc"
+    ext."signing.secretKeyRingFile" = "codesign.gpg"
     ext."signing.password" = System.getenv('GPG_KEY_PASS')
 }
 
