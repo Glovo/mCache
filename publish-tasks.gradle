@@ -1,0 +1,16 @@
+task bintrayMCache(type: GradleBuild) {
+    description = 'mCache publish routine'
+    group = 'Publishing'
+    buildFile = file('mcache/build.gradle')
+    startParameter.projectProperties = gradle.startParameter.projectProperties
+    if (vName.contains("SNAPSHOT"))
+        tasks = ['install', 'uploadArchives']
+    else
+        tasks = ['install', 'bintrayUpload']
+}
+
+task bintrayUploadProject(type: GradleBuild) {
+    description = 'mCache publishing'
+    group = 'Publishing'
+    dependsOn bintrayMCache
+}

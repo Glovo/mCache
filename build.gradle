@@ -14,8 +14,8 @@ buildscript {
 }
 
 ext {
-    vName = '1.0.2'
-    vCode = 1001
+    vName = '1.0.3.1-SNAPSHOT'
+    vCode = 1003
     vSDK = 26
     vMinSDK = 9
     vBuildTools = "26.0.0"
@@ -28,18 +28,10 @@ allprojects {
     repositories {
         jcenter()
     }
+    ext."signing.keyId" = System.getenv('GPG_KEY_NAME')
+    ext."signing.secretKeyRingFile" = "codesign.asc"
+    ext."signing.password" = System.getenv('GPG_KEY_PASS')
 }
 
-task bintrayMCache(type: GradleBuild) {
-    description = 'mCache publish routine to Bintray'
-    group = 'Publishing'
-    buildFile = file('mcache/build.gradle')
-    startParameter.projectProperties = gradle.startParameter.projectProperties
-    tasks = ['install', 'bintrayUpload']
-}
 
-task bintrayUploadProject(type: GradleBuild) {
-    description = 'mCache publishing to Bintray'
-    group = 'Publishing'
-    dependsOn bintrayMCache
-}
+apply from: 'publish-tasks.gradle'
