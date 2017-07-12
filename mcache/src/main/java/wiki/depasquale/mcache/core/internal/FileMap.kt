@@ -242,7 +242,7 @@ class FileMap private constructor() {
     }
   }
 
-  private fun String.convertToMap(): FileMap {
+  private fun String.convertToMap(): FileMap? {
     return gson.fromJson(this, FileMap::class.java)
   }
 
