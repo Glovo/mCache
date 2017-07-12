@@ -34,7 +34,7 @@ class FileMap private constructor() {
         throw RuntimeException("FileMap Panic", Throwable("There is more than one folder with desired name."))
       }
       if (foldersWithDesiredName.isEmpty()) {
-        val folder = java.io.File(dir, desiredName)
+        val folder = File(dir, desiredName)
         folder.mkdirs()
         foldersWithDesiredName.add(folder)
       }
@@ -42,6 +42,7 @@ class FileMap private constructor() {
         folder = foldersWithDesiredName[0]
         val filesWithDesiredName = folder!!.listFiles().filter { MAP_NAME == it.name }.toMutableList()
         if (filesWithDesiredName.size > 1) {
+          filesWithDesiredName.forEach { it.deleteRecursively() }
           throw RuntimeException("FileMap Panic", Throwable("There is more than one map"))
         }
         if (filesWithDesiredName.isEmpty()) {
@@ -54,7 +55,7 @@ class FileMap private constructor() {
     }
   }
 
-  private fun readMap(file: java.io.File) {
+  private fun readMap(file: File) {
     file.read()?.convertToMap()?.files?.let {
       files.clear()
       files.addAll(it)
@@ -79,7 +80,7 @@ class FileMap private constructor() {
       }
     }
     if (folder != null) {
-      java.io.File(folder, MAP_NAME).write(this, gson = gson)
+      File(folder, MAP_NAME).write(this, gson = gson)
     } else {
       throw RuntimeException("Root folder is null hence I can't save the file.")
     }
