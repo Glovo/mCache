@@ -99,12 +99,10 @@ class FileMap private constructor() {
     }
 
     val wantedFiles = files.filter { it.descriptor == params.descriptor }
-    if (wantedFiles.size > 1) {
-      throw RuntimeException("FileMap Panic", Throwable("Non unique descriptor for single class."))
-    } else if (wantedFiles.isEmpty()) {
+    if (wantedFiles.isEmpty()) {
       return Observable.empty()
     } else {
-      val wantedFile = wantedFiles[0]
+      val wantedFile = wantedFiles.first()
       val final = File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
       if (final == null) {
         val observable = Observable.empty<T>()
