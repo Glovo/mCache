@@ -37,7 +37,6 @@ How easy is that?
 MCacheBuilder
     .request(User.class)
     //.using(FilesIOHandler.class) //optional
-    //.descriptor("default") //optional
     .force(username.equals(userUsername)) //optional (default false)
     .with(getRetrofit()
         .user(username)
