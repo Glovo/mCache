@@ -1,10 +1,11 @@
 package wiki.depasquale.mcache.core
 
-import io.reactivex.*
-import io.reactivex.android.schedulers.*
-import io.reactivex.schedulers.*
-import wiki.depasquale.mcache.*
-import wiki.depasquale.mcache.core.internal.*
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import wiki.depasquale.mcache.MCache
+import wiki.depasquale.mcache.core.internal.FileParams
+import wiki.depasquale.mcache.core.internal.FileParamsInternal
 
 /**
  * Created by diareuse on 10/04/2017. Yeah. Suck it.
@@ -34,19 +35,6 @@ class MCacheBuilder<T : Any> {
     for (handler in handlers) {
       internalParams.handlers.add(MCache.getIOHandler(handler))
     }
-    return this
-  }
-
-  /**
-   * **Base function**: Creates descriptor
-   *
-   * **Detailed function**: Replaces FileParams with new descriptor. Make sure you are not using
-   * this with **params(FileParams)** function. Since it's deprecated you should be using
-   * **params(FileParams)** method.
-   */
-  @Deprecated("This will be probably removed sooner or later.", ReplaceWith("MCacheBuilder.params(FileParams)"))
-  fun descriptor(descriptor: String): MCacheBuilder<T> {
-    internalParams.fileParams = FileParams(descriptor)
     return this
   }
 
@@ -116,7 +104,9 @@ class MCacheBuilder<T : Any> {
    * **Detailed function**: Uses all handlers specified to save given object with params specified
    * before.
    */
-  fun save(t: T) {
+  @JvmOverloads
+  fun save(t: T, listener: Function1<Boolean, Unit> = {}) {
+    internalParams.fileParams.write.listener = listener
     for (handler in internalParams.handlers) {
       handler.save(t, internalParams.fileParams)
     }
@@ -128,30 +118,9 @@ class MCacheBuilder<T : Any> {
    * **Detailed function**: Uses all handlers specified to remove object with params speficied
    * before.
    */
-  fun remove() {
+  @JvmOverloads
+  fun remove(listener: Function1<Boolean, Unit> = {}) {
     internalParams.handlers.forEach { it -> it.remove(internalParams.requestedClass!!, internalParams.fileParams) }
-  }
-
-  /**
-   * **Base function**: Adds listener to FileParams
-   *
-   * **Detailed function**: Adds listener to FileParams, it does not delete or replace the
-   * FileParams, only the listener.
-   */
-  fun listener(listener: Function1<Boolean, Unit>): MCacheBuilder<T> {
-    internalParams.fileParams.listener = listener
-    return this
-  }
-
-  /**
-   * **Base function**: Adds removeAll flag to FileParams
-   *
-   * **Detailed function**: Adds removeAll flag to FileParams, it does not delete or replace the
-   * FileParams, only the removeAll flag.
-   */
-  fun removeAll(removeAll: Boolean): MCacheBuilder<T> {
-    internalParams.fileParams.removeAll = removeAll
-    return this
   }
 
   companion object {

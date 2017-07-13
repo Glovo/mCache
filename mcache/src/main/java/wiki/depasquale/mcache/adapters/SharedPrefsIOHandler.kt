@@ -1,12 +1,14 @@
 package wiki.depasquale.mcache.adapters
 
-import android.content.*
-import android.content.SharedPreferences.*
-import io.reactivex.*
-import wiki.depasquale.mcache.*
-import wiki.depasquale.mcache.core.*
-import wiki.depasquale.mcache.core.internal.*
-import java.lang.reflect.*
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.SharedPreferences.Editor
+import io.reactivex.Observable
+import wiki.depasquale.mcache.MCache
+import wiki.depasquale.mcache.core.IOHandler
+import wiki.depasquale.mcache.core.PrefName
+import wiki.depasquale.mcache.core.internal.FileParams
+import java.lang.reflect.Field
 
 /**
  * Created by diareuse on 13/04/2017. Yeah. Suck it.
@@ -29,7 +31,7 @@ class SharedPrefsIOHandler : IOHandler {
           }
         }
     mEditor.apply()
-    params.listener(true)
+    params.write.listener(true)
   }
 
   override fun <T : Any?> remove(type: Class<T>, params: FileParams) = clean()

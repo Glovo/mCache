@@ -41,7 +41,7 @@ class FileParamsInternal<T> {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ publishSubject.onNext(it) }, { publishSubject.onError(it) })
               }
-              return@flatMap iP.observable
+              return@flatMap iP.observable ?: Observable.empty()
             }
             .map {
               for (handler in iP.handlers) {

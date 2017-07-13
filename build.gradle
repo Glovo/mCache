@@ -14,8 +14,8 @@ buildscript {
 }
 
 ext {
-    vName = '1.0.3.1-SNAPSHOT'
-    vCode = 1003
+    vName = '1.0.4-SNAPSHOT'
+    vCode = 1004
     vSDK = 26
     vMinSDK = 9
     vBuildTools = "26.0.0"

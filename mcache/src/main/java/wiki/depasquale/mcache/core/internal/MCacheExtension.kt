@@ -1,10 +1,12 @@
 package wiki.depasquale.mcache.core.internal
 
-import android.app.*
-import io.reactivex.*
-import wiki.depasquale.mcache.*
-import wiki.depasquale.mcache.adapters.*
-import wiki.depasquale.mcache.core.*
+import android.app.Application
+import io.reactivex.Observable
+import wiki.depasquale.mcache.MCache
+import wiki.depasquale.mcache.adapters.CacheIOHandler
+import wiki.depasquale.mcache.adapters.FilesIOHandler
+import wiki.depasquale.mcache.core.IOHandler
+import wiki.depasquale.mcache.core.MCacheBuilder
 
 fun Application.mCache() {
   MCache.with(this)
@@ -60,12 +62,12 @@ fun <T : Any> T.removeAsFile(descriptor: String = "default", listener: (Boolean)
 private fun <T : Any> T.remove(
     handlers: Array<Class<out IOHandler>> = arrayOf(CacheIOHandler::class.java),
     descriptor: String = "default",
-    removeAll: Boolean = false,
+    all: Boolean = false,
     listener: (Boolean) -> Unit = {}) {
+  val params = FileParams(descriptor)
+  params.write.all = all
   MCacheBuilder.request(this::class.java)
       .using(*handlers)
-      .params(FileParams(descriptor))
-      .listener(listener)
-      .removeAll(removeAll)
-      .remove()
+      .params(params)
+      .remove(listener)
 }

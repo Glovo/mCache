@@ -4,9 +4,11 @@ import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import wiki.depasquale.mcache.MCache
+import wiki.depasquale.mcache.core.internal.compat.OldFileParams
 import java.io.*
 import java.text.Normalizer
 
@@ -14,7 +16,8 @@ class FileMap private constructor() {
 
   private val MAP_NAME = "map.fmp"
   private var folder: File? = null
-  @Expose private val files: MutableList<FileParams> = ArrayList(0)
+  @Expose @SerializedName("files") private val oldFiles: MutableList<OldFileParams> = ArrayList(0)
+  @Expose private val filesList: MutableList<FileParams> = ArrayList(0)
   private val gson: Gson by lazy {
     GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
@@ -56,27 +59,34 @@ class FileMap private constructor() {
   }
 
   private fun readMap(file: File) {
-    file.read()?.convertToMap()?.files?.let {
-      files.clear()
-      files.addAll(it)
+    val map = file.read()?.convertToMap()
+    map?.let {
+      //Compat clause, do not remove unless version bump!
+      if (it.oldFiles.isNotEmpty()) {
+        filesList.addAll(it.oldFiles.map { it.toNew() })
+        it.oldFiles.clear()
+        file.write(it, gson = gson)
+      }
+      filesList.clear()
+      filesList.addAll(it.filesList)
     }
   }
 
   private fun updateMap(params: FileParams? = null) {
     if (params != null) {
       var found: Boolean = false
-      for ((index, param) in files.withIndex()) {
-        if (param.descriptor == params.descriptor) {
-          param.id = params.id
-          param.timeCreated = params.timeCreated
-          param.timeChanged = params.timeChanged
-          files[index] = param
+      for ((index, param) in filesList.withIndex()) {
+        if (param.core.descriptor == params.core.descriptor) {
+          param.core.id = params.core.id
+          param.core.timeCreated = params.core.timeCreated
+          param.core.timeChanged = params.core.timeChanged
+          filesList[index] = param
           found = true
           break
         }
       }
       if (!found) {
-        files.add(params)
+        filesList.add(params)
       }
     }
     if (folder != null) {
@@ -95,16 +105,16 @@ class FileMap private constructor() {
    * none else the object is reconstructed and converted to Observable.
    */
   fun <T> findObjectByParams(cls: Class<T>, params: FileParams): Observable<T> {
-    if (params.all) {
-      return files.map { File(folder, it.id.toString()).read()?.convertToObject(cls) }.toObservable().flatMapIterable { it }
+    if (params.read.all) {
+      return filesList.map { File(folder, it.core.id.toString()).read()?.convertToObject(cls) }.toObservable().flatMapIterable { it }
     }
 
-    val wantedFiles = files.filter { it.descriptor == params.descriptor }
+    val wantedFiles = filesList.findByParams(params)
     if (wantedFiles.isEmpty()) {
       return Observable.empty()
     } else {
       val wantedFile = wantedFiles.first()
-      val final = File(folder, wantedFile.id.toString()).read()?.convertToObject(cls)
+      val final = File(folder, wantedFile.core.id.toString()).read()?.convertToObject(cls)
       if (final == null) {
         val observable = Observable.empty<T>()
         return observable
@@ -122,35 +132,35 @@ class FileMap private constructor() {
    * FileParams id. If it proceeds nominally listener is notified with >true< otherwise >false<.
    */
   fun saveObjectWithParams(file: Any, params: FileParams) {
-    Observable.just(files)
+    Observable.just(filesList)
         .observeOn(Schedulers.io())
         .map {
-          if (it.any { it.descriptor == params.descriptor }) {
+          if (it.any { it.core.descriptor == params.core.descriptor }) {
             for (param in it) {
-              if (param.descriptor == params.descriptor) {
-                params.id = param.id
-                params.timeCreated = param.timeCreated
-                params.timeChanged = System.currentTimeMillis()
+              if (param.core.descriptor == params.core.descriptor) {
+                params.core.id = param.core.id
+                params.core.timeCreated = param.core.timeCreated
+                params.core.timeChanged = System.currentTimeMillis()
                 break
               }
             }
           } else {
-            params.id = it.computeNewId()
-            params.timeCreated = System.currentTimeMillis()
-            params.timeChanged = params.timeCreated
+            params.core.id = it.computeNewId()
+            params.core.timeCreated = System.currentTimeMillis()
+            params.core.timeChanged = params.core.timeCreated
           }
           return@map it
         }
         .map {
-          File(folder, params.id.toString()).write(file)
+          File(folder, params.core.id.toString()).write(file)
           updateMap(params)
           return@map true
         }
         .subscribe({
-          params.listener(it)
+          params.write.listener(it)
         }, {
           it.printStackTrace()
-          params.listener(false)
+          params.write.listener(false)
         })
   }
 
@@ -163,21 +173,22 @@ class FileMap private constructor() {
    * index.
    */
   fun removeObjectWithParams(params: FileParams) {
-    if (params.removeAll) {
+    if (params.write.all) {
       removeAllObjects()
-      params.listener(true)
+      params.write.listener(true)
       return
     }
-    files.filter { it.descriptor == params.descriptor }
+    //filter with write params
+    filesList.findByParams(params)
         .forEach {
-          val file = File(folder, it.id.toString())
+          val file = File(folder, it.core.id.toString())
           if (file.exists()) {
             file.deleteRecursively()
-            files.remove(it)
+            filesList.remove(it)
           }
         }
     updateMap()
-    params.listener(true)
+    params.write.listener(true)
   }
 
   /**
@@ -186,8 +197,8 @@ class FileMap private constructor() {
    * **Detailed function**: For each file in files index checks whether the file exists and then it deletes it recursively and removes it from files index.
    */
   fun removeAllObjects() {
-    files.forEachRemove {
-      val file = File(folder, it.id.toString())
+    filesList.forEachRemove {
+      val file = File(folder, it.core.id.toString())
       if (file.exists()) {
         file.deleteRecursively()
         return@forEachRemove true
@@ -284,8 +295,20 @@ class FileMap private constructor() {
   private fun List<FileParams>.computeNewId(): Long {
     var id = 0L
     this.asSequence()
-        .filter { it.id > id }
-        .forEach { id = it.id }
+        .filter { it.core.id > id }
+        .forEach { id = it.core.id }
     return id + 1L
   }
+}
+
+private fun MutableList<FileParams>.findByParams(params: FileParams): MutableList<FileParams> {
+  return filter {
+    if (params.core.descriptor.isNotEmpty()) {
+      return@filter it.core.descriptor == params.core.descriptor
+    } else if (params.read.hasSetBoundaries()) {
+      return@filter params.read.hasValidBoundaries(it)
+    } else {
+      return@filter false
+    }
+  }.toMutableList()
 }

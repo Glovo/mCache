@@ -18,9 +18,11 @@ import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.MCacheBuilder;
 import wiki.depasquale.mcache.core.internal.FileParams;
+import wiki.depasquale.mcache.core.internal.FileParams.Time;
 
 public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
@@ -72,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
           retrieveAll();
         } else if (username.equalsIgnoreCase("removeall")) {
           removeAll();
+        } else if (username.equalsIgnoreCase("time boundaries")) {
+          timeBoundaries();
         } else {
           retrieveUser(username);
         }
@@ -80,26 +84,44 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
   }
 
+  private void timeBoundaries() {
+    startTime = System.nanoTime();
+    FileParams params = new FileParams();
+    params.getRead().setToChanged(Time.INFINITE);
+    params.getRead().setFromChanged(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1));
+    MCacheBuilder.request(User.class)
+        .params(params)
+        .with(Observable.empty())
+        .map(user -> user.htmlUrl)
+        .toList()
+        .subscribe(it -> {
+          user.setText(String.format("/users/%s", "all"));
+          responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
+          responseTime.append(String.format(Locale.getDefault(), "%d ms",
+              (System.nanoTime() - startTime) / 1000000));
+          message.setText(new Gson().toJson(it));
+        });
+  }
+
   private void removeAll() {
     startTime = System.nanoTime();
     FileParams params = new FileParams("");
-    params.setRemoveAll(true);
-    params.setListener(success -> {
-      responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
-      responseTime.append(String.format(Locale.getDefault(), "%d ms",
-          (System.nanoTime() - startTime) / 1000000));
-      message.setText(success ? "OK" : "FAILED");
-      return null;
-    });
+    params.getWrite().setAll(true);
     MCacheBuilder.request(User.class)
         .params(params)
-        .remove();
+        .remove(success -> {
+          responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
+          responseTime.append(String.format(Locale.getDefault(), "%d ms",
+              (System.nanoTime() - startTime) / 1000000));
+          message.setText(success ? "OK" : "FAILED");
+          return null;
+        });
   }
 
   private void retrieveAll() {
     startTime = System.nanoTime();
     FileParams params = new FileParams("");
-    params.setAll(true);
+    params.getRead().setAll(true);
     MCacheBuilder.request(User.class)
         .params(params)
         .with(Observable.empty())
@@ -125,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
   }
 
   @Override
-  public void accept(@NonNull User user) throws Exception {
+  public final void accept(@NonNull User user) throws Exception {
     responseTime.append(responseTime.getText().length() > 0 ? "\n" : "");
     responseTime.append(String.format(Locale.getDefault(), "%d ms",
         (System.nanoTime() - startTime) / 1000000));
