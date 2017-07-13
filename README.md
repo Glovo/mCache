@@ -16,15 +16,15 @@ public class App extends Application {
 Save it.
 ```java
 MCacheBuilder.request(User.class)
-    //.descriptor(descriptor) //optional
-    .save(object));
+    .params(FileParams)
+    .save(object); // or .save(object, Function1<Boolean,Unit>)
 ```
 
 Get it.
 ```java
 MCacheBuilder.request(User.class)
-    //.descriptor(descriptor) //optional
-    .with(); //or asynchronously .with(FinishedListener<? extends User> listener)
+    .params(FileParams)
+    .with(Function1<User,Unit>);
 ```
 
 How easy is that?
@@ -113,6 +113,18 @@ dependencies {
 }
 ```
 
+# Snapshots
+
+Add this to your build.gradle
+
+```java
+repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+```
+
+And visit [this link](https://oss.sonatype.org/content/repositories/snapshots/wiki/depasquale/mcache/) for the latest version
+
 # Licence
 
 Copyright 2017 Viktor De Pasquale
@@ -132,6 +144,12 @@ limitations under the License.
 Created by Viktor De Pasquale in cooperation with [`Cortex spol. s.r.o.`](https://www.cortex.cz/)
 
 # Changelog
+
+### 1.0.3/1.0.4
+* All changes are now uploaded to Sonatype and that means the only thing! [SNAPSHOTS!](https://oss.sonatype.org/content/repositories/snapshots/wiki/depasquale/mcache/).
+* Crashes occurring due to improper conditions should be no longer present
+* Added option to filter classes (objects) by **created and/or changed timestamp**
+* Slightly edited FileParams class which should be more rigid in terms of reusability
 
 ### 1.0.2
 * Stability update; removeAll flag won't throw concurrent exceptions no more
