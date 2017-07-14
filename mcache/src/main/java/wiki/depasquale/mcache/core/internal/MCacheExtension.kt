@@ -40,7 +40,7 @@ fun <T : Any> T.save(
   MCacheBuilder.request(this.javaClass)
       .using(*handlers)
       .params(params)
-      .save(this)
+      .save(this, params.write.listener)
 }
 
 fun <T : Any> T.loadFromCache(): Observable<T> {

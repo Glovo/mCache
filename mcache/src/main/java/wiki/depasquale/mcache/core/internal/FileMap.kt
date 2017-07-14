@@ -1,6 +1,7 @@
 package wiki.depasquale.mcache.core.internal
 
 import android.util.Base64
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.Expose
@@ -59,11 +60,10 @@ class FileMap private constructor() {
   }
 
   private fun readMap(file: File) {
-    val map = file.read()?.convertToMap()
-    map?.let {
+    file.read()?.convertToMap()?.let {
       //Compat clause, do not remove unless version bump!
       if (it.oldFiles.isNotEmpty()) {
-        filesList.addAll(it.oldFiles.map { it.toNew() })
+        it.filesList.addAll(it.oldFiles.map { it.toNew() })
         it.oldFiles.clear()
         file.write(it, gson = gson)
       }
@@ -113,6 +113,8 @@ class FileMap private constructor() {
     if (wantedFiles.isEmpty()) {
       return Observable.empty()
     } else {
+      if (wantedFiles.size > 1)
+        Log.e("mCache", "There is more than one file for params: ${Gson().toJson(params)}")
       val wantedFile = wantedFiles.first()
       val final = File(folder, wantedFile.core.id.toString()).read()?.convertToObject(cls)
       if (final == null) {
@@ -157,10 +159,10 @@ class FileMap private constructor() {
           return@map true
         }
         .subscribe({
-          params.write.listener(it)
+          params.write.listener.invoke(it)
         }, {
           it.printStackTrace()
-          params.write.listener(false)
+          params.write.listener.invoke(false)
         })
   }
 
@@ -175,7 +177,7 @@ class FileMap private constructor() {
   fun removeObjectWithParams(params: FileParams) {
     if (params.write.all) {
       removeAllObjects()
-      params.write.listener(true)
+      params.write.listener.invoke(true)
       return
     }
     //filter with write params
@@ -188,7 +190,7 @@ class FileMap private constructor() {
           }
         }
     updateMap()
-    params.write.listener(true)
+    params.write.listener.invoke(true)
   }
 
   /**
@@ -299,16 +301,16 @@ class FileMap private constructor() {
         .forEach { id = it.core.id }
     return id + 1L
   }
-}
 
-private fun MutableList<FileParams>.findByParams(params: FileParams): MutableList<FileParams> {
-  return filter {
-    if (params.core.descriptor.isNotEmpty()) {
-      return@filter it.core.descriptor == params.core.descriptor
-    } else if (params.read.hasSetBoundaries()) {
-      return@filter params.read.hasValidBoundaries(it)
-    } else {
-      return@filter false
-    }
-  }.toMutableList()
+  private fun MutableList<FileParams>.findByParams(params: FileParams): MutableList<FileParams> {
+    return filter {
+      if (params.core.descriptor.isNotEmpty()) {
+        return@filter it.core.descriptor == params.core.descriptor
+      } else if (params.read.hasSetBoundaries()) {
+        return@filter params.read.hasValidBoundaries(it)
+      } else {
+        return@filter false
+      }
+    }.toMutableList()
+  }
 }

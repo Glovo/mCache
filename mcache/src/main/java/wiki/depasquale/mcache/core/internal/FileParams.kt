@@ -1,5 +1,6 @@
 package wiki.depasquale.mcache.core.internal
 
+import android.util.Log
 import com.google.gson.annotations.Expose
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -53,7 +54,7 @@ class FileParams() {
   }
 
   class Write : Common() {
-    var listener: (Boolean) -> Unit = {}
+    var listener: (Boolean) -> Unit = { Log.e("mCache", "Listener invoked but not set!") }
   }
 
   open class Common {
