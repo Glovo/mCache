@@ -120,6 +120,7 @@ class MCacheBuilder<T : Any> {
    */
   @JvmOverloads
   fun remove(listener: Function1<Boolean, Unit> = {}) {
+    internalParams.fileParams.write.listener = listener
     internalParams.handlers.forEach { it -> it.remove(internalParams.requestedClass!!, internalParams.fileParams) }
   }
 
