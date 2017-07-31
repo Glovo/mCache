@@ -19,6 +19,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import wiki.depasquale.mcache.BuildConfig;
 import wiki.depasquale.mcache.MCache;
 import wiki.depasquale.mcache.core.MCacheBuilder;
 import wiki.depasquale.mcache.core.internal.FileParams;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
   TextInputEditText et;
   @BindView(R.id.input)
   TextInputLayout input;
+  @BindView(R.id.plugin)
+  AppCompatTextView plugin;
 
   private long startTime;
 
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<User> {
 
     et.setText("diareuse");
     et.post(() -> fab.performClick());
+
+    plugin.setText(BuildConfig.VERSION_NAME);
 
     fab.setOnClickListener(v -> {
       message.setText(null);
