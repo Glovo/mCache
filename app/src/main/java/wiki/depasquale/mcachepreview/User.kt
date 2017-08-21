@@ -1,8 +1,8 @@
-package wiki.depasquale.mcachepreview;
+package wiki.depasquale.mcachepreview
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import wiki.depasquale.mcache.core.PrefName;
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+import wiki.depasquale.mcache.core.PrefName
 
 /**
  * diareuse on 26.03.2017
@@ -13,95 +13,95 @@ class User {
   @SerializedName("login")
   @Expose
   @PrefName("login")
-  public String login;
+  var login: String? = null
   @SerializedName("id")
   @Expose
   @PrefName("id")
-  public Integer id;
+  var id: Int? = null
   @SerializedName("avatar_url")
   @Expose
-  public String avatarUrl;
+  var avatarUrl: String? = null
   @SerializedName("gravatar_id")
   @Expose
-  public String gravatarId;
+  var gravatarId: String? = null
   @SerializedName("url")
   @Expose
-  public String url;
+  var url: String? = null
   @SerializedName("html_url")
   @Expose
-  public String htmlUrl;
+  var htmlUrl: String? = null
   @SerializedName("followers_url")
   @Expose
-  public String followersUrl;
+  var followersUrl: String? = null
   @SerializedName("following_url")
   @Expose
-  public String followingUrl;
+  var followingUrl: String? = null
   @SerializedName("gists_url")
   @Expose
-  public String gistsUrl;
+  var gistsUrl: String? = null
   @SerializedName("starred_url")
   @Expose
-  public String starredUrl;
+  var starredUrl: String? = null
   @SerializedName("subscriptions_url")
   @Expose
-  public String subscriptionsUrl;
+  var subscriptionsUrl: String? = null
   @SerializedName("organizations_url")
   @Expose
-  public String organizationsUrl;
+  var organizationsUrl: String? = null
   @SerializedName("repos_url")
   @Expose
-  public String reposUrl;
+  var reposUrl: String? = null
   @SerializedName("events_url")
   @Expose
-  public String eventsUrl;
+  var eventsUrl: String? = null
   @SerializedName("received_events_url")
   @Expose
-  public String receivedEventsUrl;
+  var receivedEventsUrl: String? = null
   @SerializedName("type")
   @Expose
-  public String type;
+  var type: String? = null
   @SerializedName("site_admin")
   @Expose
-  public Boolean siteAdmin;
+  var siteAdmin: Boolean? = null
   @SerializedName("name")
   @Expose
-  public String name;
+  var name: String? = null
   @SerializedName("company")
   @Expose
-  public String company;
+  var company: String? = null
   @SerializedName("blog")
   @Expose
-  public String blog;
+  var blog: String? = null
   @SerializedName("location")
   @Expose
-  public String location;
+  var location: String? = null
   @SerializedName("email")
   @Expose
-  public String email;
+  var email: String? = null
   @SerializedName("hireable")
   @Expose
-  public Boolean hireable;
+  var hireable: Boolean? = null
   @SerializedName("bio")
   @Expose
-  public Object bio;
+  var bio: Any? = null
   @SerializedName("public_repos")
   @Expose
-  public Integer publicRepos;
+  var publicRepos: Int? = null
   @SerializedName("public_gists")
   @Expose
-  public Integer publicGists;
+  var publicGists: Int? = null
   @SerializedName("followers")
   @Expose
-  public Integer followers;
+  var followers: Int? = null
   @SerializedName("following")
   @Expose
-  public Integer following;
+  var following: Int? = null
   @SerializedName("created_at")
   @Expose
-  public String createdAt;
+  var createdAt: String? = null
   @SerializedName("updated_at")
   @Expose
-  public String updatedAt;
+  var updatedAt: String? = null
 
 
 }
