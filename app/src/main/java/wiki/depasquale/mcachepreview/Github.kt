@@ -20,7 +20,7 @@ import java.util.concurrent.*
  * diareuse on 26.03.2017
  */
 
-internal object Github {
+object Github {
 
   private var retrofit: Retrofit? = null
   private var service: Service? = null

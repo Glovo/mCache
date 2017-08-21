@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: "kotlin-android-extensions"
 
 android {
     compileSdkVersion vSDK
@@ -36,9 +38,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.0.1'
     compile 'com.android.support:design:26.0.1'
     compile 'com.android.support:support-vector-drawable:26.0.1'
-
-    compile 'com.jakewharton:butterknife:8.7.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
 
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
