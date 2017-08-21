@@ -12,9 +12,11 @@ import java.util.*
 
 class FileParams() {
 
-  val read: Read by lazy { Read() }
-  val write: Write by lazy { Write() }
-  @Expose val core: Core = Core()
+  @Transient
+  val read: Read = Read()
+  @Transient
+  val write: Write = Write()
+  val core: Core = Core()
 
   constructor(descriptor: String) : this() {
     core.descriptor = descriptor
@@ -67,13 +69,17 @@ class FileParams() {
   }
 
   class Core {
-    @Expose var id: Long = -1L
+    @Expose
+    var id: Long = -1L
       internal set
-    @Expose var timeCreated: Long = -1L
+    @Expose
+    var timeCreated: Long = -1L
       internal set
-    @Expose var timeChanged: Long = -1L
+    @Expose
+    var timeChanged: Long = -1L
       internal set
-    @Expose var descriptor: String = ""
+    @Expose
+    var descriptor: String = ""
   }
 
   class Time {

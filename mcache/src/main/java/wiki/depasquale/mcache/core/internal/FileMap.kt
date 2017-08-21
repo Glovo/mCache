@@ -13,9 +13,7 @@ import java.text.Normalizer
 
 class FileMap private constructor() {
 
-  @Transient private val MAP_NAME = "map.fmp"
   @Transient private lateinit var folder: File
-  @Transient private val gson: Gson = Gson()
 
   @SerializedName("files") private val oldFiles: MutableList<OldFileParams> = mutableListOf()
   private val filesList: MutableList<FileParams> = mutableListOf()
@@ -195,9 +193,8 @@ class FileMap private constructor() {
   }
 
   companion object {
-    private val fileMaps: MutableMap<Class<*>, FileMap> by lazy {
-      LinkedHashMap<Class<*>, FileMap>(0)
-    }
+    private val MAP_NAME = "map.fmp"
+    private val gson: Gson = Gson()
 
     /**
      * **Base function**: Finds or creates map for given class.
@@ -212,9 +209,7 @@ class FileMap private constructor() {
      * it continues to read index of all files and writes them to this instance.
      */
     fun forClass(cls: Class<*>, isCache: Boolean = false): FileMap {
-      return fileMaps.getOrPut(cls) {
-        FileMap(cls.simpleName, isCache)
-      }
+      return FileMap(cls.simpleName, isCache)
     }
 
     /**
