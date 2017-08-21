@@ -3,8 +3,6 @@ package wiki.depasquale.mcache.core.internal
 import android.util.Base64
 import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -15,46 +13,39 @@ import java.text.Normalizer
 
 class FileMap private constructor() {
 
-  private val MAP_NAME = "map.fmp"
-  private var folder: File? = null
-  @Expose @SerializedName("files") private val oldFiles: MutableList<OldFileParams> = ArrayList(0)
-  @Expose private val filesList: MutableList<FileParams> = ArrayList(0)
-  private val gson: Gson by lazy {
-    GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .create()
-  }
-  private val objectGson: Gson by lazy {
-    Gson()
-  }
+  @Transient private val MAP_NAME = "map.fmp"
+  @Transient private lateinit var folder: File
+  @Transient private val gson: Gson = Gson()
+
+  @SerializedName("files") private val oldFiles: MutableList<OldFileParams> = mutableListOf()
+  private val filesList: MutableList<FileParams> = mutableListOf()
 
   private constructor(className: String, isCache: Boolean = false) : this() {
     MCache.get()?.let {
       val dir = File(if (isCache) it.cacheDir else it.filesDir, "mcache")
       if (!dir.exists()) dir.mkdirs()
+
       val desiredName = className.getNameForClass()
       val foldersWithDesiredName = dir.listFiles().filter { desiredName == it.name }.toMutableList()
-      if (foldersWithDesiredName.size > 1) {
-        throw RuntimeException("FileMap Panic", Throwable("There is more than one folder with desired name."))
-      }
+
       if (foldersWithDesiredName.isEmpty()) {
         val folder = File(dir, desiredName)
         folder.mkdirs()
         foldersWithDesiredName.add(folder)
       }
-      if (foldersWithDesiredName.size == 1) {
-        folder = foldersWithDesiredName[0]
-        val filesWithDesiredName = folder!!.listFiles().filter { MAP_NAME == it.name }.toMutableList()
-        if (filesWithDesiredName.size > 1) {
-          filesWithDesiredName.forEach { it.deleteRecursively() }
-          throw RuntimeException("FileMap Panic", Throwable("There is more than one map"))
-        }
-        if (filesWithDesiredName.isEmpty()) {
-          updateMap()
-        }
-        if (filesWithDesiredName.size == 1) {
-          readMap(filesWithDesiredName[0])
-        }
+
+      folder = File(dir, "error")
+      folder = foldersWithDesiredName.firstOrNull() ?: return
+      val filesWithDesiredName = folder.listFiles().filter { MAP_NAME == it.name }.toMutableList()
+      if (filesWithDesiredName.size > 1) {
+        filesWithDesiredName.forEach { it.deleteRecursively() }
+        filesWithDesiredName.clear()
+      }
+      if (filesWithDesiredName.isEmpty()) {
+        updateMap()
+      }
+      if (filesWithDesiredName.size == 1) {
+        readMap(filesWithDesiredName.firstOrNull() ?: return)
       }
     }
   }
@@ -65,7 +56,7 @@ class FileMap private constructor() {
       if (it.oldFiles.isNotEmpty()) {
         it.filesList.addAll(it.oldFiles.map { it.toNew() })
         it.oldFiles.clear()
-        file.write(it, gson = gson)
+        file.write(it)
       }
       filesList.clear()
       filesList.addAll(it.filesList)
@@ -74,7 +65,7 @@ class FileMap private constructor() {
 
   private fun updateMap(params: FileParams? = null) {
     if (params != null) {
-      var found: Boolean = false
+      var found = false
       for ((index, param) in filesList.withIndex()) {
         if (param.core.descriptor == params.core.descriptor) {
           param.core.id = params.core.id
@@ -89,11 +80,7 @@ class FileMap private constructor() {
         filesList.add(params)
       }
     }
-    if (folder != null) {
-      File(folder, MAP_NAME).write(this, gson = gson)
-    } else {
-      throw RuntimeException("Root folder is null hence I can't save the file.")
-    }
+    File(folder, MAP_NAME).write(this)
   }
 
   /**
@@ -115,12 +102,9 @@ class FileMap private constructor() {
     } else {
       if (wantedFiles.size > 1)
         Log.e("mCache", "There is more than one file for params: ${Gson().toJson(params)}")
-      val wantedFile = wantedFiles.first()
+      val wantedFile = wantedFiles.firstOrNull() ?: return Observable.empty<T>()
       val final = File(folder, wantedFile.core.id.toString()).read()?.convertToObject(cls)
-      if (final == null) {
-        val observable = Observable.empty<T>()
-        return observable
-      } else return final.toObservable()
+      return if (final == null) Observable.empty<T>() else final.toObservable()
     }
   }
 
@@ -198,7 +182,7 @@ class FileMap private constructor() {
    *
    * **Detailed function**: For each file in files index checks whether the file exists and then it deletes it recursively and removes it from files index.
    */
-  fun removeAllObjects() {
+  private fun removeAllObjects() {
     filesList.forEachRemove {
       val file = File(folder, it.core.id.toString())
       if (file.exists()) {
@@ -277,10 +261,10 @@ class FileMap private constructor() {
   }
 
   private fun <T> String.convertToObject(cls: Class<T>): T? {
-    return objectGson.fromJson(this, cls)
+    return gson.fromJson(this, cls)
   }
 
-  private fun File.write(file: Any, gson: Gson = objectGson) {
+  private fun File.write(file: Any) {
     try {
       val fos = FileOutputStream(this)
       fos.write(gson.toJson(file).toByteArray())
@@ -304,12 +288,13 @@ class FileMap private constructor() {
 
   private fun MutableList<FileParams>.findByParams(params: FileParams): MutableList<FileParams> {
     return filter {
-      if (params.core.descriptor.isNotEmpty()) {
-        return@filter it.core.descriptor == params.core.descriptor
-      } else if (params.read.hasSetBoundaries()) {
-        return@filter params.read.hasValidBoundaries(it)
-      } else {
-        return@filter false
+      when {
+        params.core.descriptor.isNotEmpty() ->
+          return@filter it.core.descriptor == params.core.descriptor
+        params.read.hasSetBoundaries() ->
+          return@filter params.read.hasValidBoundaries(it)
+        else ->
+          return@filter false
       }
     }.toMutableList()
   }
