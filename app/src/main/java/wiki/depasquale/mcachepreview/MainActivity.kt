@@ -54,11 +54,12 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun timeBoundaries() {
     startTime = System.nanoTime()
-    val params = FileParams()
-    params.read.toChanged = Time.INFINITE
-    params.read.fromChanged = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1)
     MCacheBuilder.request(User::class.java)
-        .params(params)
+        .params(FileParams()
+            .read
+            .setToChanged(Time.INFINITE)
+            .setFromChanged(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1))
+            .build())
         .with(Observable.empty())
         .map { user -> user.htmlUrl }
         .toList()
@@ -73,10 +74,11 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    val params = FileParams("")
-    params.write.all = true
     MCacheBuilder.request(User::class.java)
-        .params(params)
+        .params(FileParams()
+            .write
+            .setAll(true)
+            .build())
         .remove { success ->
           responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
           responseTime.append(String.format(Locale.getDefault(), "%d ms",
@@ -87,10 +89,11 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun retrieveAll() {
     startTime = System.nanoTime()
-    val params = FileParams("")
-    params.read.all = true
     MCacheBuilder.request(User::class.java)
-        .params(params)
+        .params(FileParams()
+            .read
+            .setAll(true)
+            .build())
         .with(Observable.empty())
         .toList()
         .subscribe { it ->

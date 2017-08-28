@@ -1,6 +1,5 @@
 package wiki.depasquale.mcache.core.internal
 
-import android.util.Log
 import com.google.gson.annotations.Expose
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -13,16 +12,21 @@ import java.util.*
 class FileParams() {
 
   @Transient
-  val read: Read = Read()
+  val read: Read = Read(this)
   @Transient
-  val write: Write = Write()
+  val write: Write = Write(this)
   val core: Core = Core()
 
   constructor(descriptor: String) : this() {
     core.descriptor = descriptor
   }
 
-  class Read : Common() {
+  fun setDescriptor(descriptor: String): FileParams {
+    core.descriptor = descriptor
+    return this
+  }
+
+  class Read(params: FileParams) : Common(params) {
 
     private fun hasSetChanged(): Boolean = fromChanged != -1L && toChanged != -1L
 
@@ -55,17 +59,51 @@ class FileParams() {
     }
   }
 
-  class Write : Common() {
-    var listener: (Boolean) -> Unit = { Log.e("mCache", "Listener invoked but not set!") }
+  class Write(params: FileParams) : Common(params) {
+    var listener: (Boolean) -> Unit = {}
+
+    fun setListener(listener: (Boolean) -> Unit): Write {
+      this.listener = listener
+      return this
+    }
   }
 
-  open class Common {
+  open class Common(val params: FileParams) {
     var fromCreated: Long = -1L
     var fromChanged: Long = -1L
     var toCreated: Long = -1L
     var toChanged: Long = -1L
 
     var all: Boolean = false
+
+    fun setFromCreated(fromCreated: Long): Common {
+      this.fromCreated = fromCreated
+      return this
+    }
+
+    fun setFromChanged(fromChanged: Long): Common {
+      this.fromChanged = fromChanged
+      return this
+    }
+
+    fun setToCreated(toCreated: Long): Common {
+      this.toCreated = toCreated
+      return this
+    }
+
+    fun setToChanged(toChanged: Long): Common {
+      this.toChanged = toChanged
+      return this
+    }
+
+    fun setAll(all: Boolean): Common {
+      this.all = all
+      return this
+    }
+
+    fun build(): FileParams {
+      return params
+    }
   }
 
   class Core {
