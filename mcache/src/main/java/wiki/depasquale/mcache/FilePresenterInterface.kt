@@ -1,3 +1,3 @@
 package wiki.depasquale.mcache
 
-interface FilePresenterInterface
+interface FilePresenterInterface<T>

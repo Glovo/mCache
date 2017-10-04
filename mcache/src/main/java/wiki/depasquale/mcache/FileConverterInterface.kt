@@ -1,3 +1,3 @@
 package wiki.depasquale.mcache
 
-interface FileConverterInterface
+interface FileConverterInterface<T>

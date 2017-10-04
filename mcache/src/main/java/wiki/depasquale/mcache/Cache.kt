@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import java.lang.ref.WeakReference
 
-object MCache {
+object Cache {
 
   private lateinit var contextReference: WeakReference<Context>
 
@@ -17,4 +17,15 @@ object MCache {
     get() {
       return contextReference.get() ?: throw RuntimeException("Context must not be null.")
     }
+
+  fun <T : Any> obtain(cls: Class<T>): FilePresenterBuilder<T> {
+    return FilePresenterBuilder<T>(FilePresenterBuilder.Mode.OBTAIN)
+      .ofClass(cls)
+  }
+
+  fun <T : Any> give(cls: Class<T>, file: T): FilePresenterBuilder<T> {
+    return FilePresenterBuilder<T>(FilePresenterBuilder.Mode.GIVE)
+      .ofClass(cls)
+      .ofFile(file)
+  }
 }
