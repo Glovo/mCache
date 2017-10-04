@@ -3,19 +3,20 @@ package wiki.depasquale.mcache.core.internal
 import android.util.Base64
 import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import wiki.depasquale.mcache.MCache
-import wiki.depasquale.mcache.core.internal.compat.OldFileParams
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
 import java.text.Normalizer
 
 class FileMap private constructor() {
 
   @Transient private lateinit var folder: File
 
-  @SerializedName("files") private val oldFiles: MutableList<OldFileParams> = mutableListOf()
   private val filesList: MutableList<FileParams> = mutableListOf()
 
   private constructor(className: String, isCache: Boolean = false) : this() {
@@ -50,12 +51,6 @@ class FileMap private constructor() {
 
   private fun readMap(file: File) {
     file.read()?.convertToMap()?.let {
-      //Compat clause, do not remove unless version bump!
-      if (it.oldFiles.isNotEmpty()) {
-        it.filesList.addAll(it.oldFiles.map { it.toNew() })
-        it.oldFiles.clear()
-        file.write(it)
-      }
       filesList.clear()
       filesList.addAll(it.filesList)
     }
@@ -102,7 +97,7 @@ class FileMap private constructor() {
         Log.e("mCache", "There is more than one file for params: ${Gson().toJson(params)}")
       val wantedFile = wantedFiles.firstOrNull() ?: return Observable.empty<T>()
       val final = File(folder, wantedFile.core.id.toString()).read()?.convertToObject(cls)
-      return if (final == null) Observable.empty<T>() else final.toObservable()
+      return final?.toObservable() ?: Observable.empty()
     }
   }
 
