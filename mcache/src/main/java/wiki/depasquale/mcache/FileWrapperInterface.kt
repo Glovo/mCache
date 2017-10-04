@@ -1,0 +1,3 @@
+package wiki.depasquale.mcache
+
+interface FileWrapperInterface
