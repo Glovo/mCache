@@ -1,10 +1,9 @@
 package wiki.depasquale.mcache
 
-class FilePresenterBuilder<T : Any>(private val mode: Mode) : FilePresenterBuilderInterface<T> {
-  override lateinit var cls: Class<T>
-  override lateinit var file: T
+class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
 
-  enum class Mode { OBTAIN, GIVE }
+  override lateinit var cls: Class<T>
+  override var file: T? = null
 
   fun ofClass(cls: Class<T>): FilePresenterBuilder<T> {
     this.cls = cls
@@ -22,5 +21,9 @@ class FilePresenterBuilder<T : Any>(private val mode: Mode) : FilePresenterBuild
 
   fun ofCreated(from: Long, to: Long): FilePresenterBuilder<T> {
     return this
+  }
+
+  fun build(): FilePresenter<T> {
+    return FilePresenter(this)
   }
 }

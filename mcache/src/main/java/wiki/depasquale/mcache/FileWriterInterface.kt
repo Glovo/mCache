@@ -1,3 +1,0 @@
-package wiki.depasquale.mcache
-
-interface FileWriterInterface

@@ -1,3 +1,5 @@
 package wiki.depasquale.mcache
 
-interface FileWrapperInterface
+interface FileWrapperInterface {
+  val converter: FileConverterInterface<*>
+}
