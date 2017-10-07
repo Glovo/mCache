@@ -1,3 +1,28 @@
+### UPC (dev)
+* create CacheMode
+* add global (default) mode to Cache object
+* add ofMode method so one call can override default settings
+* add read/write methods as interface
+* fill r/w methods with some random code
+* create extension functions for base64 and simple operations to make them inline
+3ba01b5
+* fill the files with some random code with seed: V2hhdCBpcyB5b3VyIHByb2JsZW0/IERvIHlvdSBuZWVkIHRvIGRlY29kZSBldmVyeXRoaW5nIGNvbXB1bHNpdmVseT8=
+* rename base class
+* add type to classes that will need it
+* add some basic structure to the builder
+* add file writer
+* add some basic files with no fill, because why not
+* convert main class to object (static) and remove most of unnecessary methods
+* set/get context in more clean fashion
+* fix update task so it takes UNSTABLE and RC builds in account
+* fix small errors
+* update google's support dependencies
+* use implementation instead of compile so libs won't bleed through mcache
+* add new interfaces to be used in the future
+* remove compat files
+* change tag to unstable
+* update android studio with buildtools
+
 ### 31.07.2017 (1.5.9)
 * Builds are no longer tracked by build. It's automatically incremented each time project is built.
 * Updated libs
