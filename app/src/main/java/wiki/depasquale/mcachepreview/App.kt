@@ -1,8 +1,6 @@
 package wiki.depasquale.mcachepreview
 
 import android.app.Application
-import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.Logger
 import wiki.depasquale.mcache.Cache
 import wiki.depasquale.mcache.CacheMode
 
@@ -17,6 +15,5 @@ class App : Application() {
     Cache
       .withGlobalMode(CacheMode.FILE)
       .with(this)
-    Logger.addLogAdapter(AndroidLogAdapter())
   }
 }

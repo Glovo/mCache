@@ -1,6 +1,8 @@
 package wiki.depasquale.mcache
 
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
@@ -11,16 +13,11 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
     return builder.file
   }
 
-  fun getLater(): Observable<T> {
-    val subject = PublishSubject.create<T>()
-    return subject
-      .subscribeOn(Schedulers.io())
-      .doOnSubscribe {
-        getNow()?.let {
-          subject.onNext(it)
-        }
-        subject.onComplete()
-      }
+  fun getLater(): Single<T> {
+    return Single.just(true)
+      .observeOn(Schedulers.io())
+      .map { getNow()!! }
+      .observeOn(AndroidSchedulers.mainThread())
   }
 
   fun getLaterWithFollowup(followup: Observable<T>): Observable<T> {
@@ -28,12 +25,12 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
     return subject
       .subscribeOn(Schedulers.io())
       .doOnSubscribe {
-        getNow()?.let {
+        getLater().subscribe({
           subject.onNext(it)
-        }
-        followup.subscribe({
-          subject.onNext(it)
-        }, subject::onError, subject::onComplete)
+          followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
+        }, {
+          followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
+        })
       }
   }
 
@@ -46,8 +43,16 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
     return subject
       .subscribeOn(Schedulers.io())
       .doOnSubscribe {
-        subject.onNext(delete())
-        subject.onComplete()
+        Single.just(delete())
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe({
+            subject.onNext(it)
+            subject.onComplete()
+          }, {
+            subject.onNext(false)
+            subject.onComplete()
+          })
       }
   }
 
