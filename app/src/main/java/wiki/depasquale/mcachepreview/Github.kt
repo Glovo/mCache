@@ -5,16 +5,16 @@ import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import okhttp3.*
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import wiki.depasquale.mcache.adapters.FilesIOHandler
-import wiki.depasquale.mcache.core.MCacheBuilder
-import wiki.depasquale.mcache.core.internal.FileParams
-import java.util.concurrent.*
+import wiki.depasquale.mcache.Cache
+import java.util.concurrent.TimeUnit
 
 /**
  * diareuse on 26.03.2017
@@ -27,25 +27,23 @@ object Github {
 
   @SuppressLint("LogConditional")
   fun user(username: String): Observable<User> {
-    return MCacheBuilder
-        .request(User::class.java)
-        .using(FilesIOHandler::class.java)
-        .force(true)
-        .params(FileParams(username))
-        .with(getRetrofit()
-            .user(username)
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread()))
+    return Cache.obtain(User::class.java)
+      .ofIndex(username)
+      .build()
+      .getLaterWithFollowup(getRetrofit()
+        .user(username)
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread()))
   }
 
   private fun getRetrofit(): Service {
     if (retrofit == null) {
       retrofit = Retrofit.Builder()
-          .baseUrl("https://api.github.com/")
-          .client(client())
-          .addConverterFactory(GsonConverterFactory.create())
-          .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-          .build()
+        .baseUrl("https://api.github.com/")
+        .client(client())
+        .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .build()
     }
     if (service == null) {
       service = retrofit!!.create(Service::class.java)
@@ -59,11 +57,8 @@ object Github {
     client.readTimeout(200, TimeUnit.SECONDS)
     client.interceptors().add(Interceptor { chain ->
       val request = chain.request()
-      var response: Response? = null
-      response = chain.proceed(request)
-      if (response != null) {
-        Log.i("ServiceInfo", response.request().url().url().toString())
-      }
+      val response: Response? = chain.proceed(request)
+      Log.i("ServiceInfo", response?.request()?.url()?.url().toString())
       response
     })
     return client.build()

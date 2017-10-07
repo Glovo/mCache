@@ -20,6 +20,7 @@ object Cache {
   @JvmStatic
   fun with(context: Application) {
     contextReference = WeakReference(context)
+    Logger.addLogAdapter(AndroidLogAdapter())
   }
 
   internal var mode: CacheMode = CacheMode.CACHE
@@ -52,9 +53,9 @@ object Cache {
       .ofClass(cls)
   }
 
-  fun <T : Any> give(cls: Class<T>, file: T): FilePresenterBuilder<T> {
+  fun <T : Any> give(file: T): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
-      .ofClass(cls)
+      .ofClass(file.javaClass)
       .ofFile(file)
   }
 }

@@ -18,7 +18,26 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     }
   }
 
+  override fun delete(): Boolean {
+    synchronized(lock) {
+      val index = wrapper.converter.builder.index
+      val classFolder = findClassFolder()
+      return if (index.isEmpty())
+        classFolder.deleteRecursively()
+      else
+        classFolder.listFiles().first { it.name == index }.deleteRecursively()
+    }
+  }
+
   private fun findFile(): File {
+    val classFolder = findClassFolder()
+    val classFile = File(classFolder, findFileName(classFolder))
+    classFile.createNewFile()
+
+    return classFile
+  }
+
+  private fun findClassFolder(): File {
     val builder = wrapper.converter.builder
     val folder = when (builder.mode) {
       CacheMode.CACHE -> Cache.context.cacheDir
@@ -30,10 +49,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     homeFolder.mkdirs()
     val classFolder = File(homeFolder, name.base64())
     classFolder.mkdirs()
-    val classFile = File(classFolder, findFileName(classFolder))
-    classFile.createNewFile()
-
-    return classFile
+    return classFolder
   }
 
   private fun findFileName(classFolder: File): String {
@@ -41,7 +57,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
 
     val index = wrapper.converter.builder.index
     if (index.isNotEmpty())
-      return index.replace(Regex("[^\\p{L}\\p{Z}]"), "").base64()
+      return index.toString()
 
     val maxNumber = classFolder.listFiles().mapNotNull { it.name.toIntOrNull() }.maxBy { it } ?: 0
     return (maxNumber + 1).toString()

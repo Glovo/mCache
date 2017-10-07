@@ -4,16 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.gson.Gson
-import io.reactivex.Observable
+import com.orhanobut.logger.Logger
 import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main.*
 import wiki.depasquale.mcache.BuildConfig
-import wiki.depasquale.mcache.MCache
-import wiki.depasquale.mcache.core.MCacheBuilder
-import wiki.depasquale.mcache.core.internal.FileParams
-import wiki.depasquale.mcache.core.internal.FileParams.Time
-import java.util.*
-import java.util.concurrent.*
+import wiki.depasquale.mcache.Cache
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), Consumer<User> {
 
@@ -41,11 +37,11 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         input.isErrorEnabled = true
       } else {
         when {
-          username.equals("clean", ignoreCase = true) -> MCache.clean()
-          username.equals("all", ignoreCase = true) -> retrieveAll()
-          username.equals("removeall", ignoreCase = true) -> removeAll()
+          username.equals("clean", ignoreCase = true)           -> Cache.obtain(User::class.java).build().delete()
+          username.equals("all", ignoreCase = true)             -> retrieveAll()
+          username.equals("removeall", ignoreCase = true)       -> removeAll()
           username.equals("time boundaries", ignoreCase = true) -> timeBoundaries()
-          else -> retrieveUser(username)
+          else                                                  -> retrieveUser(username)
         }
       }
     }
@@ -54,55 +50,55 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun timeBoundaries() {
     startTime = System.nanoTime()
-    MCacheBuilder.request(User::class.java)
-        .params(FileParams()
-            .read
-            .setToChanged(Time.INFINITE)
-            .setFromChanged(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1))
-            .build())
-        .with(Observable.empty())
-        .map { user -> user.htmlUrl }
-        .toList()
-        .subscribe { it ->
-          user.text = String.format("/users/%s", "all")
-          responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-          responseTime.append(String.format(Locale.getDefault(), "%d ms",
-              (System.nanoTime() - startTime) / 1000000))
-          message.text = Gson().toJson(it)
-        }
+    /*MCacheBuilder.request(User::class.java)
+      .params(FileParams()
+        .read
+        .setToChanged(Time.INFINITE)
+        .setFromChanged(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1))
+        .build())
+      .with(Observable.empty())
+      .map { user -> user.htmlUrl }
+      .toList()
+      .subscribe { it ->
+        user.text = String.format("/users/%s", "all")
+        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
+        responseTime.append(String.format(Locale.getDefault(), "%d ms",
+          (System.nanoTime() - startTime) / 1000000))
+        message.text = Gson().toJson(it)
+      }*/
   }
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    MCacheBuilder.request(User::class.java)
-        .params(FileParams()
-            .write
-            .setAll(true)
-            .build())
-        .remove { success ->
-          responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-          responseTime.append(String.format(Locale.getDefault(), "%d ms",
-              (System.nanoTime() - startTime) / 1000000))
-          message.text = if (success) "OK" else "FAILED"
-        }
+    /*MCacheBuilder.request(User::class.java)
+      .params(FileParams()
+        .write
+        .setAll(true)
+        .build())
+      .remove { success ->
+        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
+        responseTime.append(String.format(Locale.getDefault(), "%d ms",
+          (System.nanoTime() - startTime) / 1000000))
+        message.text = if (success) "OK" else "FAILED"
+      }*/
   }
 
   private fun retrieveAll() {
     startTime = System.nanoTime()
-    MCacheBuilder.request(User::class.java)
-        .params(FileParams()
-            .read
-            .setAll(true)
-            .build())
-        .with(Observable.empty())
-        .toList()
-        .subscribe { it ->
-          user.text = String.format("/users/%s", "all")
-          responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-          responseTime.append(String.format(Locale.getDefault(), "%d ms",
-              (System.nanoTime() - startTime) / 1000000))
-          message.text = Gson().toJson(it)
-        }
+    /*MCacheBuilder.request(User::class.java)
+      .params(FileParams()
+        .read
+        .setAll(true)
+        .build())
+      .with(Observable.empty())
+      .toList()
+      .subscribe { it ->
+        user.text = String.format("/users/%s", "all")
+        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
+        responseTime.append(String.format(Locale.getDefault(), "%d ms",
+          (System.nanoTime() - startTime) / 1000000))
+        message.text = Gson().toJson(it)
+      }*/
   }
 
   private fun retrieveUser(username: String) {
@@ -110,17 +106,24 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
     user.text = String.format("/users/%s", username)
     startTime = System.nanoTime()
     Github.user(username).subscribe(this,
-        Consumer<Throwable> { error ->
-          error.printStackTrace()
-          Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
-        })
+      Consumer<Throwable> { error ->
+        error.printStackTrace()
+        Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
+      })
   }
 
   @Throws(Exception::class)
   override fun accept(user: User) {
+    Logger.d("User@${user.login} accepted")
+    Cache
+      .give(user)
+      .ofIndex(user.login ?: return)
+      .build()
+      .getLater()
+      .subscribe()
     responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
     responseTime.append(String.format(Locale.getDefault(), "%d ms",
-        (System.nanoTime() - startTime) / 1000000))
+      (System.nanoTime() - startTime) / 1000000))
     message.text = Gson().toJson(user)
   }
 }

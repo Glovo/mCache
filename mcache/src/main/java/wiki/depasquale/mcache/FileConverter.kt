@@ -14,12 +14,16 @@ internal class FileConverter<T>(override val builder: FilePresenterBuilderInterf
         .unwrap()
     }
 
-  init {
+  fun run() {
     if (builder.file == null) {
       decode()
     } else {
       encode()
     }
+  }
+
+  fun delete(): Boolean {
+    return FileWrapper(this).delete()
   }
 
   private fun encode() {

@@ -9,4 +9,8 @@ class FileWrapper(override val converter: FileConverterInterface<*>) : FileWrapp
   fun unwrap(): String {
     return FileRW(this).read().unBase64()
   }
+
+  fun delete(): Boolean {
+    return FileRW(this).delete()
+  }
 }
