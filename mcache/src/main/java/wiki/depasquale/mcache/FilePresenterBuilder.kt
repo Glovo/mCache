@@ -17,14 +17,6 @@ class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
     return this
   }
 
-  fun ofChanged(from: Long, to: Long): FilePresenterBuilder<T> {
-    return this
-  }
-
-  fun ofCreated(from: Long, to: Long): FilePresenterBuilder<T> {
-    return this
-  }
-
   fun ofMode(mode: CacheMode): FilePresenterBuilder<T> {
     this.mode = mode
     return this
