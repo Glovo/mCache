@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference
 
 object Cache {
 
-  private lateinit var contextReference: WeakReference<Context>
+  private var contextReference: WeakReference<Context>? = null
 
   @JvmStatic
   fun withGlobalMode(mode: CacheMode): Cache {
@@ -27,7 +27,7 @@ object Cache {
 
   internal val context: Context
     get() {
-      return contextReference.get() ?: contextRationale()
+      return contextReference?.get() ?: contextRationale()
     }
 
   @Throws(RuntimeException::class)
@@ -35,14 +35,12 @@ object Cache {
     Logger.clearLogAdapters()
     Logger.addLogAdapter(AndroidLogAdapter(PrettyFormatStrategy.newBuilder()
       .showThreadInfo(true)
-      .methodCount(10)
       .tag("diareuse/mCache")
       .build()))
     Logger.e(
       "You may have forgotten to initialize the library. Please visit my GitHub\n" +
       "[https://github.com/diareuse/mCache] for latest instructions on how to set it up.\n" +
-      "I have enabled method backstack on this very log (thanks @orhanobut) and exception is\n" +
-      "thrown immediately after this message. You may have error you code as well as I can.\n" +
+      "Exception is thrown immediately after this message. You may have error you code as well as I can.\n" +
       "Post issues with description as accurate as possible. More info I have more code I can fix :)"
             )
     throw RuntimeException("Context must not be null.")

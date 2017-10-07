@@ -1,5 +1,7 @@
 package wiki.depasquale.mcache
 
+import java.text.Normalizer
+
 class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
 
   override var mode: CacheMode = Cache.mode
@@ -23,7 +25,7 @@ class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
   }
 
   fun ofIndex(index: String): FilePresenterBuilder<T> {
-    this.index = index.replace(Regex("[^\\p{L}\\p{Z}]"), "").base64()
+    this.index = Normalizer.normalize(index.toLowerCase(), Normalizer.Form.NFD).base64()
     return this
   }
 

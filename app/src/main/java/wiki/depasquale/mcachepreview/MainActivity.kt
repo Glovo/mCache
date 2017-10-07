@@ -38,67 +38,24 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
       } else {
         when {
           username.equals("clean", ignoreCase = true)           -> Cache.obtain(User::class.java).build().delete()
-          username.equals("all", ignoreCase = true)             -> retrieveAll()
           username.equals("removeall", ignoreCase = true)       -> removeAll()
-          username.equals("time boundaries", ignoreCase = true) -> timeBoundaries()
           else                                                  -> retrieveUser(username)
         }
       }
     }
-
-  }
-
-  private fun timeBoundaries() {
-    startTime = System.nanoTime()
-    /*MCacheBuilder.request(User::class.java)
-      .params(FileParams()
-        .read
-        .setToChanged(Time.INFINITE)
-        .setFromChanged(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1))
-        .build())
-      .with(Observable.empty())
-      .map { user -> user.htmlUrl }
-      .toList()
-      .subscribe { it ->
-        user.text = String.format("/users/%s", "all")
-        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-        responseTime.append(String.format(Locale.getDefault(), "%d ms",
-          (System.nanoTime() - startTime) / 1000000))
-        message.text = Gson().toJson(it)
-      }*/
   }
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    /*MCacheBuilder.request(User::class.java)
-      .params(FileParams()
-        .write
-        .setAll(true)
-        .build())
-      .remove { success ->
+    Cache.obtain(Cache::class.java)
+      .build()
+      .deleteLater()
+      .subscribe({ success ->
         responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
         responseTime.append(String.format(Locale.getDefault(), "%d ms",
           (System.nanoTime() - startTime) / 1000000))
         message.text = if (success) "OK" else "FAILED"
-      }*/
-  }
-
-  private fun retrieveAll() {
-    startTime = System.nanoTime()
-    /*MCacheBuilder.request(User::class.java)
-      .params(FileParams()
-        .read
-        .setAll(true)
-        .build())
-      .with(Observable.empty())
-      .toList()
-      .subscribe { it ->
-        user.text = String.format("/users/%s", "all")
-        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-        responseTime.append(String.format(Locale.getDefault(), "%d ms",
-          (System.nanoTime() - startTime) / 1000000))
-        message.text = Gson().toJson(it)
-      }*/
+      })
   }
 
   private fun retrieveUser(username: String) {
@@ -117,7 +74,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
     Logger.d("User@${user.login} accepted")
     Cache
       .give(user)
-      .ofIndex(user.login ?: return)
+      .ofIndex(user.login ?: "")
       .build()
       .getLater()
       .subscribe()
