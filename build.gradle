@@ -40,7 +40,7 @@ ext {
     vName = (vCode / 1000 / 100 as int) +
             "." + (vCode / 100 as int) % 1000 +
             "." + vCode % 100 +
-            "-UNSTABLE"
+            "-SNAPSHOT"
     vSDK = 26
     vMinSDK = 9
     vBuildTools = "26.0.2"
