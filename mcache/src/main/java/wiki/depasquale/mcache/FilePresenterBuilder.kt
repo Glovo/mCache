@@ -2,6 +2,7 @@ package wiki.depasquale.mcache
 
 class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
 
+  override var mode: CacheMode = Cache.mode
   override lateinit var cls: Class<T>
   override var file: T? = null
 
@@ -20,6 +21,11 @@ class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
   }
 
   fun ofCreated(from: Long, to: Long): FilePresenterBuilder<T> {
+    return this
+  }
+
+  fun ofMode(mode: CacheMode): FilePresenterBuilder<T> {
+    this.mode = mode
     return this
   }
 

@@ -12,9 +12,17 @@ object Cache {
   private lateinit var contextReference: WeakReference<Context>
 
   @JvmStatic
+  fun withGlobalMode(mode: CacheMode): Cache {
+    this.mode = mode
+    return this
+  }
+
+  @JvmStatic
   fun with(context: Application) {
     contextReference = WeakReference(context)
   }
+
+  internal var mode: CacheMode = CacheMode.CACHE
 
   internal val context: Context
     get() {
