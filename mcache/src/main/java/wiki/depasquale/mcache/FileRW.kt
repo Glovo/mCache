@@ -11,10 +11,11 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     return file.readText()
   }
 
-  @Synchronized
   override fun write(wrappedFile: String) {
-    val file = findFile()
-    file.writeText(wrappedFile)
+    synchronized(lock) {
+      val file = findFile()
+      file.writeText(wrappedFile)
+    }
   }
 
   private fun findFile(): File {
@@ -29,19 +30,33 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     homeFolder.mkdirs()
     val classFolder = File(homeFolder, name.base64())
     classFolder.mkdirs()
-    val classFile = File(classFolder, findFileNumber(classFolder))
+    val classFile = File(classFolder, findFileName(classFolder))
     classFile.createNewFile()
 
     return classFile
   }
 
-  private fun findFileNumber(classFolder: File): String {
+  private fun findFileName(classFolder: File): String {
+    removeUnwantedFiles(classFolder)
+
+    val index = wrapper.converter.builder.index
+    if (index.isNotEmpty())
+      return index.replace(Regex("[^\\p{L}\\p{Z}]"), "").base64()
+
+    val maxNumber = classFolder.listFiles().mapNotNull { it.name.toIntOrNull() }.maxBy { it } ?: 0
+    return (maxNumber + 1).toString()
+  }
+
+  private fun removeUnwantedFiles(classFolder: File) {
     classFolder.listFiles().forEach {
-      if (!it.name.isNumber() || !it.isFile) {
+      if (/*!it.name.isNumber() || */!it.isFile) {
         it.deleteRecursively()
       }
     }
-    val maxNumber = classFolder.listFiles().map { it.name.toInt() }.maxBy { it } ?: 0
-    return (maxNumber + 1).toString()
+  }
+
+  companion object {
+    @JvmField
+    val lock: Any = Any()
   }
 }
