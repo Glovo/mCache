@@ -20,12 +20,18 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
 
   override fun delete(): Boolean {
     synchronized(lock) {
-      val index = wrapper.converter.builder.index
+      val builder = wrapper.converter.builder
+      val index = builder.index
       val classFolder = findClassFolder()
-      return if (index.isEmpty())
-        classFolder.deleteRecursively()
-      else
+      return if (index.isEmpty()) {
+        if (builder.cls == Cache::class.java) {
+          return classFolder.parentFile?.deleteRecursively() == true
+        } else {
+          classFolder.deleteRecursively()
+        }
+      } else {
         classFolder.listFiles().first { it.name == index }.deleteRecursively()
+      }
     }
   }
 
@@ -72,7 +78,6 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
   }
 
   companion object {
-    @JvmField
-    val lock: Any = Any()
+    private val lock: Any = Any()
   }
 }
