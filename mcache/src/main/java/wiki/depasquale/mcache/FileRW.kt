@@ -47,7 +47,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     val builder = wrapper.converter.builder
     val folder = when (builder.mode) {
       CacheMode.CACHE -> Cache.context.cacheDir
-      CacheMode.FILE  -> Cache.context.filesDir
+      CacheMode.FILE -> Cache.context.filesDir
     }
     val name = builder.cls.simpleName
 

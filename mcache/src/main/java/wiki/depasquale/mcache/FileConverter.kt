@@ -7,11 +7,11 @@ internal class FileConverter<T>(override val builder: FilePresenterBuilderInterf
   override var encodedFile: String
     set(value) {
       FileWrapper(this)
-        .wrap(value)
+          .wrap(value)
     }
     get() {
       return FileWrapper(this)
-        .unwrap()
+          .unwrap()
     }
 
   fun run() {

@@ -34,26 +34,26 @@ object Cache {
   private fun contextRationale(): Context {
     Logger.clearLogAdapters()
     Logger.addLogAdapter(AndroidLogAdapter(PrettyFormatStrategy.newBuilder()
-      .showThreadInfo(true)
-      .tag("diareuse/mCache")
-      .build()))
+        .showThreadInfo(true)
+        .tag("diareuse/mCache")
+        .build()))
     Logger.e(
-      "You may have forgotten to initialize the library. Please visit my GitHub\n" +
-      "[https://github.com/diareuse/mCache] for latest instructions on how to set it up.\n" +
-      "Exception is thrown immediately after this message. You may have error you code as well as I can.\n" +
-      "Post issues with description as accurate as possible. More info I have more code I can fix :)"
-            )
+        "You may have forgotten to initialize the library. Please visit my GitHub\n" +
+            "[https://github.com/diareuse/mCache] for latest instructions on how to set it up.\n" +
+            "Exception is thrown immediately after this message. You may have error you code as well as I can.\n" +
+            "Post issues with description as accurate as possible. More info I have more code I can fix :)"
+    )
     throw RuntimeException("Context must not be null.")
   }
 
   fun <T : Any> obtain(cls: Class<T>): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
-      .ofClass(cls)
+        .ofClass(cls)
   }
 
   fun <T : Any> give(file: T): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
-      .ofClass(file.javaClass)
-      .ofFile(file)
+        .ofClass(file.javaClass)
+        .ofFile(file)
   }
 }

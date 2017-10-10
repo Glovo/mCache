@@ -15,22 +15,22 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
 
   fun getLater(): Single<T> {
     return Single.just(true)
-      .observeOn(Schedulers.io())
-      .map { getNow()!! }
-      .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(Schedulers.io())
+        .map { getNow()!! }
+        .observeOn(AndroidSchedulers.mainThread())
   }
 
   fun getLaterWithFollowup(followup: Observable<T>): Observable<T> {
     val subject = PublishSubject.create<T>()
     return subject
-      .doOnSubscribe {
-        getLater().subscribe({
-          subject.onNext(it)
-          followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
-        }, {
-          followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
-        })
-      }
+        .doOnSubscribe {
+          getLater().subscribe({
+            subject.onNext(it)
+            followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
+          }, {
+            followup.subscribe(subject::onNext, subject::onError, subject::onComplete)
+          })
+        }
   }
 
   fun delete(): Boolean {
@@ -39,9 +39,9 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
 
   fun deleteLater(): Single<Boolean> {
     return Single.just(true)
-      .observeOn(Schedulers.io())
-      .map { delete() }
-      .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(Schedulers.io())
+        .map { delete() }
+        .observeOn(AndroidSchedulers.mainThread())
   }
 
 }
