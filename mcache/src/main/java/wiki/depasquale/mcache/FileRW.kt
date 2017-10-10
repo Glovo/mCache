@@ -65,8 +65,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     if (index.isNotEmpty())
       return index.toString()
 
-    val maxNumber = classFolder.listFiles().mapNotNull { it.name.toIntOrNull() }.maxBy { it } ?: 0
-    return (maxNumber + 1).toString()
+    return "default".base64()
   }
 
   private fun removeUnwantedFiles(classFolder: File) {
