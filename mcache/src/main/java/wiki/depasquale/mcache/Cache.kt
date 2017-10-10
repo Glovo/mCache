@@ -24,6 +24,7 @@ object Cache {
   }
 
   internal var mode: CacheMode = CacheMode.CACHE
+    private set
 
   internal val context: Context
     get() {
