@@ -37,9 +37,9 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         input.isErrorEnabled = true
       } else {
         when {
-          username.equals("clean", ignoreCase = true)           -> Cache.obtain(User::class.java).build().delete()
-          username.equals("removeall", ignoreCase = true)       -> removeAll()
-          else                                                  -> retrieveUser(username)
+          username.equals("clean", ignoreCase = true) -> Cache.obtain(User::class.java).build().delete()
+          username.equals("removeall", ignoreCase = true) -> removeAll()
+          else -> retrieveUser(username)
         }
       }
     }
@@ -48,14 +48,14 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
   private fun removeAll() {
     startTime = System.nanoTime()
     Cache.obtain(Cache::class.java)
-      .build()
-      .deleteLater()
-      .subscribe({ success ->
-        responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
-        responseTime.append(String.format(Locale.getDefault(), "%d ms",
-          (System.nanoTime() - startTime) / 1000000))
-        message.text = if (success) "OK" else "FAILED"
-      })
+        .build()
+        .deleteLater()
+        .subscribe({ success ->
+          responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
+          responseTime.append(String.format(Locale.getDefault(), "%d ms",
+              (System.nanoTime() - startTime) / 1000000))
+          message.text = if (success) "OK" else "FAILED"
+        })
   }
 
   private fun retrieveUser(username: String) {
@@ -63,24 +63,18 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
     user.text = String.format("/users/%s", username)
     startTime = System.nanoTime()
     Github.user(username).subscribe(this,
-      Consumer<Throwable> { error ->
-        error.printStackTrace()
-        Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
-      })
+        Consumer<Throwable> { error ->
+          error.printStackTrace()
+          Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
+        })
   }
 
   @Throws(Exception::class)
   override fun accept(user: User) {
     Logger.d("User@${user.login} accepted")
-    Cache
-      .give(user)
-      .ofIndex(user.login ?: "")
-      .build()
-      .getLater()
-      .subscribe()
     responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
     responseTime.append(String.format(Locale.getDefault(), "%d ms",
-      (System.nanoTime() - startTime) / 1000000))
+        (System.nanoTime() - startTime) / 1000000))
     message.text = Gson().toJson(user)
   }
 }

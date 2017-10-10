@@ -27,15 +27,20 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
           getLater().subscribe({
             subject.onNext(it)
             followup(followup, subject)
-          }, { followup(followup, subject) })
+          }, {
+            followup(followup, subject)
+          })
         }
   }
 
   private fun followup(followup: Observable<T>, subject: PublishSubject<T>) {
     followup.subscribe({
       builder.file = it
-      getLater().subscribe(subject::onNext, subject::onError)
-    }, subject::onError, subject::onComplete)
+      getLater().subscribe({
+        subject.onNext(it)
+        subject.onComplete()
+      }, subject::onError)
+    }, subject::onError)
   }
 
   fun delete(): Boolean {

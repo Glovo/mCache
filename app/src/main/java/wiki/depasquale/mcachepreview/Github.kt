@@ -28,22 +28,22 @@ object Github {
   @SuppressLint("LogConditional")
   fun user(username: String): Observable<User> {
     return Cache.obtain(User::class.java)
-      .ofIndex(username)
-      .build()
-      .getLaterWithFollowup(getRetrofit()
-        .user(username)
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread()))
+        .ofIndex(username)
+        .build()
+        .getLaterWithFollowup(getRetrofit()
+            .user(username)
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread()))
   }
 
   private fun getRetrofit(): Service {
     if (retrofit == null) {
       retrofit = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
-        .client(client())
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build()
+          .baseUrl("https://api.github.com/")
+          .client(client())
+          .addConverterFactory(GsonConverterFactory.create())
+          .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+          .build()
     }
     if (service == null) {
       service = retrofit!!.create(Service::class.java)
