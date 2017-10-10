@@ -1,4 +1,24 @@
 ### UPC (dev)
+* save the followup immediately
+* save followup immediately
+* use "default" as filename so it's actually useful
+* reformat so it's correct x)
+* promote to snapshot
+* remove lateinit from WeakReference as it blocks showing rationale
+* convert deleteLater method to same format as getLater
+* use proper normalizer
+* remove whole cache when Cache.class (Cache::class.java respectively) is specified as builder class
+* on second thought sql-like queries will not be supported anymore, as you can save a list of files and maintain it yourself leaving this library effectively dumb yet powerful tool to save/load files
+* update methods for retrieving data
+* remove give class dependency
+* create delete methods
+* rename methods in FilePresenter
+  * add more methods in the process
+* add index to builder
+* refactoring some methods in FileRW
+* fix synchronized calling so it locks on all instances
+* extract files clearing to independent method
+* remove obsolete code
 * create CacheMode
 * add global (default) mode to Cache object
 * add ofMode method so one call can override default settings

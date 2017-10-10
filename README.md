@@ -3,28 +3,35 @@
 ## How do I use it?
 
 Create it.
-```java
-public class App extends Application {
+```kotlin
+class App : Application() {
 
-  @Override public void onCreate() {
-    super.onCreate();
-    MCache.with(this);
+  override fun onCreate() {
+    super.onCreate()
+    Cache
+      //.withGlobalMode(CacheMode.FILE)
+      .with(this)
   }
 }
 ```
 
 Save it.
-```java
-MCacheBuilder.request(User.class)
-    .params(FileParams)
-    .save(object); // or .save(object, Function1<Boolean,Unit>)
+```kotlin
+val user = User()
+Cache.give(user)
+  //.ofIndex(username)
+  //.ofMode(mode)
+  .build()
+  .getNow() // or .getLater // or .getLaterWithFollowup
 ```
 
 Get it.
-```java
-MCacheBuilder.request(User.class)
-    .params(FileParams)
-    .with(Function1<User,Unit>);
+```kotlin
+Cache.obtain(User::class.java)
+  //.ofIndex(username)
+  //.ofMode(mode)
+  .build()
+  .getNow() // or .getLater // or .getLaterWithFollowup
 ```
 
 How easy is that?
@@ -33,69 +40,15 @@ How easy is that?
 
 ### Wrap observables!
 
-```java
-MCacheBuilder
-    .request(User.class)
-    //.using(FilesIOHandler.class) //optional
-    .force(username.equals(userUsername)) //optional (default false)
-    .with(getRetrofit()
-        .user(username)
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread()))
-    .map(user -> {
-        userUsername = username;
-        return user;
-    });
-```
-
-### Use multiple handlers
-
-```java
-MCacheBuilder
-    ...
-    .using(CacheIOHandler.class, FilesIOHandler.class)
-    .readWith(1) //read with FilesIOHandler
-    ...
-    .with(Observable<?>);
-```
-
-### Use unique SharedPrefs handler
-* Annotate only generic types that are supported by SharedPreferences interface. ```(int, long, float, boolean, String)```
-
-Apply annotation.
-
-```java
-class User {
-
-  //jackson or Gson annotations ... or not
-  @PrefName("username") //Saves value of String login in SharedPrefs under "username" key
-  public String login;
+```kotlin
+Cache.obtain(User::class.java)
   ...
-}
+  .getLaterWithFollowup(observable)
 ```
-
-Just add one more handler.
-
-```java
-MCacheBuilder
-    ...
-    .using(FilesIOHandler.class, SharedPrefsIOHandler.class)
-    ...
-    .with(Observable<User>);
-```
-
-Now retrieve your values like so:
-
-```java
-SharedPrefsIOHandler.getPrefs().getString("username", ":(");
-```
-
-And that's it. Easy right?
 
 ### Customize
 
-Implement [`IOHandler`](https://github.com/diareuse/mCache/blob/master/mcache/src/main/java/wiki/depasquale/mcache/core/IOHandler.java)
-Use encryption within your app. Cache with different mechanism. Whatever! :)
+You can redo whole library yourself since it's now made entirely via interfaces.
 
 ## Can I help?
 
