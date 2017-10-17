@@ -8,6 +8,7 @@ class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
   override lateinit var cls: Class<T>
   override var file: T? = null
   override var index: CharSequence = ""
+  override var files: List<T> = listOf()
 
   fun ofClass(cls: Class<T>): FilePresenterBuilder<T> {
     this.cls = cls

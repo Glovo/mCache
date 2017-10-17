@@ -13,6 +13,11 @@ internal class FileConverter<T>(override val builder: FilePresenterBuilderInterf
       return FileWrapper(this)
           .unwrap()
     }
+  override val encodedFiles: List<String>
+    get() {
+      return FileWrapper(this)
+          .unwrapList()
+    }
 
   fun run() {
     if (builder.file == null) {
@@ -20,6 +25,11 @@ internal class FileConverter<T>(override val builder: FilePresenterBuilderInterf
     } else {
       encode()
     }
+  }
+
+  fun fetchAll() {
+    val gson = Gson()
+    builder.files = encodedFiles.map { gson.fromJson(it, builder.cls) }
   }
 
   fun delete(): Boolean {

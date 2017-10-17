@@ -1,5 +1,6 @@
 package wiki.depasquale.mcache
 
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,9 +15,20 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
   }
 
   fun getLater(): Single<T> {
-    return Single.just(true)
-        .observeOn(Schedulers.io())
-        .map { getNow()!! }
+    return Single.just(getNow()!!)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+  }
+
+  fun getAll(): List<T> {
+    FileConverter(builder).fetchAll()
+    return builder.files
+  }
+
+  fun getAllLater(): Flowable<T> {
+    return Flowable.just(getAll())
+        .flatMapIterable { it }
+        .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
   }
 
@@ -48,9 +60,8 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
   }
 
   fun deleteLater(): Single<Boolean> {
-    return Single.just(true)
-        .observeOn(Schedulers.io())
-        .map { delete() }
+    return Single.just(delete())
+        .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
   }
 

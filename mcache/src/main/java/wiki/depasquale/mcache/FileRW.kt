@@ -35,6 +35,11 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     }
   }
 
+  override fun all(): List<String> {
+    val classFolder = findClassFolder()
+    return classFolder.listFiles().map { it.readText() }
+  }
+
   private fun findFile(): File {
     val classFolder = findClassFolder()
     val classFile = File(classFolder, findFileName(classFolder))

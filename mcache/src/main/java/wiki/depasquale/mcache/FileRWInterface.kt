@@ -5,4 +5,5 @@ interface FileRWInterface {
   fun read(): String
   fun write(wrappedFile: String)
   fun delete(): Boolean
+  fun all(): List<String>
 }
