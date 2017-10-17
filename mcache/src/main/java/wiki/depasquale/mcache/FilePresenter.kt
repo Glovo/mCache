@@ -39,10 +39,16 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
    *
    * It might throw error even if successfully saved, because [FilePresenterBuilderInterface.file]
    * is null at moment of subscribing, which is not allowed by Rx. This is *correct* behavior.
+   *
+   * @throws UnsureSuccessException if file is null - again, this is correct behavior, use Rx throwable block
    */
   fun getLater(): Single<T> {
-    return Single.just(getNow()!!)
+    return Single.just(true)
         .subscribeOn(Schedulers.io())
+        .map {
+          val t = getNow()
+          t ?: throw UnsureSuccessException()
+        }
         .observeOn(AndroidSchedulers.mainThread())
   }
 
