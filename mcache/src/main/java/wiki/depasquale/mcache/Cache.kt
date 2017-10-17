@@ -7,6 +7,9 @@ import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import java.lang.ref.WeakReference
 
+/**
+ * Automagical object for pleasuring your senses.
+ */
 object Cache {
 
   private var contextReference: WeakReference<Context>? = null
@@ -47,11 +50,17 @@ object Cache {
     throw RuntimeException("Context must not be null.")
   }
 
+  /**
+   * Initializes [FilePresenterBuilder] so it fetches file(s) defined further on.
+   */
   fun <T : Any> obtain(cls: Class<T>): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
         .ofClass(cls)
   }
 
+  /**
+   * Initializes [FilePresenterBuilder] so it saves file defined further on.
+   */
   fun <T : Any> give(file: T): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
         .ofClass(file.javaClass)
