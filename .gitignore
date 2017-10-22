@@ -40,5 +40,3 @@ captures/
 *.jks
 
 libs
-androidTest
-test

@@ -22,7 +22,12 @@ object Cache {
 
   @JvmStatic
   fun with(context: Application) {
+    with(context as Context)
+  }
+
+  internal fun with(context: Context) {
     contextReference = WeakReference(context)
+    Logger.clearLogAdapters()
     Logger.addLogAdapter(AndroidLogAdapter())
   }
 
