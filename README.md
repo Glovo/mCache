@@ -50,9 +50,9 @@ Cache.obtain(User::class.java)
 
 You can redo whole library yourself since it's now made entirely via interfaces.
 
-## Can I help?
+## Contributing
 
-Yes! Create pull request, issue or both.
+Fork me - make changes - reformat using [this code style](https://github.com/diareuse/contributing/blob/master/ImprovedGoogleStyle.xml)
 
 # Download
 
