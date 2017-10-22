@@ -53,6 +53,7 @@ object Cache {
   /**
    * Initializes [FilePresenterBuilder] so it fetches file(s) defined further on.
    */
+  @JvmStatic
   fun <T : Any> obtain(cls: Class<T>): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
         .ofClass(cls)
@@ -61,6 +62,7 @@ object Cache {
   /**
    * Initializes [FilePresenterBuilder] so it saves file defined further on.
    */
+  @JvmStatic
   fun <T : Any> give(file: T): FilePresenterBuilder<T> {
     return FilePresenterBuilder<T>()
         .ofClass(file.javaClass)
