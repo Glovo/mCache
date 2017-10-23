@@ -2,7 +2,22 @@
 
 ## How do I use it?
 
-Create it.
+### Create it.
+
+via Java:
+```java
+public class App extends Application {
+
+   @Override
+   public void onCreate() {
+    super.onCreate();
+    Cache
+      //.withGlobalMode(CacheMode.FILE)
+      .with(this);
+  }
+}
+```
+via Kotlin:
 ```kotlin
 class App : Application() {
 
@@ -15,21 +30,41 @@ class App : Application() {
 }
 ```
 
-Save it.
-```kotlin
-val user = User()
+### Save it.
+
+via Java:
+```java
+User user = new User();
 Cache.give(user)
   //.ofIndex(username)
   //.ofMode(mode)
   .build()
+  .getNow(); // or .getLater // or .getLaterWithFollowup
+```
+via Kotlin:
+```kotlin
+User().give()
+  //.ofIndex { username }
+  //.ofMode { mode }
+  .build()
   .getNow() // or .getLater // or .getLaterWithFollowup
 ```
 
-Get it.
-```kotlin
-Cache.obtain(User::class.java)
+### Get it.
+
+via Java:
+```java
+Cache.obtain(User.class)
   //.ofIndex(username)
   //.ofMode(mode)
+  .build()
+  .getNow(); // or .getLater // or .getLaterWithFollowup
+```
+via Kotlin:
+```kotlin
+User::class.java.obtain()
+  //.ofIndex { username }
+  //.ofMode { mode }
   .build()
   .getNow() // or .getLater // or .getLaterWithFollowup
 ```

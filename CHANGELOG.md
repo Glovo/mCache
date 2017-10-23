@@ -1,4 +1,6 @@
 ### 1.6.*
+* introduce extension function
+* introduce SDL for kotlin
 * save the followup immediately
 * save followup immediately
 * use "default" as filename so it's actually useful
