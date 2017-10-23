@@ -1,4 +1,4 @@
-### UPC (dev)
+### 1.6.*
 * save the followup immediately
 * save followup immediately
 * use "default" as filename so it's actually useful
