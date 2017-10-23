@@ -9,6 +9,7 @@ import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.activity_main.*
 import wiki.depasquale.mcache.BuildConfig
 import wiki.depasquale.mcache.Cache
+import wiki.depasquale.mcache.obtain
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), Consumer<User> {
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         input.isErrorEnabled = true
       } else {
         when {
-          username.equals("clean", ignoreCase = true) -> Cache.obtain(User::class.java).build().delete()
+          username.equals("clean", ignoreCase = true) -> User::class.java.obtain().build().delete()
           username.equals("removeall", ignoreCase = true) -> removeAll()
           else -> retrieveUser(username)
         }
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    Cache.obtain(Cache::class.java)
+    Cache::class.java.obtain()
         .build()
         .deleteLater()
         .subscribe({ success ->

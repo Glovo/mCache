@@ -150,6 +150,19 @@ class KotlinIntegrityTest {
         .delete()
   }
 
+  @Test
+  fun testKotlin() {
+    give()
+        .ofMode { CacheMode.CACHE }
+        .ofIndex { TEST_INDEX }
+        .build()
+
+    BasicData::class.java.obtain()
+        .ofMode { CacheMode.FILE }
+        .ofIndex { TEST_INDEX }
+        .build()
+  }
+
   private fun BasicData.validateInnerData() {
     assert(this.innerData == this@KotlinIntegrityTest.innerData)
     assert(this.innerData.contents == this@KotlinIntegrityTest.innerData.contents)
