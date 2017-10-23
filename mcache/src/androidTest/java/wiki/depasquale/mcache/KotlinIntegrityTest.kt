@@ -1,11 +1,14 @@
 package wiki.depasquale.mcache
 
+import android.app.Application
 import android.support.test.InstrumentationRegistry
 import android.support.test.filters.MediumTest
 import android.support.test.runner.AndroidJUnit4
+import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import java.security.SecureRandom
 
 @MediumTest
@@ -31,12 +34,8 @@ class KotlinIntegrityTest {
   }
 
   @Test
-  fun dryLoad() {
-    val gotData = Cache.obtain(BasicData::class.java)
-        .build()
-        .getNow()
-
-    assert(gotData == null)
+  fun initialize() {
+    Cache.with(Mockito.mock(Application::class.java))
   }
 
   @Test
@@ -53,15 +52,6 @@ class KotlinIntegrityTest {
   }
 
   @Test
-  fun save() {
-    val givenData = Cache.give(data)
-        .build()
-        .getNow()
-
-    assert(givenData === data)
-  }
-
-  @Test
   fun saveAsync() {
     val givenData = Cache.give(data)
         .build()
@@ -72,15 +62,14 @@ class KotlinIntegrityTest {
   }
 
   @Test
-  fun load() {
-    save()
-    val gotData = Cache.obtain(BasicData::class.java)
+  fun saveAsyncWithCacheMode() {
+    val givenData = Cache.give(data)
+        .ofMode(CacheMode.CACHE)
         .build()
-        .getNow()!!
+        .getLater()
+        .blockingGet()
 
-    assert(gotData.name == data.name)
-    gotData.validateInnerData()
-    assert(gotData != data)
+    assert(givenData === data)
   }
 
   @Test
@@ -94,6 +83,15 @@ class KotlinIntegrityTest {
     assert(gotData.name == data.name)
     gotData.validateInnerData()
     assert(gotData != data)
+  }
+
+  @Test
+  fun loadAsyncWithFollowup() {
+    saveAsync()
+    Cache.obtain(BasicData::class.java)
+        .build()
+        .getLaterWithFollowup(Observable.empty())
+        .subscribe()
   }
 
   @Test
@@ -118,6 +116,38 @@ class KotlinIntegrityTest {
     assert(gotData.name == data2.name)
     gotData.validateInnerData()
     assert(gotData != data2)
+  }
+
+  @Test
+  fun fetchAll() {
+    saveAsync()
+    saveWithIndex()
+    val gotData = Cache.obtain(BasicData::class.java)
+        .build()
+        .getAllLater()
+        .toList()
+        .blockingGet()
+
+    assert(gotData.size == 2)
+  }
+
+  @Test
+  fun deleteSingle() {
+    saveWithIndex()
+    Cache.obtain(BasicData::class.java)
+        .ofIndex(TEST_INDEX)
+        .build()
+        .deleteLater()
+  }
+
+  @Test
+  fun deleteAllClass() {
+    saveAsync()
+    saveWithIndex()
+    Cache.obtain(BasicData::class.java)
+        .ofIndex("")
+        .build()
+        .delete()
   }
 
   private fun BasicData.validateInnerData() {
