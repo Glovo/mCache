@@ -2,7 +2,7 @@ package wiki.depasquale.mcache
 
 import java.text.Normalizer
 
-class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
+open class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
 
   override var mode: CacheMode = Cache.mode
   override lateinit var cls: Class<T>
@@ -49,7 +49,5 @@ class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
   /**
    * @return New instance of [FilePresenter] with previously defined params.
    */
-  fun build(): FilePresenter<T> {
-    return FilePresenter(this)
-  }
+  fun build(): FilePresenter<T> = FilePresenter(this)
 }

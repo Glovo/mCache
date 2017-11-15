@@ -13,7 +13,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import wiki.depasquale.mcache.Cache
+import wiki.depasquale.mcache.obtain
 import java.util.concurrent.TimeUnit
 
 /**
@@ -27,7 +27,7 @@ object Github {
 
   @SuppressLint("LogConditional")
   fun user(username: String): Observable<User> {
-    return Cache.obtain(User::class.java)
+    return User::class.java.obtain()
         .ofIndex(username)
         .build()
         .getLaterWithFollowup(getRetrofit()
