@@ -28,7 +28,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-rc2'
+        classpath 'com.android.tools.build:gradle:3.0.0'
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
@@ -42,9 +42,9 @@ ext {
             "." + (vCode / 100 as int) % 1000 +
             "." + vCode % 100 /*+
             "-SNAPSHOT"*/
-    vSDK = 26
+    vSDK = 27
     vMinSDK = 9
-    vBuildTools = "26.0.2"
+    vBuildTools = "27.0.1"
 }
 
 allprojects {
