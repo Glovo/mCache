@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.vKotlin = '1.1.60'
     ext.readVersion = {
         def versionFile = new File(project.rootDir, 'version.properties')
         def version = new Properties()
@@ -32,7 +32,7 @@ buildscript {
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$vKotlin"
     }
 }
 
@@ -45,6 +45,18 @@ ext {
     vSDK = 27
     vMinSDK = 9
     vBuildTools = "27.0.1"
+
+    vGson = "2.8.2"
+    vSupport = "27.0.1"
+    vRxAndroid = "2.0.1"
+    vRxKotlin = "2.1.0"
+    vLogger = "2.1.1"
+    vJunit = "4.12"
+    vMockKotlin = "1.5.0"
+    vMock = "2.12.0"
+    vEspresso = "3.0.1"
+
+    vRetrofit = "2.3.0"
 }
 
 allprojects {
