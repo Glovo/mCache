@@ -1,6 +1,7 @@
 package wiki.depasquale.mcache
 
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,8 +30,8 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
   }
 
   /**
-   * Wraps [getNow] in [Single] which will return either *next* or *throwable*. Single does not
-   * "complete", it completes by returning value or error then it dies.
+   * Wraps [getNow] in [Maybe] which will return either *next* or *throwable*; or *completes*. Use
+   * extension function [subscribeToAll] to handle all three states at once.
    *
    * Throwable is returned in second (rx) block if file is not found. Make sure you've this clause
    * included.
@@ -42,12 +43,14 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
    *
    * @throws UnsureSuccessException if file is null - again, this is correct behavior, use Rx throwable block
    */
-  fun getLater(): Single<T> {
-    return Single.just(true)
+  fun getLater(): Maybe<T> {
+    return Maybe.just(true)
         .subscribeOn(Schedulers.io())
-        .map {
-          val t = getNow()
-          t ?: throw UnsureSuccessException()
+        .flatMap {
+          getNow()?.apply {
+            return@flatMap Maybe.just<T>(this)
+          }
+          return@flatMap Maybe.empty<T>()
         }
         .observeOn(AndroidSchedulers.mainThread())
   }
@@ -86,12 +89,12 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
     val subject = PublishSubject.create<T>()
     return subject
         .doOnSubscribe {
-          getLater().subscribe({
-            subject.onNext(it)
+          getLater().subscribeToAll {
+            it?.let {
+              subject.onNext(it)
+            }
             followup(followup, subject)
-          }, {
-            followup(followup, subject)
-          })
+          }
         }
   }
 
