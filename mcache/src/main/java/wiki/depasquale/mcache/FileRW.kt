@@ -30,7 +30,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
           classFolder.deleteRecursively()
         }
       } else {
-        classFolder.listFiles().first { it.name == index }.deleteRecursively()
+        classFolder.listFiles().firstOrNull { it.name == index }?.deleteRecursively() == true
       }
     }
   }
