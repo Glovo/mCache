@@ -157,10 +157,10 @@ class KotlinIntegrityTest {
         .ofIndex { TEST_INDEX }
         .build()
 
-    BasicData::class.java.obtain()
+    /*obtain<BasicData>()
         .ofMode { CacheMode.FILE }
         .ofIndex { TEST_INDEX }
-        .build()
+        .build()*/
   }
 
   private fun BasicData.validateInnerData() {

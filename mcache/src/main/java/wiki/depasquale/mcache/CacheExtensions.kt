@@ -6,7 +6,7 @@ fun <T : Any> T.give(): FilePresenterKotlinBuilder<T> {
       .ofFile { this@give }
 }
 
-fun <T : Any> Class<T>.obtain(): FilePresenterKotlinBuilder<T> {
+inline fun <reified T : Any> obtain(): FilePresenterKotlinBuilder<T> {
   return FilePresenterKotlinBuilder<T>()
-      .ofClass { this@obtain }
+      .ofClass { T::class.java }
 }
