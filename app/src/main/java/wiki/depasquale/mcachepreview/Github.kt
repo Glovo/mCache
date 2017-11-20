@@ -27,7 +27,7 @@ object Github {
 
   @SuppressLint("LogConditional")
   fun user(username: String): Observable<User> {
-    return User::class.java.obtain()
+    return obtain<User>()
         .ofIndex(username)
         .build()
         .getLaterWithFollowup(getRetrofit()

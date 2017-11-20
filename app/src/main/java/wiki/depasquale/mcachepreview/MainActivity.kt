@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         input.isErrorEnabled = true
       } else {
         when {
-          username.equals("clean", ignoreCase = true) -> User::class.java.obtain().build().delete()
+          username.equals("clean", ignoreCase = true) -> obtain<User>().build().delete()
           username.equals("removeall", ignoreCase = true) -> removeAll()
           else -> retrieveUser(username)
         }
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    Cache::class.java.obtain()
+    obtain<Cache>()
         .build()
         .deleteLater()
         .subscribe({ success ->
