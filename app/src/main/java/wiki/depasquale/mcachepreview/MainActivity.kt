@@ -33,7 +33,6 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
       message.text = null
       user.text = null
       responseTime.text = null
-      //disposables.dispose()
 
       val username = et.text.toString()
       if (username.isEmpty()) {
