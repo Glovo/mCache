@@ -1,4 +1,8 @@
-### 1.6.*
+### 1.7.x
+* stability fixes
+* kotlin reflection (extension) functions
+
+### 1.6.x
 * introduce extension function
 * introduce SDL for kotlin
 * save the followup immediately
@@ -45,7 +49,7 @@
 * change tag to unstable
 * update android studio with buildtools
 
-### 31.07.2017 (1.5.9)
+### 1.5.9
 * Builds are no longer tracked by build. It's automatically incremented each time project is built.
 * Updated libs
 
