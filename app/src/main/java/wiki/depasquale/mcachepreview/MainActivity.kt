@@ -5,16 +5,18 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.gson.Gson
 import com.orhanobut.logger.Logger
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
+import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_main.*
 import wiki.depasquale.mcache.BuildConfig
 import wiki.depasquale.mcache.Cache
-import wiki.depasquale.mcache.obtain
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private var startTime: Long = 0
+  private val disposables = CompositeDisposable()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
       message.text = null
       user.text = null
       responseTime.text = null
+      //disposables.dispose()
 
       val username = et.text.toString()
       if (username.isEmpty()) {
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         input.isErrorEnabled = true
       } else {
         when {
-          username.equals("clean", ignoreCase = true) -> obtain<User>().build().delete()
+          username.equals("clean", ignoreCase = true) -> Cache.obtain(User::class.java).build().delete()
           username.equals("removeall", ignoreCase = true) -> removeAll()
           else -> retrieveUser(username)
         }
@@ -48,7 +51,7 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
 
   private fun removeAll() {
     startTime = System.nanoTime()
-    obtain<Cache>()
+    Cache.obtain(Cache::class.java)
         .build()
         .deleteLater()
         .subscribe({ success ->
@@ -57,17 +60,20 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
               (System.nanoTime() - startTime) / 1000000))
           message.text = if (success) "OK" else "FAILED"
         })
+        .addTo(disposables)
   }
 
   private fun retrieveUser(username: String) {
     input.isErrorEnabled = false
     user.text = String.format("/users/%s", username)
     startTime = System.nanoTime()
-    Github.user(username).subscribe(this,
-        Consumer<Throwable> { error ->
-          error.printStackTrace()
-          Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
-        })
+    Github.user(username)
+        .subscribe(this,
+            Consumer<Throwable> { error ->
+              error.printStackTrace()
+              Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
+            })
+        .addTo(disposables)
   }
 
   @Throws(Exception::class)
@@ -77,5 +83,10 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
     responseTime.append(String.format(Locale.getDefault(), "%d ms",
         (System.nanoTime() - startTime) / 1000000))
     message.text = Gson().toJson(user)
+  }
+
+  override fun onDestroy() {
+    disposables.dispose()
+    super.onDestroy()
   }
 }
