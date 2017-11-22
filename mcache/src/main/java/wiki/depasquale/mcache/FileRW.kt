@@ -5,11 +5,13 @@ import java.io.File
 class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
 
   override fun read(): String {
-    val file = findFile()
-    if (!file.exists() || file.length() <= 0L) {
-      return ""
+    synchronized(lock) {
+      val file = findFile()
+      if (!file.exists() || file.length() <= 0L) {
+        return ""
+      }
+      return file.readText()
     }
-    return file.readText()
   }
 
   override fun write(wrappedFile: String) {
@@ -39,8 +41,10 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
   }
 
   override fun all(): List<String> {
-    val classFolder = findClassFolder()
-    return classFolder.listFiles().map { it.readText() }
+    synchronized(lock) {
+      val classFolder = findClassFolder()
+      return classFolder.listFiles().map { it.readText() }
+    }
   }
 
   private fun findFile(create: Boolean = false): File {
@@ -81,7 +85,7 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
 
   private fun removeUnwantedFiles(classFolder: File) {
     classFolder.listFiles().forEach {
-      if (!it.isFile) {
+      if (!it.isFile || it.length() == 0L) {
         it.deleteRecursively()
       }
     }
