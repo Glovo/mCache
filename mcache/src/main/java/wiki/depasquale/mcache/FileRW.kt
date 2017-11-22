@@ -6,14 +6,15 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
 
   override fun read(): String {
     val file = findFile()
-    if (file.length() <= 0L)
+    if (!file.exists() || file.length() <= 0L) {
       return ""
+    }
     return file.readText()
   }
 
   override fun write(wrappedFile: String) {
     synchronized(lock) {
-      val file = findFile()
+      val file = findFile(true)
       file.writeText(wrappedFile)
     }
   }
@@ -42,10 +43,13 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     return classFolder.listFiles().map { it.readText() }
   }
 
-  private fun findFile(): File {
+  private fun findFile(create: Boolean = false): File {
     val classFolder = findClassFolder()
     val classFile = File(classFolder, findFileName(classFolder))
-    classFile.createNewFile()
+
+    if (create) {
+      classFile.createNewFile()
+    }
 
     return classFile
   }
