@@ -163,6 +163,39 @@ class KotlinIntegrityTest {
         .build()*/
   }
 
+  @Test
+  fun testDeletingByIndex() {
+    val index = "haha"
+
+    Cache.give(data)
+        .ofIndex(index)
+        .ofMode(CacheMode.FILE)
+        .build()
+        .getNow()
+
+    Cache.obtain(BasicData::class.java)
+        .ofIndex(index)
+        .ofMode(CacheMode.FILE)
+        .build()
+        .getNow()!!
+
+    val deleteResult = Cache.obtain(BasicData::class.java)
+        .ofIndex(index)
+        .ofMode(CacheMode.FILE)
+        .build()
+        .delete()
+
+    assert(deleteResult)
+
+    val file = Cache.obtain(BasicData::class.java)
+        .ofIndex(index)
+        .ofMode(CacheMode.FILE)
+        .build()
+        .getNow()
+
+    assert(file == null)
+  }
+
   private fun BasicData.validateInnerData() {
     assert(this.innerData == this@KotlinIntegrityTest.innerData)
     assert(this.innerData.contents == this@KotlinIntegrityTest.innerData.contents)
