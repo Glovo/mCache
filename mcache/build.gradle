@@ -1,6 +1,5 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "jacoco-android"
 
 apply from: "defaults.gradle"
 
@@ -23,9 +22,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
-    }
-    jacocoAndroidUnitTestReport {
-        xml.enabled true
     }
     lintOptions {
         abortOnError false
