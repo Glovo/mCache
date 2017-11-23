@@ -1,5 +1,15 @@
 ### 1.7.x
-* stability fixes
+* prettify extension methods and add normalize
+* remove base64-ing from regular builder as it's inconsistent with kotlin builder which makes hell of a headache-ing bugs
+* take future fuckups in account and delete all files with same filename not just first one
+* add log adapter only if buildconfig == debug
+* shuffle around gradle files
+* replace some field names with ones used with other projects
+* add external gradle file for managing lib versions
+* remove jacoco
+* add test to ensure deleting works as designed
+* read synchronously
+* prevent from creating new file when it's peeking for it's existence as it results in null field down the stream where it should not be
 * kotlin reflection (extension) functions
 
 ### 1.6.x
