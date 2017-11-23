@@ -1,13 +1,14 @@
 package wiki.depasquale.mcache
 
-import java.text.Normalizer
-
 open class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
 
   override var mode: CacheMode = Cache.mode
   override lateinit var cls: Class<T>
   override var file: T? = null
   override var index: CharSequence = ""
+    set(value) {
+      field = value.toString().normalize().base64()
+    }
   override var files: List<T> = listOf()
 
   /**
@@ -42,7 +43,7 @@ open class FilePresenterBuilder<T : Any> : FilePresenterBuilderInterface<T> {
    * Sets index (as index file) to be fetched/saved.
    */
   fun ofIndex(index: String): FilePresenterBuilder<T> {
-    this.index = Normalizer.normalize(index.toLowerCase(), Normalizer.Form.NFD).base64()
+    this.index = index
     return this
   }
 
