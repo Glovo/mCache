@@ -27,8 +27,10 @@ object Cache {
 
   internal fun with(context: Context) {
     contextReference = WeakReference(context)
-    Logger.clearLogAdapters()
-    Logger.addLogAdapter(AndroidLogAdapter())
+    if (BuildConfig.DEBUG) {
+      Logger.clearLogAdapters()
+      Logger.addLogAdapter(AndroidLogAdapter())
+    }
   }
 
   internal var mode: CacheMode = CacheMode.CACHE
