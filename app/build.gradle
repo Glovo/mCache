@@ -2,15 +2,17 @@ apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 
+apply from: "../extsettings.gradle"
+
 android {
-    compileSdkVersion vSDK
-    buildToolsVersion vBuildTools
+    compileSdkVersion rootProject.ext.targetSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "wiki.depasquale.mcachepreview"
         minSdkVersion 14
-        targetSdkVersion vSDK
-        versionCode vCode
-        versionName vName
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {

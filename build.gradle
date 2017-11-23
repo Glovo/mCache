@@ -36,26 +36,14 @@ buildscript {
 }
 
 ext {
-    vCode = readVersion()["mcache"] as int
-    vName = (vCode / 1000 / 100 as int) +
-            "." + (vCode / 100 as int) % 1000 +
-            "." + vCode % 100 /*+
+    minSdkVersion = 9
+    targetSdkVersion = 27
+    buildToolsVersion = "27.0.1"
+    versionCode = readVersion()["mcache"] as int
+    versionName = (versionCode / 1000 / 100 as int) +
+            "." + (versionCode / 100 as int) % 1000 +
+            "." + versionCode % 100 /*+
             "-SNAPSHOT"*/
-    vSDK = 27
-    vMinSDK = 9
-    vBuildTools = "27.0.1"
-
-    vGson = "2.8.2"
-    vSupport = "27.0.1"
-    vRxAndroid = "2.0.1"
-    vRxKotlin = "2.1.0"
-    vLogger = "2.1.1"
-    vJunit = "4.12"
-    vMockKotlin = "1.5.0"
-    vMock = "2.12.0"
-    vEspresso = "3.0.1"
-
-    vRetrofit = "2.3.0"
 }
 
 allprojects {

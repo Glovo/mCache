@@ -3,6 +3,7 @@ task bintrayMCache(type: GradleBuild) {
     group = 'Publishing'
     buildFile = file('mcache/build.gradle')
     startParameter.projectProperties = gradle.startParameter.projectProperties
+    def vName = rootProject.ext.versionName
     if (vName.contains("-SNAPSHOT") || vName.contains('-UNSTABLE') || vName.contains("-RC"))
         tasks = ['install', 'uploadArchives']
     else

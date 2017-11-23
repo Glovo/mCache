@@ -14,7 +14,7 @@ ext {
     siteUrl = 'https://github.com/diareuse/mCache'
     gitUrl = 'https://github.com/diareuse/mCache.git'
 
-    libraryVersion = vName
+    libraryVersion = rootProject.ext.versionName
 
     developerId = 'diareuse'
     developerName = 'Viktor De Pasquale'

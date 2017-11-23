@@ -1,0 +1,12 @@
+ext {
+    vGson = "2.8.2"
+    vSupport = "27.0.1"
+    vRxAndroid = "2.0.1"
+    vRxKotlin = "2.1.0"
+    vLogger = "2.1.1"
+    vJunit = "4.12"
+    vMockKotlin = "1.5.0"
+    vMock = "2.12.0"
+    vEspresso = "3.0.1"
+    vRetrofit = "2.3.0"
+}
