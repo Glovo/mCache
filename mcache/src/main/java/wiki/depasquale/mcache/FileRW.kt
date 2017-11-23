@@ -28,7 +28,10 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
       val classFolder = findClassFolder()
       return when {
         index.isNotEmpty() -> {
-          classFolder.listFiles().firstOrNull { it.name == index }?.deleteRecursively() == true
+          classFolder.listFiles()
+              .filter { it.nameWithoutExtension == index }
+              .map { it.deleteRecursively() }
+              .all { true }
         }
         builder.cls == Cache::class.java -> {
           classFolder.parentFile?.deleteRecursively() == true
