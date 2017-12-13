@@ -62,7 +62,7 @@ Cache.obtain(User.class)
 ```
 via Kotlin:
 ```kotlin
-User::class.java.obtain()
+obtain<User>()
   //.ofIndex { username }
   //.ofMode { mode }
   .build()
