@@ -6,7 +6,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 
 class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
 
@@ -86,26 +85,11 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
    * Does the same as [getLater] except it subscribes to [followup] on next/throwable immediately.
    */
   fun getLaterWithFollowup(followup: Observable<T>): Observable<T> {
-    val subject = PublishSubject.create<T>()
-    return subject
-        .doOnSubscribe {
-          getLater().subscribeToAll {
-            it?.let {
-              subject.onNext(it)
-            }
-            followup(followup, subject)
-          }
+    return Observable.concat(getLater().toObservable(), followup)
+        .doOnNext {
+          builder.file = it
+          getLater().subscribeToAll {}
         }
-  }
-
-  private fun followup(followup: Observable<T>, subject: PublishSubject<T>) {
-    followup.subscribe({
-      builder.file = it
-      getLater().subscribe({
-        subject.onNext(it)
-        subject.onComplete()
-      }, subject::onError)
-    }, subject::onError)
   }
 
   /**
