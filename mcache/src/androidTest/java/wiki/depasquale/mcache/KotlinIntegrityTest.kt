@@ -90,7 +90,7 @@ class KotlinIntegrityTest {
     saveAsync()
     Cache.obtain(BasicData::class.java)
         .build()
-        .getLaterWithFollowup(Observable.empty())
+        .getLaterConcat(Observable.empty())
         .subscribe()
   }
 

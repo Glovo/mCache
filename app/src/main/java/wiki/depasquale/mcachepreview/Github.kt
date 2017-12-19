@@ -30,7 +30,7 @@ object Github {
     return Cache.obtain(User::class.java)
         .ofIndex(username)
         .build()
-        .getLaterWithFollowup(getRetrofit()
+        .getLaterConcat(getRetrofit()
             .user(username)
             .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread()))

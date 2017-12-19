@@ -84,7 +84,7 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
   /**
    * Does the same as [getLater] except it subscribes to [followup] on next/throwable immediately.
    */
-  fun getLaterWithFollowup(followup: Observable<T>): Observable<T> {
+  fun getLaterConcat(followup: Observable<T>): Observable<T> {
     return Observable.concat(getLater().toObservable(), followup)
         .doOnNext {
           builder.file = it
