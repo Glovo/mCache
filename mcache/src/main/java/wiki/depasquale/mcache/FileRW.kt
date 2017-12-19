@@ -55,7 +55,13 @@ class FileRW(override val wrapper: FileWrapperInterface) : FileRWInterface {
     val classFile = File(classFolder, findFileName(classFolder))
 
     if (create) {
-      classFile.createNewFile()
+      if (!classFile.exists()) {
+        classFile.createNewFile()
+      }
+      if (!classFile.isFile) {
+        classFile.deleteRecursively()
+        classFile.createNewFile()
+      }
     }
 
     return classFile
