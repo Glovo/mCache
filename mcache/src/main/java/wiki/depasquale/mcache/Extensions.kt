@@ -15,5 +15,5 @@ internal fun String.normalize() = Normalizer.normalize(this.toLowerCase(), Norma
  * value). Use null checks to evaluate whether you've acquired your object.
  */
 fun <T> Maybe<T>.subscribeToAll(consumer: (T?) -> Unit) {
-  subscribe({ consumer(it) }, { consumer(null) }, { consumer(null) })
+    subscribe({ consumer(it) }, { consumer(null) }, { consumer(null) })
 }

@@ -1,6 +1,6 @@
 ext {
     vGson = "2.8.2"
-    vSupport = "27.0.1"
+    vSupport = "27.0.2"
     vRxAndroid = "2.0.1"
     vRxKotlin = "2.1.0"
     vLogger = "2.1.1"

@@ -22,52 +22,54 @@ import java.util.concurrent.TimeUnit
 
 object Github {
 
-  private var retrofit: Retrofit? = null
-  private var service: Service? = null
+    private var retrofit: Retrofit? = null
+    private var service: Service? = null
 
-  @SuppressLint("LogConditional")
-  fun user(username: String): Observable<User> {
-    return Cache.obtain(User::class.java)
-        .ofIndex(username)
-        .build()
-        .getLaterConcat(getRetrofit()
-            .user(username)
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread()))
-  }
-
-  private fun getRetrofit(): Service {
-    if (retrofit == null) {
-      retrofit = Retrofit.Builder()
-          .baseUrl("https://api.github.com/")
-          .client(client())
-          .addConverterFactory(GsonConverterFactory.create())
-          .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-          .build()
+    @SuppressLint("LogConditional")
+    fun user(username: String): Observable<User> {
+        return Cache.obtain(User::class.java)
+            .ofIndex(username)
+            .build()
+            .getLaterConcat(
+                getRetrofit()
+                    .user(username)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+            )
     }
-    if (service == null) {
-      service = retrofit!!.create(Service::class.java)
+
+    private fun getRetrofit(): Service {
+        if (retrofit == null) {
+            retrofit = Retrofit.Builder()
+                .baseUrl("https://api.github.com/")
+                .client(client())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build()
+        }
+        if (service == null) {
+            service = retrofit!!.create(Service::class.java)
+        }
+        return service!!
     }
-    return service!!
-  }
 
-  private fun client(): OkHttpClient {
-    val client = OkHttpClient.Builder()
-    client.connectTimeout(200, TimeUnit.SECONDS)
-    client.readTimeout(200, TimeUnit.SECONDS)
-    client.interceptors().add(Interceptor { chain ->
-      val request = chain.request()
-      val response: Response? = chain.proceed(request)
-      Log.i("ServiceInfo", response?.request()?.url()?.url().toString())
-      response
-    })
-    return client.build()
-  }
+    private fun client(): OkHttpClient {
+        val client = OkHttpClient.Builder()
+        client.connectTimeout(200, TimeUnit.SECONDS)
+        client.readTimeout(200, TimeUnit.SECONDS)
+        client.interceptors().add(Interceptor { chain ->
+            val request = chain.request()
+            val response: Response? = chain.proceed(request)
+            Log.i("ServiceInfo", response?.request()?.url()?.url().toString())
+            response
+        })
+        return client.build()
+    }
 
-  private interface Service {
+    private interface Service {
 
-    @GET("/users/{user}")
-    fun user(@Path("user") user: String): Observable<User>
-  }
+        @GET("/users/{user}")
+        fun user(@Path("user") user: String): Observable<User>
+    }
 
 }

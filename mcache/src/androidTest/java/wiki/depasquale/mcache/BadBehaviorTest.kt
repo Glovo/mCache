@@ -9,15 +9,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BadBehaviorTest {
 
-  @Test
-  fun nullContext() {
-    try {
-      Cache
-          .obtain(BasicData::class.java)
-          .build()
-          .getNow()
-    } catch (e: RuntimeException) {
-      assert(e.message?.contains("Context") == true)
+    @Test
+    fun nullContext() {
+        try {
+            Cache
+                .obtain(BasicData::class.java)
+                .build()
+                .getNow()
+        } catch (e: RuntimeException) {
+            assert(e.message?.contains("Context") == true)
+        }
     }
-  }
 }

@@ -1,6 +1,5 @@
-<manifest
-  package="wiki.depasquale.mcache">
+<manifest package="wiki.depasquale.mcache">
 
-  <application/>
+    <application />
 
 </manifest>

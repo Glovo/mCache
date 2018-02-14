@@ -1,5 +1,5 @@
 buildscript {
-    ext.vKotlin = '1.2.0'
+    ext.vKotlin = '1.2.21'
     ext.readVersion = {
         def versionFile = new File(project.rootDir, 'version.properties')
         def version = new Properties()
@@ -38,7 +38,7 @@ buildscript {
 ext {
     minSdkVersion = 9
     targetSdkVersion = 27
-    buildToolsVersion = "27.0.2"
+    buildToolsVersion = "27.0.3"
     versionCode = readVersion()["mcache"] as int
     versionName = (versionCode / 1000 / 100 as int) +
             "." + (versionCode / 100 as int) % 1000 +

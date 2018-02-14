@@ -10,10 +10,10 @@ import wiki.depasquale.mcache.CacheMode
 
 class App : Application() {
 
-  override fun onCreate() {
-    super.onCreate()
-    Cache
-        .withGlobalMode(CacheMode.FILE)
-        .with(this)
-  }
+    override fun onCreate() {
+        super.onCreate()
+        Cache
+            .withGlobalMode(CacheMode.FILE)
+            .with(this)
+    }
 }
