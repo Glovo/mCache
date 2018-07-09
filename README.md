@@ -91,27 +91,24 @@ Fork me - make changes - reformat using [this code style](https://github.com/dia
 
 # Download
 
-[ ![Download](https://api.bintray.com/packages/diareuse/libs/mcache/images/download.svg) ](https://bintray.com/diareuse/libs/mcache/_latestVersion)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7da687a708864da88736611c1433f3e0)](https://www.codacy.com/app/diareuse/mCache?utm_source=github.com&utm_medium=referral&utm_content=diareuse/mCache&utm_campaign=badger)
-[![Build Status](https://travis-ci.org/diareuse/mCache.svg?branch=master)](https://travis-ci.org/diareuse/mCache)
-
-```java
-dependencies {
-  compile 'wiki.depasquale:mcache:latest.release'
-}
-```
-
-# Snapshots
+[![](https://jitpack.io/v/diareuse/mCache.svg)](https://jitpack.io/#diareuse/mCache)
 
 Add this to your build.gradle
 
 ```java
-repositories {
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-}
+   allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
 ```
 
-And visit [this link](https://oss.sonatype.org/content/repositories/snapshots/wiki/depasquale/mcache/) for the latest version
+```java
+dependencies {
+  implementation 'com.github.diareuse:mCache:latest.release'
+}
+```
 
 # Licence
 
