@@ -96,12 +96,12 @@ Fork me - make changes - reformat using [this code style](https://github.com/dia
 Add this to your build.gradle
 
 ```java
-   allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+allprojects {
+  repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+  }
+}
 ```
 
 ```java
