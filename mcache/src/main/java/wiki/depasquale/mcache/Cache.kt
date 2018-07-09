@@ -32,7 +32,8 @@ object Cache {
         with(context as Context)
     }
 
-    internal fun with(context: Context) {
+    @JvmStatic
+    fun with(context: Context) {
         contextReference = WeakReference(context)
         if (BuildConfig.DEBUG) {
             Logger.clearLogAdapters()
