@@ -4,11 +4,11 @@ import android.app.Application
 import android.support.test.InstrumentationRegistry
 import android.support.test.filters.MediumTest
 import android.support.test.runner.AndroidJUnit4
-import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import rx.Observable
 import java.security.SecureRandom
 
 @MediumTest
@@ -24,13 +24,13 @@ class KotlinIntegrityTest {
     fun setup() {
         //init with context
         Cache
-            .withGlobalMode(CacheMode.FILE)
-            .with(InstrumentationRegistry.getContext())
+                .withGlobalMode(CacheMode.FILE)
+                .with(InstrumentationRegistry.getContext())
         //delete everything for dry run to succeed
         Cache
-            .obtain(Cache::class.java)
-            .build()
-            .delete()
+                .obtain(Cache::class.java)
+                .build()
+                .delete()
     }
 
     @Test
@@ -42,9 +42,9 @@ class KotlinIntegrityTest {
     fun dryLoadAsync() {
         try {
             val gotData = Cache.obtain(BasicData::class.java)
-                .build()
-                .getLater()
-                .blockingGet()
+                    .build()
+                    .getLater()
+                    .toBlocking().first()
             assert(gotData == null)
         } catch (e: Exception) {
             assert(e is UnsureSuccessException)
@@ -54,9 +54,9 @@ class KotlinIntegrityTest {
     @Test
     fun saveAsync() {
         val givenData = Cache.give(data)
-            .build()
-            .getLater()
-            .blockingGet()
+                .build()
+                .getLater()
+                .toBlocking().first()
 
         assert(givenData === data)
     }
@@ -64,10 +64,10 @@ class KotlinIntegrityTest {
     @Test
     fun saveAsyncWithCacheMode() {
         val givenData = Cache.give(data)
-            .ofMode(CacheMode.CACHE)
-            .build()
-            .getLater()
-            .blockingGet()
+                .ofMode(CacheMode.CACHE)
+                .build()
+                .getLater()
+                .toBlocking().first()
 
         assert(givenData === data)
     }
@@ -76,9 +76,9 @@ class KotlinIntegrityTest {
     fun loadAsync() {
         saveAsync()
         val gotData = Cache.obtain(BasicData::class.java)
-            .build()
-            .getLater()
-            .blockingGet()
+                .build()
+                .getLater()
+                .toBlocking().first()
 
         assert(gotData.name == data.name)
         gotData.validateInnerData()
@@ -89,17 +89,17 @@ class KotlinIntegrityTest {
     fun loadAsyncWithFollowup() {
         saveAsync()
         Cache.obtain(BasicData::class.java)
-            .build()
-            .getLaterConcat(Observable.empty())
-            .subscribe()
+                .build()
+                .getLaterConcat(Observable.empty())
+                .subscribe()
     }
 
     @Test
     fun saveWithIndex() {
         val givenData = Cache.give(data2)
-            .ofIndex(TEST_INDEX)
-            .build()
-            .getNow()
+                .ofIndex(TEST_INDEX)
+                .build()
+                .getNow()
 
         assert(givenData === data2)
     }
@@ -108,9 +108,9 @@ class KotlinIntegrityTest {
     fun loadWithIndex() {
         saveWithIndex()
         val gotData = Cache.obtain(BasicData::class.java)
-            .ofIndex(TEST_INDEX)
-            .build()
-            .getNow()!!
+                .ofIndex(TEST_INDEX)
+                .build()
+                .getNow()!!
 
         assert(gotData.name.endsWith("_boo"))
         assert(gotData.name == data2.name)
@@ -123,10 +123,10 @@ class KotlinIntegrityTest {
         saveAsync()
         saveWithIndex()
         val gotData = Cache.obtain(BasicData::class.java)
-            .build()
-            .getAllLater()
-            .toList()
-            .blockingGet()
+                .build()
+                .getAllLater()
+                .toList()
+                .toBlocking().first()
 
         assert(gotData.size == 2)
     }
@@ -135,9 +135,9 @@ class KotlinIntegrityTest {
     fun deleteSingle() {
         saveWithIndex()
         Cache.obtain(BasicData::class.java)
-            .ofIndex(TEST_INDEX)
-            .build()
-            .deleteLater()
+                .ofIndex(TEST_INDEX)
+                .build()
+                .deleteLater()
     }
 
     @Test
@@ -145,17 +145,17 @@ class KotlinIntegrityTest {
         saveAsync()
         saveWithIndex()
         Cache.obtain(BasicData::class.java)
-            .ofIndex("")
-            .build()
-            .delete()
+                .ofIndex("")
+                .build()
+                .delete()
     }
 
     @Test
     fun testKotlin() {
         give()
-            .ofMode { CacheMode.CACHE }
-            .ofIndex { TEST_INDEX }
-            .build()
+                .ofMode { CacheMode.CACHE }
+                .ofIndex { TEST_INDEX }
+                .build()
 
         /*obtain<BasicData>()
             .ofMode { CacheMode.FILE }
@@ -168,30 +168,30 @@ class KotlinIntegrityTest {
         val index = "haha"
 
         Cache.give(data)
-            .ofIndex(index)
-            .ofMode(CacheMode.FILE)
-            .build()
-            .getNow()
+                .ofIndex(index)
+                .ofMode(CacheMode.FILE)
+                .build()
+                .getNow()
 
         Cache.obtain(BasicData::class.java)
-            .ofIndex(index)
-            .ofMode(CacheMode.FILE)
-            .build()
-            .getNow()!!
+                .ofIndex(index)
+                .ofMode(CacheMode.FILE)
+                .build()
+                .getNow()!!
 
         val deleteResult = Cache.obtain(BasicData::class.java)
-            .ofIndex(index)
-            .ofMode(CacheMode.FILE)
-            .build()
-            .delete()
+                .ofIndex(index)
+                .ofMode(CacheMode.FILE)
+                .build()
+                .delete()
 
         assert(deleteResult)
 
         val file = Cache.obtain(BasicData::class.java)
-            .ofIndex(index)
-            .ofMode(CacheMode.FILE)
-            .build()
-            .getNow()
+                .ofIndex(index)
+                .ofMode(CacheMode.FILE)
+                .build()
+                .getNow()
 
         assert(file == null)
     }
