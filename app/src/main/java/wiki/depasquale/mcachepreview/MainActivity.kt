@@ -5,18 +5,15 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import com.google.gson.Gson
 import com.orhanobut.logger.Logger
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
-import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_main.*
+import rx.functions.Action1
 import wiki.depasquale.mcache.BuildConfig
 import wiki.depasquale.mcache.Cache
-import java.util.Locale
+import java.util.*
 
-class MainActivity : AppCompatActivity(), Consumer<User> {
+class MainActivity : AppCompatActivity(), Action1<User> {
 
     private var startTime: Long = 0
-    private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,17 +53,16 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         Cache.obtain(Cache::class.java)
             .build()
             .deleteLater()
-            .subscribe({ success ->
+            .subscribe { success ->
                 responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
                 responseTime.append(
-                    String.format(
-                        Locale.getDefault(), "%d ms",
-                        (System.nanoTime() - startTime) / 1000000
-                    )
+                        String.format(
+                                Locale.getDefault(), "%d ms",
+                                (System.nanoTime() - startTime) / 1000000
+                        )
                 )
                 message.text = if (success) "OK" else "FAILED"
-            })
-            .addTo(disposables)
+            }
     }
 
     private fun retrieveUser(username: String) {
@@ -75,15 +71,14 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
         startTime = System.nanoTime()
         Github.user(username)
             .subscribe(this,
-                Consumer<Throwable> { error ->
+                Action1<Throwable> { error ->
                     error.printStackTrace()
                     Toast.makeText(this, error.message, Toast.LENGTH_SHORT).show()
                 })
-            .addTo(disposables)
     }
 
     @Throws(Exception::class)
-    override fun accept(user: User) {
+    override fun call(user: User) {
         Logger.d("User@${user.login} accepted")
         responseTime.append(if (responseTime.text.isNotEmpty()) "\n" else "")
         responseTime.append(
@@ -93,10 +88,5 @@ class MainActivity : AppCompatActivity(), Consumer<User> {
             )
         )
         message.text = Gson().toJson(user)
-    }
-
-    override fun onDestroy() {
-        disposables.dispose()
-        super.onDestroy()
     }
 }

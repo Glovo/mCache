@@ -2,17 +2,16 @@ package wiki.depasquale.mcachepreview
 
 import android.annotation.SuppressLint
 import android.util.Log
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
+import com.squareup.okhttp.Interceptor
+import com.squareup.okhttp.OkHttpClient
+import com.squareup.okhttp.Response
+import retrofit.RestAdapter
+import retrofit.client.OkClient
+import retrofit.http.GET
+import retrofit.http.Path
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import wiki.depasquale.mcache.Cache
 import java.util.concurrent.TimeUnit
 
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 object Github {
 
-    private var retrofit: Retrofit? = null
+    private var retrofit: RestAdapter? = null
     private var service: Service? = null
 
     @SuppressLint("LogConditional")
@@ -40,12 +39,10 @@ object Github {
 
     private fun getRetrofit(): Service {
         if (retrofit == null) {
-            retrofit = Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
-                .client(client())
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
+            retrofit =  RestAdapter.Builder()
+                    .setEndpoint("https://api.github.com/")
+                    .setClient(OkClient(client()))
+                    .build()
         }
         if (service == null) {
             service = retrofit!!.create(Service::class.java)
@@ -54,16 +51,16 @@ object Github {
     }
 
     private fun client(): OkHttpClient {
-        val client = OkHttpClient.Builder()
-        client.connectTimeout(200, TimeUnit.SECONDS)
-        client.readTimeout(200, TimeUnit.SECONDS)
+        val client = OkHttpClient()
+        client.setConnectTimeout(200, TimeUnit.SECONDS)
+        client.setReadTimeout(200, TimeUnit.SECONDS)
         client.interceptors().add(Interceptor { chain ->
             val request = chain.request()
             val response: Response? = chain.proceed(request)
-            Log.i("ServiceInfo", response?.request()?.url()?.url().toString())
+            Log.i("ServiceInfo", response?.request()?.url()?.toString())
             response
         })
-        return client.build()
+        return client
     }
 
     private interface Service {

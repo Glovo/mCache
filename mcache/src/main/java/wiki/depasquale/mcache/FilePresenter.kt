@@ -1,11 +1,10 @@
 package wiki.depasquale.mcache
 
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import rx.Observable
+import rx.Single
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
+
 
 class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
 
@@ -42,14 +41,14 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
      *
      * @throws UnsureSuccessException if file is null - again, this is correct behavior, use Rx throwable block
      */
-    fun getLater(): Maybe<T> {
-        return Maybe.just(true)
+    fun getLater(): Observable<T> {
+        return Observable.just(true)
             .subscribeOn(Schedulers.io())
             .flatMap {
                 getNow()?.apply {
-                    return@flatMap Maybe.just<T>(this)
+                    return@flatMap Observable.just<T>(this)
                 }
-                return@flatMap Maybe.empty<T>()
+                return@flatMap Observable.empty<T>()
             }
             .observeOn(AndroidSchedulers.mainThread())
     }
@@ -74,8 +73,8 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
      *
      * **This function *is* safe to use on Main Thread**
      */
-    fun getAllLater(): Flowable<T> {
-        return Flowable.just(getAll())
+    fun getAllLater(): Observable<T> {
+        return Observable.just(getAll())
             .flatMapIterable { it }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -85,7 +84,7 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
      * Does the same as [getLater] except it subscribes to [followup] on next/throwable immediately.
      */
     fun getLaterConcat(followup: Observable<T>): Observable<T> {
-        return Observable.concat(getLater().toObservable(), followup)
+        return Observable.concat(getLater(), followup)
             .doOnNext {
                 builder.file = it
                 getLater().subscribeToAll {}
