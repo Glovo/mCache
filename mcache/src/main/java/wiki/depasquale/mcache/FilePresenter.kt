@@ -42,15 +42,16 @@ class FilePresenter<T>(private val builder: FilePresenterBuilderInterface<T>) {
      * @throws UnsureSuccessException if file is null - again, this is correct behavior, use Rx throwable block
      */
     fun getLater(): Observable<T> {
-        return Observable.just(true)
-            .subscribeOn(Schedulers.io())
-            .flatMap {
-                getNow()?.apply {
-                    return@flatMap Observable.just<T>(this)
-                }
-                return@flatMap Observable.empty<T>()
+        return Observable.create<T> { subs ->
+            if (subs.isUnsubscribed)
+                return@create
+            try {
+                subs.onNext(getNow())
+            } catch (e: Throwable) {
+                subs.onError(e)
             }
-            .observeOn(AndroidSchedulers.mainThread())
+            subs.onCompleted()
+        }.observeOn(AndroidSchedulers.mainThread())
     }
 
     /**
